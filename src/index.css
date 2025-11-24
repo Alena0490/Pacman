@@ -1,0 +1,201 @@
+@font-face {
+  font-family: 'BD Cartoon Shout';
+  src: url('./BD_Cartoon_Shout-webfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  /* ===== COLORS ===== */
+  /* ===== PRIMARY COLORS ===== */
+  --main-color: #EF13F2; 
+  --secondary-color: #F2E30C;     
+  --accent-color: #00FFFF;         /* ghost*/
+  
+  /* ===== BACKGROUND ===== */
+  --background: #320140;
+  --background-dark: #0D0D0D;
+  --background-light: #3F0259;
+  --background-medium: #1A0726;
+  
+  /* ===== TEXT ===== */
+  --text-color: #fdfdfd; 
+  --text-muted: #B8B8B8;
+  --text-dark: #0D0D0D;
+  
+  /* ===== UI STATES ===== */
+  --success: #64BB46;              /* win, power-upn*/
+  --success-dark: #447e31; 
+  --danger: #FF1744;               /* lose live, game over */
+  --warning: #FFA726;
+  --info: #29B6F6;
+  
+  /* ===== GHOST COLORS ===== */
+  --ghost-pink: #EF13F2;           /* Use main-color) */
+  --ghost-pink-tr: #EF13F270; 
+  --ghost-cyan: #00FFFF;           /* Use accent-color) */
+  --ghost-cyan-tr: #00FFFF70;  
+  --ghost-green: #00FF41; 
+  --ghost-green-tr: #00FF4170; 
+  --ghost-orange: #FFA726;         /* Can be added */
+  --ghost-orange-tr: #FFA72670; 
+  
+  /* ===== GAME ELEMENTS ===== */
+  --coin-color: #F2E30C; 
+  --wall-color: #5E318C;  
+  --pacman-color: #FFFF00;
+  
+  /* ===== BORDERS & SHADOWS ===== */
+  --border-color: #EF13F2;  
+  --border-light: #3F0259;
+  --border-dark: #1A0726;
+  
+  --shadow-glow: rgba(239, 19, 242, 0.5);
+  --shadow-glow-yellow: rgba(242, 227, 12, 0.3);
+  
+  /* ===== OPACITY VARIANTS ===== */
+  --overlay-light: rgba(63, 2, 89, 0.8);
+  --overlay-dark: rgba(13, 13, 13, 0.9);
+
+  /* BOARD / GRID */
+  --board-background: radial-gradient(circle at top, var(--background-light) 0, var(--background) 45%, var(--background-dark) 100%);
+  --grid-line-color: rgba(239, 19, 242, 0.16);   /* grid */
+  --cell-bg: #050308;                             
+  --cell-dot-color: rgba(255, 255, 255, 0.14);    /* cell::before */
+
+  /* SHADOWS */
+  --shadow-deep: rgba(0, 0, 0, 0.95);
+
+/* ===== SIZES ===== */
+  --game-max-width: 52rem;
+  --cell-size: min(2.5rem, 6vw, 5vh);    /* 40px OR 6%  */
+  --pacman-size: 95%; 
+  --ghost-size: 75%;
+  --coin-size: 50%;
+  --game-padding: 0.625rem;
+
+/* ===== ANIMATION ===== */
+--transition-speed: 0.15s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+   font-size: 16px;
+}
+
+body {
+  min-height: 100svh;
+  font-family: "Ubuntu Sans Mono", monospace;
+  font-weight: 400;
+  background: radial-gradient(circle at top, var(--background-light) 0, var(--background) 45%, var(--background-dark) 100%);
+  background-color: var(--background-dark);
+  color: var(--text-color);
+}
+
+.game {
+  width: min(70vw, var(--game-max-width));
+  width: calc(var(--cell-size) * 15 + (var(--game-padding) * 2) + 2rem);
+  margin: 1rem auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* 8px */
+  background: linear-gradient(135deg, #1a0726, #320140);
+  border: 0.125rem solid var(--main-color);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 0 1.3rem var(--shadow-glow),
+    0 0 3rem var(--shadow-deep);  /* Purple glow */
+}
+
+
+h2 {
+  margin: 2rem auto;
+  font-family: "BD Cartoon Shout", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--main-color);
+  font-size: 2rem;
+}
+
+button {
+  margin: 2rem auto 0;
+  color: var(--text-dark);
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--secondary-color), #ffd600);
+  text-align: center;
+  padding: 0.5rem 1.75rem;
+  border: none;
+  border-radius: 999px;
+  transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, filter var(--transition-speed) ease;
+  cursor: pointer;
+  box-shadow:
+    0 0 0.5rem var(--shadow-glow-yellow),
+    0 0.25rem 0.6rem rgba(0, 0, 0, 0.6);
+}
+
+button:hover {
+  transform: translateY(-1px) scale(1.03);
+  filter: brightness(1.05);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+}
+
+.game-hud,
+.game-field {
+  margin-inline: auto;
+  position: relative;
+}
+
+/* Top pannel */
+.game-hud {
+  width: 100%;
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem; 
+  background-color: transparent;
+}
+
+.game-title {
+  margin: 1.5rem 0 0;
+  font-family: "BD Cartoon Shout", system-ui, sans-serif;
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  color: var(--main-color);
+  text-shadow:
+    0 0 0.25rem var(--main-color),
+    0 0 0.55rem var(--ghost-pink-tr);
+}
+
+.game-stats {
+  margin: 0 auto;
+  max-width: calc( var(--cell-size) * 15);
+  padding-inline: 1.25rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  font-size: 1.5rem;
+  gap: 0.5rem;
+}
+
+.game-score {
+  /* font-weight: 700; */
+  font-size: 1.5rem;
+  text-shadow: 0 0 0.4rem var(--shadow-glow-yellow);
+}

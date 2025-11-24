@@ -1,0 +1,152 @@
+
+.game-field {
+  /* width: 100%; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 1rem;
+  border-top: none;   
+  border-radius: 0 0 1rem 1rem; 
+  border-radius: 0.75rem;
+  padding: 0.625rem; /* 10px */
+  background: var(--board-background);
+}
+
+.row {
+  display: flex;
+  gap: 0;
+}
+
+.cell {
+  position: relative;
+  width: var(--cell-size);    /* 40px */
+  height: var(--cell-size);   /* 40px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cell-bg);
+  border: 1px solid var(--grid-line-color);  /* 1px */
+  font-size: 1.25rem;             /* 20px */
+}
+
+.cell::before {
+  content: '';
+  position: absolute;
+  width: 0.125rem;
+  height: 0.125rem;
+  background: var(--cell-dot-color);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.wall {
+  width: 3.125rem;  /* 50px */
+  height: 3.125rem; /* 50px */
+  background-color: #5e318c;
+  display: inline-block;
+}
+
+.ground {
+  width: 3.125rem;  /* 50px */
+  height: 3.125rem; /* 50px */
+  display: inline-block;
+}
+
+/* Pacman */
+.pacman {
+  width: var(--pacman-size);  /* 95 % of cell */
+  height: var(--pacman-size);
+  display: inline-block;
+  color:  var(--pacman-color);
+  transition: transform var(--transition-speed) ease;
+}
+
+/* Rotation */
+.pacman-right {
+  transform: rotate(0deg);    /* → right (default) */
+}
+
+.pacman-down {
+  transform: rotate(90deg);   /* ↓ top */
+}
+
+.pacman-left {
+  transform: scaleX(-1);  /* ← left */
+}
+
+.pacman-up {
+  transform: rotate(270deg);  /* ↑ up */
+}
+
+.coin {
+  width: var(--coin-size);
+  height: var(--coin-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: coin-pulse 0.9s ease-in-out infinite;
+  filter: drop-shadow(0 0 0.4rem var(--shadow-glow-yellow));
+}
+ 
+.ghost {
+  width: var(--ghost-size);  /* 75 % of cell */
+  height: var(--ghost-size);
+  display: inline-block;
+  filter: drop-shadow(0 0 0.25rem currentColor)
+        drop-shadow(0 0 0.6rem currentColor);
+  animation: ghost-float 2s ease-in-out infinite;
+}
+
+.ghost[data-ghost="0"] {
+  color: var(--ghost-cyan-tr);
+}
+
+.ghost[data-ghost="1"] {
+  color: var(--ghost-pink-tr);
+}
+
+.ghost[data-ghost="2"] {
+  color: var(--ghost-green-tr);
+}
+
+/* ===== QUERIES ===== */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .game-field {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 12px; 
+  }
+}
+
+
+/* ===== KEYFRAMES ===== */
+/* Coin */
+@keyframes coin-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Ghost */
+@keyframes ghost-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.25rem);  /* Mírný poskok */
+  }
+}
