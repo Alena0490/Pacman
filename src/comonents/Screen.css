@@ -17,7 +17,7 @@
         var(--background-light) 0,
         var(--background-medium) 55%,
         var(--background-dark) 100%);
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--screen-border-soft);
     box-shadow:
         0 0 0.9rem var(--shadow-glow),
         0 0 2.4rem var(--shadow-glow),
@@ -56,10 +56,12 @@
 }
 
 .screen--game-over {
-  border-color: var(--danger);
-  box-shadow:
-    0 0 1.5rem rgba(255, 23, 68, 0.8),
-    0 0 2.5rem rgba(0, 0, 0, 0.9);
+    border-color: var(--screen-border-danger-soft);
+    box-shadow:
+        0 0 0.9rem var(--screen-glow-danger),
+        0 0 2.4rem var(--screen-glow-danger),
+        0 0 3.2rem rgba(0, 0, 0, 0.95),
+        0 0 0.7rem rgba(0, 0, 0, 0.85) inset;
 }
 
 .screen--game-over h2 {
@@ -70,10 +72,12 @@
 }
 
 .screen--win {
-  border-color: var(--success);
-  box-shadow:
-    0 0 1.5rem rgba(100, 187, 70, 0.8),
-    0 0 2.5rem rgba(0, 0, 0, 0.9);
+    border-color: var(--screen-border-success-soft);
+    box-shadow:
+        0 0 0.9rem var(--screen-glow-success),
+        0 0 2.4rem var(--screen-glow-success),
+        0 0 3.2rem rgba(0, 0, 0, 0.95),
+        0 0 0.7rem rgba(0, 0, 0, 0.85) inset;
 }
 
 .screen--win h2 {

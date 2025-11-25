@@ -45,13 +45,14 @@
   --wall-color: #5E318C;  
   --pacman-color: #FFFF00;
   
-  /* ===== BORDERS & SHADOWS ===== */
+  /* ===== BORDERS ===== */
   --border-color: #EF13F2;  
   --border-light: #3F0259;
   --border-dark: #1A0726;
-  
-  --shadow-glow: rgba(239, 19, 242, 0.5);
-  --shadow-glow-yellow: rgba(242, 227, 12, 0.3);
+
+  --screen-border-soft: #EF13F2B3;
+  --screen-border-danger-soft: #FF1744B3; 
+  --screen-border-success-soft: #64BB46B3;
   
   /* ===== OPACITY VARIANTS ===== */
   --overlay-light: rgba(63, 2, 89, 0.8);
@@ -63,8 +64,14 @@
   --cell-bg: #050308;                             
   --cell-dot-color: rgba(255, 255, 255, 0.14);    /* cell::before */
 
-  /* SHADOWS */
+  /* SHADOWS & GLOWS */
   --shadow-deep: rgba(0, 0, 0, 0.95);
+  --shadow-glow: rgba(239, 19, 242, 0.5);
+  --shadow-glow-yellow: rgba(242, 227, 12, 0.3);
+
+  --screen-glow-default: var(--shadow-glow);
+  --screen-glow-danger: rgba(255, 23, 68, 0.85);
+  --screen-glow-success: rgba(100, 187, 70, 0.85);
 
 /* ===== SIZES ===== */
   --game-max-width: 52rem;
@@ -107,12 +114,18 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem; /* 8px */
-  background: linear-gradient(135deg, #1a0726, #320140);
-  border: 0.125rem solid var(--main-color);
+  background:
+    radial-gradient(circle at top,
+        var(--background-light) 0,
+        var(--background-medium) 55%,
+        var(--background-dark) 100%);
+  border: 0.125rem solid var(--screen-border-soft);
   border-radius: 1.5rem;
-  box-shadow:
-    0 0 1.3rem var(--shadow-glow),
-    0 0 3rem var(--shadow-deep);  /* Purple glow */
+   box-shadow:
+        0 0 0.9rem var(--shadow-glow),
+        0 0 2.4rem var(--shadow-glow),
+        0 0 3.2rem rgba(0, 0, 0, 0.95),
+        0 0 0.7rem rgba(0, 0, 0, 0.85) inset;  
 }
 
 
