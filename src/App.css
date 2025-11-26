@@ -49,6 +49,23 @@
   display: inline-block;
 }
 
+/* Walls*/
+.cell.wall-top {
+  border-top: 0.25rem solid var(--wall-color);  /* 4px zeď nahoře */
+}
+
+.cell.wall-right {
+  border-right: 0.25rem solid var(--wall-color);  /* 4px zeď vpravo */
+}
+
+.cell.wall-bottom {
+  border-bottom: 0.25rem solid var(--wall-color);  /* 4px zeď dole */
+}
+
+.cell.wall-left {
+  border-left: 0.25rem solid var(--wall-color);  /* 4px zeď vlevo */
+}
+
 .ground {
   width: 3.125rem;  /* 50px */
   height: 3.125rem; /* 50px */

@@ -4,6 +4,7 @@ import StartScreen from "./comonents/StartScreen"
 import GameOver from "./comonents/GameOver"
 import WinScreen from "./comonents/WinScreen"
 import Lives from "./comonents/Lives"
+import { MAZE, type Cell } from './data/mazeData'
 import "./App.css"
 
 type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won'
@@ -199,6 +200,7 @@ const App = () => {
           coins={coins}
           ghosts={ghosts}
           gridSize={GRID_SIZE}
+          maze={MAZE}
           />
       </article>
     ) }

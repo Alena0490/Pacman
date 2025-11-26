@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { type Cell } from '../data/mazeData'
 
 import Pacman from "../img/pacman.svg"
 import Coin from "../img/skull-game-coin.png"
@@ -11,9 +12,10 @@ type GameFieldProps = {
   coins: { x: number, y: number }[]
   ghosts: { x: number, y: number }[]
   gridSize: number
+  maze: Cell[][]  // ← ✅ Změň na Cell[][]
 }
 
-const GameField = ({ pacmanPosition, coins, ghosts, gridSize }: GameFieldProps) => {
+const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze }: GameFieldProps) => {
     // ===== WATCH POSITION CHANGES =====//
     // Remember the last position
   const [prevPosition, setPrevPosition] = useState(pacmanPosition)
@@ -40,6 +42,11 @@ const GameField = ({ pacmanPosition, coins, ghosts, gridSize }: GameFieldProps) 
             />
         )
     }
+
+    // ===== CHECK THE WALLS ===== //
+    // if (maze[y][x] === 1) {
+    //     return <div className="wall"></div>  //
+    // }
 
     // 2. Ghosts
     const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y)
@@ -68,14 +75,27 @@ const GameField = ({ pacmanPosition, coins, ghosts, gridSize }: GameFieldProps) 
     for (let y = 0; y < gridSize; y++) {
         const cells = []
 
-    // For every row create cells
-    for (let x = 0; x < gridSize; x++) {
-        cells.push(
-            <div key={`${x}-${y}`} className="cell">
+        // For every row create cells
+        for (let x = 0; x < gridSize; x++) {
+            const cell = maze[y][x]  // ← Get the cell from map
+            
+            // CSS classes for walls
+            const wallClasses = [
+                cell.top && 'wall-top',
+                cell.right && 'wall-right',
+                cell.bottom && 'wall-bottom',
+                cell.left && 'wall-left'
+            ].filter(Boolean).join(' ')
+            
+            cells.push(
+                <div 
+                key={`${x}-${y}`} 
+                className={`cell ${wallClasses}`}  // ← Add class
+                >
                 {getCellContent(x, y)}
-            </div>
-        )
-    }
+                </div>
+            )
+        }
 
         rows.push(
         <div key={y} className="row">
