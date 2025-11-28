@@ -4,52 +4,50 @@ import StartScreen from "./comonents/StartScreen"
 import GameOver from "./comonents/GameOver"
 import WinScreen from "./comonents/WinScreen"
 import Lives from "./comonents/Lives"
-import { MAZE, type Cell } from './data/mazeData'
+import { MAZE, generateCoinsFromMaze, canMoveInDirection } from './data/mazeData'
 import "./App.css"
+
+// Ghost type definition
+type Ghost = {
+  x: number
+  y: number
+  lastDirection: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
+}
 
 type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won'
 
 const App = () => {
-  // ===== GAME STATE =====
+// ===== GAME STATE ===== //
   const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
   const GRID_SIZE = 15
   
-  // ===== POSITION =====
-  const [pacmanPosition, setPacmanPosition] = useState({ x: 1, y: 1 })
-  
-  const [ghosts, setGhosts] = useState([
-    { x: 7, y: 7 },
-    { x: 8, y: 7 },
-    { x: 9, y: 7 }
+  // ===== POSITION ===== //
+  const [pacmanPosition, setPacmanPosition] = useState({ x: 1, y: 1 }) 
+  const [ghosts, setGhosts] = useState<Ghost[]>([
+    { x: 6, y: 7, lastDirection: 'DOWN' },
+    { x: 7, y: 7, lastDirection: 'DOWN' },
+    { x: 8, y: 7, lastDirection: 'DOWN' }
   ])
 
-  // ===== GENERATE COINS =====//
-  const generateCoins = () => {
-    const coins = []
-    const COIN_COUNT = 30
-    
-    while (coins.length < COIN_COUNT) {
-      const x = Math.floor(Math.random() * GRID_SIZE)
-      const y = Math.floor(Math.random() * GRID_SIZE)
-        // Do not add coin to the Pacman's start position
-        if (x === 1 && y === 1) continue
-        
-        // Do not add coins where the ghosts are
-        if ((x === 7 && y === 7) || (x === 8 && y === 7) || (x === 9 && y === 7)) continue
-        
-        // Add coin randomly
-            coins.push({ x, y })
-    }
-    return coins
-  }
-  
-  const [coins, setCoins] = useState(generateCoins)
+  const [coins, setCoins] = useState(() => generateCoinsFromMaze())
 
-  // ===== MOVE PACMAN =====//
+  // ===== MOVE PACMAN ===== //
+ 
   const movePacman = useCallback((direction: string) => {
-
+    // ===== CHECK IF MOVE IS VALID =====
+    if (!canMoveInDirection(
+      MAZE, 
+      pacmanPosition.x, 
+      pacmanPosition.y, 
+      direction as 'UP' | 'DOWN' | 'LEFT' | 'RIGHT',
+      GRID_SIZE
+    )) {
+      return  // Can't move - wall or border!
+    }
+    
+    // ===== CALCULATE NEW POSITION =====
     let newX = pacmanPosition.x
     let newY = pacmanPosition.y
     
@@ -57,102 +55,182 @@ const App = () => {
     if (direction === 'DOWN') newY += 1
     if (direction === 'LEFT') newX -= 1
     if (direction === 'RIGHT') newX += 1
-    
-    if (newX < 0 || newX >= GRID_SIZE || newY < 0 || newY >= GRID_SIZE) {
-      return
-    }
         
     setPacmanPosition({ x: newX, y: newY })
 
-      // ===== COLECTING COINS =====//
-      const hasCoin = coins.some(coin => coin.x === newX && coin.y === newY)
-        if (hasCoin) {
-          const newCoins = coins.filter(coin => {
-            return !(coin.x === newX && coin.y === newY)
-          })
-          setCoins(newCoins)
-          setScore(score + 1)
-            //Check the win
-            if (newCoins.length === 0) {
-              setGameStatus('won')
-            }
-        }
-      
-    // ===== GHOST COLISION =====//
-    const hitGhost = ghosts.some(ghost => ghost.x === newX && ghost.y === newY)
-      
-      if (hitGhost) {
-        // Ghost colision
-        setLives(lives - 1) // Lose live
-        
-        // Move back to the start position
-        setPacmanPosition({ x: 1, y: 1 })
-        
-        // If lives = 0, game over
-        if (lives - 1 <= 0) {
-          setGameStatus('gameOver')
-        }
-      }
-          
-  }, [pacmanPosition, coins, score, ghosts, lives, GRID_SIZE])
-
-  // ===== GHOSTS =====//
-  const moveGhosts = useCallback(() => {
-  setGhosts(prevGhosts => {
-    const newGhosts = prevGhosts.map(ghost => {
-      // Random move: 0=up, 1=down, 2=left, 3=right
-      const direction = Math.floor(Math.random() * 4)
-      
-      let newX = ghost.x
-      let newY = ghost.y
-      
-      if (direction === 0) newY -= 1 // Up
-      if (direction === 1) newY += 1 // Down
-      if (direction === 2) newX -= 1 // Left
-      if (direction === 3) newX += 1 // Right
-      
-      // ===== CHECK BORDERS =====//
-      if (newX < 0 || newX >= GRID_SIZE || newY < 0 || newY >= GRID_SIZE) {
-        return ghost // Stays in the same position
-      }
-      
-       return { x: newX, y: newY }
-    })
-
-    // ===== CHECK COLISION =====//
-    const hitGhost = newGhosts.some(
-      ghost => ghost.x === pacmanPosition.x && ghost.y === pacmanPosition.y
-    )
-    
-    if (hitGhost) {
-      setLives(prev => {
-        const newLives = prev - 1
-        if (newLives <= 0) {
-          setGameStatus('gameOver')
-        }
-        return newLives
+    // ===== COLLECTING COINS =====
+    const hasCoin = coins.some(coin => coin.x === newX && coin.y === newY)
+    if (hasCoin) {
+      const newCoins = coins.filter(coin => {
+        return !(coin.x === newX && coin.y === newY)
       })
-      setPacmanPosition({ x: 1, y: 1 })
+      setCoins(newCoins)
+      setScore(score + 1)
+      
+      //Check the win
+      if (newCoins.length === 0) {
+        setGameStatus('won')
+      }
     }
     
+    // ===== GHOST COLLISION =====
+    const hitGhost = ghosts.some(ghost => ghost.x === newX && ghost.y === newY)
+    
+    if (hitGhost) {
+      setLives(lives - 1)
+      setPacmanPosition({ x: 1, y: 1 })
+      
+      if (lives - 1 <= 0) {
+        setGameStatus('gameOver')
+      }
+    }
+        
+  }, [pacmanPosition, coins, score, ghosts, lives, GRID_SIZE])
+
+  // ===== GHOSTS MOVE =====//
+  const moveGhosts = useCallback(() => {
+    setGhosts(prevGhosts => {
+      const newGhosts: Ghost[] = []  // Empty array for ghost positions
+
+        for (let currentIndex = 0; currentIndex < prevGhosts.length; currentIndex++) {
+          const ghost = prevGhosts[currentIndex]
+  
+      // ===== FIND ALL POSSIBLE DIRECTIONS =====
+      const possibleMoves: Array<{
+        x: number, 
+        y: number, 
+        direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
+      }> = []
+      
+      // Try all 4 directions
+      const directions: Array<'UP' | 'DOWN' | 'LEFT' | 'RIGHT'> = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+      
+      for (const dir of directions) {
+        if (canMoveInDirection(MAZE, ghost.x, ghost.y, dir, GRID_SIZE)) {
+          let newX = ghost.x
+          let newY = ghost.y
+          
+          if (dir === 'UP') newY -= 1
+          if (dir === 'DOWN') newY += 1
+          if (dir === 'LEFT') newX -= 1
+          if (dir === 'RIGHT') newX += 1
+          
+          possibleMoves.push({ 
+            x: newX, 
+            y: newY, 
+            direction: dir  // ← SAVE THE DIRECTION
+          })
+        }
+      }
+      
+      // No possible moves → stay in place
+      if (possibleMoves.length === 0) {
+        newGhosts.push(ghost)
+        continue  // ✅ Continue to the next ghosr
+      }
+      
+      // ===== PREFER UP IN GHOST HOUSE ===== //
+      // Ghost house area - prefer UP to escape y >= 6 && y <= 8, x >= 6 && x <= 8
+      const isInGhostHouse = (
+        ghost.y >= 5 && ghost.y <= 8 &&
+        ghost.x >= 6 && ghost.x <= 8
+      )
+      
+      let finalMove
+      
+      if (isInGhostHouse) {
+        // Try to find UP direction first
+        const upMove = possibleMoves.find(move => move.direction === 'UP')
+        
+        if (upMove) {
+          finalMove = upMove  // Prefer UP
+        } else {
+          // If UP not possible, choose random
+          finalMove = possibleMoves[
+            Math.floor(Math.random() * possibleMoves.length)
+          ]
+        }
+      } else {
+        // Outside ghost house - random move
+        finalMove = possibleMoves[
+          Math.floor(Math.random() * possibleMoves.length)
+        ]
+      }
+      
+      // ===== CHECK IF ANOTHER GHOST IS THERE ===== //
+      const isOccupied = newGhosts.some((otherGhost, otherIndex) => {
+        //  Check ONLY already moved spirits (lower index)
+        if (otherIndex >= currentIndex) return false
+        
+        return otherGhost.x === finalMove.x && otherGhost.y === finalMove.y
+      })
+      
+      if (isOccupied) {
+        // Go through ALL possible moves
+        for (const move of possibleMoves) {
+          // Is THIS move available?
+          const moveIsOccupied = newGhosts.some((otherGhost) => {
+            return otherGhost.x === move.x && otherGhost.y === move.y
+          })
+          
+          if (!moveIsOccupied) {
+            // The available move found
+            newGhosts.push({
+              x: move.x,
+              y: move.y,
+              lastDirection: move.direction
+            })
+            break  // ← Breaf if found
+          }
+        }
+        
+        // No available move → stay in place
+         if (newGhosts.length === currentIndex) {
+          newGhosts.push(ghost)  // Stay in place
+        }
+      } else {
+        newGhosts.push({  // Push 
+          x: finalMove.x,
+          y: finalMove.y,
+          lastDirection: finalMove.direction
+        })
+      }
+    } 
+
+      // ===== CHECK COLLISION =====
+      const hitGhost = newGhosts.some(
+        ghost => ghost.x === pacmanPosition.x && ghost.y === pacmanPosition.y
+      )
+      
+      if (hitGhost) {
+        setLives(prev => {
+          const newLives = prev - 1
+          if (newLives <= 0) {
+            setGameStatus('gameOver')
+          }
+          return newLives
+        })
+        setPacmanPosition({ x: 1, y: 1 })
+      }
+      
       return newGhosts
     })
-  }, [GRID_SIZE, pacmanPosition]) 
+  }, [GRID_SIZE, pacmanPosition])
 
- // ===== GAME OVER =====//
+ // ===== GAME OVER ===== //
  //Restart the game
  const onRestart = () => {
   setLives(3)
   setScore(0)
   setGameStatus('playing')
-  setPacmanPosition({ x: 1, y: 1 })  // Go back to start
-  setGhosts([  
-    { x: 7, y: 7 },
-    { x: 8, y: 7 },
-    { x: 9, y: 7 }
+  setPacmanPosition({ x: 1, y: 1 })
+  setGhosts([
+    { x: 6, y: 7, lastDirection: 'DOWN' },
+    { x: 7, y: 7, lastDirection: 'DOWN' },
+    { x: 8, y: 7, lastDirection: 'DOWN' }
   ])
-  setCoins(generateCoins())  //Return all coins
- }
+  setCoins(generateCoinsFromMaze())  // ← Generate new
+}
  
   // Event listener
   useEffect(() => {
