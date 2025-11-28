@@ -66,6 +66,10 @@
   border-left: 0.25rem solid var(--wall-color);  /* 4px zeď vlevo */
 }
 
+.cell.restricted {
+  background-color: transparent;
+}
+
 .ground {
   width: 3.125rem;  /* 50px */
   height: 3.125rem; /* 50px */

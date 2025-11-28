@@ -86,16 +86,16 @@ const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze }: GameFieldP
                 cell.bottom && 'wall-bottom',
                 cell.left && 'wall-left'
             ].filter(Boolean).join(' ')
+                                             
+            // Zone class (restricted / ghost-house)
+            const zoneClass = cell.zone || '' 
             
             cells.push(
-                <div 
-                key={`${x}-${y}`} 
-                className={`cell ${wallClasses}`}  // ← Add class
-                >
+                <div className={`cell ${wallClasses} ${zoneClass}`}>
                 {getCellContent(x, y)}
                 </div>
             )
-        }
+            }
 
         rows.push(
         <div key={y} className="row">
