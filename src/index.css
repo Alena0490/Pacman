@@ -34,6 +34,7 @@
   /* ===== UI STATES ===== */
   --success: #64BB46;              /* win, power-upn*/
   --success-dark: #447e31; 
+  --success-darker: #37582c; 
   --danger: #FF1744;               /* lose live, game over */
   --danger-light: #ff3b55; 
   --warning: #FFA726;
@@ -51,7 +52,7 @@
   
   /* ===== GAME ELEMENTS ===== */
   --coin-color: #F2E30C; 
-  --wall-color: #162a1b;  
+  --wall-color: #560379;  
   --pacman-color: #FFFF00;
   
   /* ===== BORDERS ===== */
@@ -68,7 +69,7 @@
   --overlay-dark: rgba(13, 13, 13, 0.9);
 
   /* BOARD / GRID */
-  --board-background: radial-gradient(circle at top, var(--background-light) 0, var(--background) 45%, var(--background-dark) 100%);
+  --board-background: radial-gradient(circle at top, var(--success-dark) 0, var(--success-darker) 45%, var(--background-dark) 100%);
   --grid-line-color: rgba(239, 19, 242, 0.16);   /* grid */
   --cell-bg: #050308;                             
   --cell-dot-color: rgba(255, 255, 255, 0.14);    /* cell::before */
@@ -89,7 +90,7 @@
 
   --wall-outline: #b47cff;
   --wall-inner: #5e318c;
-  --wall-glow: rgba(148, 66, 255, 0.2);
+  --wall-glow: rgba(8, 0, 18, 0.704);
 
 /* ===== SIZES ===== */
   --game-max-width: 52rem;

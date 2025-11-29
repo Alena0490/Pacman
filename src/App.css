@@ -8,9 +8,10 @@
   margin-bottom: 1rem;
   border-top: none;   
   border-radius: 0 0 1rem 1rem; 
+  background-blend-mode: hard-light;
   border-radius: 0.75rem;
   padding: 0.625rem; /* 10px */
-  background-blend-mode: overlay;
+  /* background-blend-mode: overlay; */
   background:  var(--board-background),
   url("./img//grass.webp");
   background-size: cover;
@@ -30,9 +31,17 @@
   justify-content: center;
   background: radial-gradient(
     circle at 30% 25%, 
-    #14101d 0, #050308 45%, 
-    #000 100%);
+    #14101dA0 0, #050308D0 45%, 
+    var(--cell-bg) 100%);
+background: radial-gradient(
+  circle at 30% 25%, 
+  var(--cell-bg) 0,        /* nejblíž rohu = nejtmavší */
+  #050308C0 45%,           /* přechod */
+  #14101dA0 100%           /* dál od rohu = světlejší */
+);
   font-size: 1.25rem;
+  border-left: 1px solid transparent;
+  border-top: 1px solid transparent;
 
   /* slight depth effect, corridors look more like tunnels */
   box-shadow: inset 0 0 0.35rem rgba(0, 0, 0, 0.85);
@@ -60,22 +69,22 @@
 /* Walls*/
 .cell.wall-top {
   border-top: 0.25rem solid var(--wall-color);
-  box-shadow: 0 -0.12rem 0.32rem var(--wall-glow);
+  box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow);
 }
 
 .cell.wall-right {
   border-right: 0.25rem solid var(--wall-color);
-  box-shadow: 0.12rem 0 0.32rem var(--wall-glow);
+  box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow);
 }
 
 .cell.wall-bottom {
   border-bottom: 0.25rem solid var(--wall-color);
-  box-shadow: 0 0.12rem 0.32rem var(--wall-glow);
+  box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow);
 }
 
 .cell.wall-left {
   border-left: 0.25rem solid var(--wall-color);
-  box-shadow: -0.12rem 0 0.32rem var(--wall-glow);
+  box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow);
 }
 
 .cell.restricted {
