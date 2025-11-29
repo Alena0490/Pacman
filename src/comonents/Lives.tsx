@@ -5,7 +5,7 @@ type LivesProp = {
 const Lives = ({lives}:LivesProp) => {
     return (
         <div className="lives">
-            <p>Lives: <span>{'❤️'.repeat(lives)}</span></p>
+            <p>Lives: <span className="hearts">{'❤️'.repeat(lives)}</span></p>
         </div>
     )
 }

@@ -12,6 +12,7 @@ type Ghost = {
   x: number
   y: number
   lastDirection: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
+  personality: 'random' | 'patrol' | 'nervous'
 }
 
 type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won'
@@ -26,9 +27,9 @@ const App = () => {
   // ===== POSITION ===== //
   const [pacmanPosition, setPacmanPosition] = useState({ x: 1, y: 1 }) 
   const [ghosts, setGhosts] = useState<Ghost[]>([
-    { x: 6, y: 7, lastDirection: 'DOWN' },
-    { x: 7, y: 7, lastDirection: 'DOWN' },
-    { x: 8, y: 7, lastDirection: 'DOWN' }
+    { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // ← Random
+    { x: 7, y: 7, lastDirection: 'DOWN', personality: 'patrol' },   // ← Patrol
+    { x: 8, y: 7, lastDirection: 'DOWN', personality: 'nervous' }   // ← Nervous
   ])
 
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
@@ -151,11 +152,64 @@ const App = () => {
           ]
         }
       } else {
-        // Outside ghost house - random move
+        // ===== PERSONALITY-BASED MOVEMENT ===== //
+        // Different ghost behaviors outside the house
+      
+      if (ghost.personality === 'random') {
+        // RANDOM: Completely unpredictable movement
+        // Chooses any available direction with equal probability
+        finalMove = possibleMoves[
+          Math.floor(Math.random() * possibleMoves.length)
+        ]
+        
+      } else if (ghost.personality === 'patrol') {
+        // PATROL: Prefers to continue in the same direction
+        // Only changes when hitting a wall (creates patrol patterns)
+        const sameDirection = possibleMoves.find(
+          move => move.direction === ghost.lastDirection
+        )
+        
+        if (sameDirection) {
+          finalMove = sameDirection  // Keep going same way
+        } else {
+          // Can't continue → pick random
+          finalMove = possibleMoves[
+            Math.floor(Math.random() * possibleMoves.length)
+          ]
+        }
+        
+      } else if (ghost.personality === 'nervous') {
+        // NERVOUS: Avoids backtracking (doesn't like going backwards)
+        // More decisive movement, less likely to get stuck
+        const oppositeDir = {
+          'UP': 'DOWN',
+          'DOWN': 'UP',
+          'LEFT': 'RIGHT',
+          'RIGHT': 'LEFT'
+        }[ghost.lastDirection] as 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
+        
+        // Try to avoid opposite direction
+        const filteredMoves = possibleMoves.filter(
+          move => move.direction !== oppositeDir
+        )
+        
+        if (filteredMoves.length > 0) {
+          // Choose from forward/side moves
+          finalMove = filteredMoves[
+            Math.floor(Math.random() * filteredMoves.length)
+          ]
+        } else {
+          // Forced to go back (only option)
+          finalMove = possibleMoves[0]
+        }
+        
+      } else {
+        // FALLBACK: Default to random if personality unknown
         finalMove = possibleMoves[
           Math.floor(Math.random() * possibleMoves.length)
         ]
       }
+    }
       
       // ===== CHECK IF ANOTHER GHOST IS THERE ===== //
       const isOccupied = newGhosts.some((otherGhost, otherIndex) => {
@@ -176,10 +230,11 @@ const App = () => {
           if (!moveIsOccupied) {
             // The available move found
             newGhosts.push({
-              x: move.x,
-              y: move.y,
-              lastDirection: move.direction
-            })
+            x: move.x,
+            y: move.y,
+            lastDirection: move.direction,
+            personality: ghost.personality  // ← Preserve personality
+          })
             break  // ← Breaf if found
           }
         }
@@ -192,7 +247,8 @@ const App = () => {
         newGhosts.push({  // Push 
           x: finalMove.x,
           y: finalMove.y,
-          lastDirection: finalMove.direction
+          lastDirection: finalMove.direction,
+          personality: ghost.personality  // ← Preserve personality
         })
       }
     } 
@@ -225,9 +281,9 @@ const App = () => {
   setGameStatus('playing')
   setPacmanPosition({ x: 1, y: 1 })
   setGhosts([
-    { x: 6, y: 7, lastDirection: 'DOWN' },
-    { x: 7, y: 7, lastDirection: 'DOWN' },
-    { x: 8, y: 7, lastDirection: 'DOWN' }
+    { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },
+    { x: 7, y: 7, lastDirection: 'DOWN', personality: 'patrol' },
+    { x: 8, y: 7, lastDirection: 'DOWN', personality: 'nervous' }
   ])
   setCoins(generateCoinsFromMaze())  // ← Generate new
 }

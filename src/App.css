@@ -10,7 +10,10 @@
   border-radius: 0 0 1rem 1rem; 
   border-radius: 0.75rem;
   padding: 0.625rem; /* 10px */
-  background: var(--board-background);
+  background-blend-mode: overlay;
+  background:  var(--board-background),
+  url("./img//grass.webp");
+  background-size: cover;
 }
 
 .row {
@@ -20,14 +23,19 @@
 
 .cell {
   position: relative;
-  width: var(--cell-size);    /* 40px */
-  height: var(--cell-size);   /* 40px */
+  width: var(--cell-size);
+  height: var(--cell-size);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--cell-bg);
-  border: 1px solid var(--grid-line-color);  /* 1px */
-  font-size: 1.25rem;             /* 20px */
+  background: radial-gradient(
+    circle at 30% 25%, 
+    #14101d 0, #050308 45%, 
+    #000 100%);
+  font-size: 1.25rem;
+
+  /* slight depth effect, corridors look more like tunnels */
+  box-shadow: inset 0 0 0.35rem rgba(0, 0, 0, 0.85);
 }
 
 .cell::before {
@@ -51,23 +59,35 @@
 
 /* Walls*/
 .cell.wall-top {
-  border-top: 0.25rem solid var(--wall-color);  /* 4px zeď nahoře */
+  border-top: 0.25rem solid var(--wall-color);
+  box-shadow: 0 -0.12rem 0.32rem var(--wall-glow);
 }
 
 .cell.wall-right {
-  border-right: 0.25rem solid var(--wall-color);  /* 4px zeď vpravo */
+  border-right: 0.25rem solid var(--wall-color);
+  box-shadow: 0.12rem 0 0.32rem var(--wall-glow);
 }
 
 .cell.wall-bottom {
-  border-bottom: 0.25rem solid var(--wall-color);  /* 4px zeď dole */
+  border-bottom: 0.25rem solid var(--wall-color);
+  box-shadow: 0 0.12rem 0.32rem var(--wall-glow);
 }
 
 .cell.wall-left {
-  border-left: 0.25rem solid var(--wall-color);  /* 4px zeď vlevo */
+  border-left: 0.25rem solid var(--wall-color);
+  box-shadow: -0.12rem 0 0.32rem var(--wall-glow);
 }
 
 .cell.restricted {
+  /* same as outside maze – show only background from .game-field */
   background-color: transparent;
+  background: none;
+  box-shadow: none;
+}
+
+/* hide the tiny dot in the middle */
+.cell.restricted::before {
+  display: none;
 }
 
 .ground {

@@ -11,6 +11,7 @@ const StartScreen = ({onStart}:StartScreenProps) => {
                 <h2>Pac Maze</h2>
                 <p>Use arrow keys to eat all the coins and avoid the ghosts.</p>
                 <button
+                    className="new-game" 
                     onClick={onStart}
                 >
                     Start game
