@@ -24,6 +24,7 @@ const App = () => {
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
   const GRID_SIZE = 15
+  const [announcement, setAnnouncement] = useState('')
   
   // ===== POSITION ===== //
   const [pacmanPosition, setPacmanPosition] = useState({ x: 1, y: 1 }) 
@@ -43,7 +44,7 @@ const App = () => {
 
   // ===== MOVE PACMAN ===== //
  
-  const movePacman = useCallback((direction: string) => {
+  const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
     // ===== CHECK IF MOVE IS VALID =====
     if (!canMoveInDirection(
       MAZE, 
@@ -52,6 +53,23 @@ const App = () => {
       direction as 'UP' | 'DOWN' | 'LEFT' | 'RIGHT',
       GRID_SIZE
     )) {
+
+      // ===== CHECK FOR TUNNEL TELEPORTATION ===== //
+      const currentCell = MAZE[pacmanPosition.y][pacmanPosition.x]
+      
+      // Only teleport if trying to exit through tunnel
+      if (currentCell.tunnel === 'left' && direction === 'LEFT') {
+        // Teleport to right side
+        setPacmanPosition(prev => ({ x: GRID_SIZE - 1, y: prev.y }))
+
+        return
+      } else if (currentCell.tunnel === 'right' && direction === 'RIGHT') {
+        // Teleport to left side
+        setPacmanPosition(prev => ({ x: 0, y: prev.y }))
+
+        return
+      }
+
       return  // Can't move - wall or border!
     }
     
@@ -76,6 +94,7 @@ const App = () => {
       setScore(score + 1)
       
       playEating()  // ← PLAY EATING SOUND
+      setAnnouncement(`Coin collected. Score: ${score + 1}`)  // ← Announce
 
       //Check the win
       if (newCoins.length === 0) {
@@ -89,6 +108,7 @@ const App = () => {
     
     if (hitGhost) {
       playDie()  // ← PLAY DIE SOUND
+      setAnnouncement(`Hit by ghost! ${lives - 1} lives remaining`)  // ← Announce
       setLives(lives - 1)
       setPacmanPosition({ x: 1, y: 1 })
       
@@ -272,6 +292,7 @@ const App = () => {
       if (hitGhost) {
         setLives(prev => {
           playDie()  // ← PLAY DIE SOUND
+          setAnnouncement(`Hit by ghost! ${lives - 1} lives remaining`)  // ← Announce
           const newLives = prev - 1
           if (newLives <= 0) {
             setGameStatus('gameOver')
@@ -283,7 +304,7 @@ const App = () => {
       
       return newGhosts
     })
-  }, [GRID_SIZE, pacmanPosition, playDie])
+  }, [GRID_SIZE, pacmanPosition, playDie, setAnnouncement, lives])
 
  // ===== GAME OVER ===== //
  //Restart the game
@@ -338,6 +359,13 @@ const App = () => {
         className="game"
         aria-label="Pac Maze – game screen"
       >
+        <div 
+          aria-live="assertive"  // Interrupts reading
+          aria-atomic="true"
+          className="visually-hidden"
+        >
+          {announcement}
+        </div>
         {/* <h1 className="game-title">Pac Maze</h1> */}
          <header 
             className="game-hud"
@@ -368,11 +396,20 @@ const App = () => {
     ) }
   if (gameStatus === 'gameOver') {
       return (
-        <GameOver score={score} onRestart={onRestart} ></GameOver>
+        <GameOver 
+        score={score} 
+        onRestart={onRestart} 
+        announcement={announcement}
+      ></GameOver>
       )
   } 
   if (gameStatus === 'won') {
-    return <WinScreen score={score} onRestart={onRestart} />
+    return <WinScreen 
+      score={score} 
+      onRestart={onRestart} 
+      announcement={announcement}
+
+    />
   }
 
   const handleStart = () => {
@@ -381,7 +418,9 @@ const App = () => {
   }
 
   return (
-    <StartScreen onStart={handleStart} />
+    <StartScreen 
+      onStart={handleStart} 
+    />
   )
 }
 

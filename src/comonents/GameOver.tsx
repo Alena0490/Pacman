@@ -3,12 +3,20 @@ import "./Screen.css"
 type GameOverProps = {
   score: number
   onRestart: () => void 
+  announcement: string
 }
 
-const GameOver = ({score, onRestart}:GameOverProps) => {
+const GameOver = ({score, onRestart, announcement}:GameOverProps) => {
     return (
         <div className="screen-wrapper">
-            <article className="screen screen--game-over">
+            <main className="screen screen--game-over">
+                <div 
+                    aria-live="assertive"
+                    aria-atomic="true"
+                    className="visually-hidden"
+                >
+                    {announcement}
+                </div>
                 <h2>Game over!</h2>
                 <p className="score-status">Your score is: <span>{score}</span></p>
                 <button
@@ -18,7 +26,7 @@ const GameOver = ({score, onRestart}:GameOverProps) => {
                 >
                     Play again
                 </button>
-            </article>
+            </main>
         </div>
     )
 }

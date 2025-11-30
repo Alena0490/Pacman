@@ -69,22 +69,22 @@ background: radial-gradient(
 /* Walls*/
 .cell.wall-top {
   border-top: 0.25rem solid var(--wall-color);
-  box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow);
+  /* box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow); */
 }
 
 .cell.wall-right {
   border-right: 0.25rem solid var(--wall-color);
-  box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow);
+  /* box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow); */
 }
 
 .cell.wall-bottom {
   border-bottom: 0.25rem solid var(--wall-color);
-  box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow);
+  /* box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow); */
 }
 
 .cell.wall-left {
   border-left: 0.25rem solid var(--wall-color);
-  box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow);
+  /* box-shadow: 0.15rem 0.15rem 0.15rem var(--wall-glow); */
 }
 
 .cell.restricted {

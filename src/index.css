@@ -95,7 +95,7 @@
 /* ===== SIZES ===== */
   --game-max-width: 52rem;
   --cell-size: min(2.5rem, 6vw, 5vh);    /* 40px OR 6%  */
-  --pacman-size: 95%; 
+   --pacman-size: clamp(1.6rem, 1.4rem + 1.4vw, 1.9rem);
   --ghost-size: 75%;
   --coin-size: 50%;
   --game-padding: 0.625rem;
@@ -118,6 +118,7 @@ body {
   min-height: 100svh;
   font-family: "Digital", monospace;
   font-size: 1.25rem;
+  line-height: 1.4;
   font-weight: 400;
   background: radial-gradient(circle at top, var(--background-light) 0, var(--background) 45%, var(--background-dark) 100%);
   background-color: var(--background-dark);

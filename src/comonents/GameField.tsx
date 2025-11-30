@@ -9,10 +9,11 @@ import Ghost3 from "../img/ghost3.svg"
 
 type GameFieldProps = {
   pacmanPosition: { x: number, y: number }
+  
   coins: { x: number, y: number }[]
   ghosts: { x: number, y: number }[]
   gridSize: number
-  maze: Cell[][]  // ← ✅ Změň na Cell[][]
+  maze: Cell[][]  
 }
 
 const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze }: GameFieldProps) => {
@@ -21,15 +22,30 @@ const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze }: GameFieldP
   const [prevPosition, setPrevPosition] = useState(pacmanPosition)
   const [lastDirection, setLastDirection] = useState('right')
   
-  // If position changed set the new direction
+    // If position changed set the new direction
     if (pacmanPosition.x !== prevPosition.x || pacmanPosition.y !== prevPosition.y) {
-    if (pacmanPosition.x > prevPosition.x) setLastDirection('right')
-    if (pacmanPosition.x < prevPosition.x) setLastDirection('left')
-    if (pacmanPosition.y > prevPosition.y) setLastDirection('down')
-    if (pacmanPosition.y < prevPosition.y) setLastDirection('up')
+        const dx = pacmanPosition.x - prevPosition.x
+        const dy = pacmanPosition.y - prevPosition.y
+
+        if (dx !== 0) {
+            if (dx === 1) {
+            setLastDirection('right')
+            } else if (dx === -1) {
+            setLastDirection('left')
+            } else if (dx > 1) {
+            // teleport from left to right → he walked left into tunnel
+            setLastDirection('left')
+            } else if (dx < -1) {
+            // teleport from right to left → he walked right into tunnel
+            setLastDirection('right')
+            }
+        } else if (dy !== 0) {
+            if (dy > 0) setLastDirection('down')
+            if (dy < 0) setLastDirection('up')
+        }
     
-    setPrevPosition(pacmanPosition)
-  }
+        setPrevPosition(pacmanPosition)
+    }
    
     const getCellContent = (x: number, y: number) => {
         // 1. Pacman
