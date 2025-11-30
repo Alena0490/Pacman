@@ -6,6 +6,7 @@ import Coin from "../img/skull-game-coin.png"
 import Ghost1 from "../img/ghost1.svg"
 import Ghost2 from "../img/ghost2.svg"
 import Ghost3 from "../img/ghost3.svg"
+import Ghost4 from "../img/ghost4.svg"
 
 type GameFieldProps = {
   pacmanPosition: { x: number, y: number }
@@ -67,7 +68,7 @@ const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze }: GameFieldP
     // 2. Ghosts
     const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y)
         if (ghostIndex !== -1) {
-    const ghostImages = [Ghost1, Ghost2, Ghost3]
+    const ghostImages = [Ghost1, Ghost2, Ghost3, Ghost4]
     return <img 
         src={ghostImages[ghostIndex]} 
         alt="Ghost" 

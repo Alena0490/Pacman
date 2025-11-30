@@ -159,7 +159,11 @@ background: radial-gradient(
 }
 
 .ghost[data-ghost="2"] {
-  color: var(--ghost-green-tr);
+  color: var(--ghost-red-tr);
+}
+
+.ghost[data-ghost="3"] {
+  color: var(--ghost-orange-tr);
 }
 
 /* ===== QUERIES ===== */

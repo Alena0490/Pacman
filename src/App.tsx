@@ -13,7 +13,7 @@ type Ghost = {
   x: number
   y: number
   lastDirection: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
-  personality: 'random' | 'patrol' | 'nervous'
+  personality: 'random' | 'patrol' | 'nervous' | 'shy'
 }
 
 type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won'
@@ -29,18 +29,19 @@ const App = () => {
   // ===== POSITION ===== //
   const [pacmanPosition, setPacmanPosition] = useState({ x: 1, y: 1 }) 
   const [ghosts, setGhosts] = useState<Ghost[]>([
-    { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // ← Random
-    { x: 7, y: 7, lastDirection: 'DOWN', personality: 'patrol' },   // ← Patrol
-    { x: 8, y: 7, lastDirection: 'DOWN', personality: 'nervous' }   // ← Nervous
+    { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // ← Random (truquoise)
+    { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },   // ← Nervous (pink)
+    { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },   // ← Patrol (red)
+    { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' }   // ← Shy (orange)
   ])
 
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
 
-    // Create sound players
-    const playEating = useSound("/sounds/audio_eating.mp3")
-    const playDie = useSound("/sounds/audio_die.mp3")
-    const playWon = useSound("/sounds/audio_victory.mp3")
-    const playStart = useSound("/sounds/audio_opening_song.mp3")
+  // Create sound players
+  const playEating = useSound("/sounds/audio_eating.mp3")
+  const playDie = useSound("/sounds/audio_die.mp3")
+  const playWon = useSound("/sounds/audio_victory.mp3")
+  const playStart = useSound("/sounds/audio_opening_song.mp3")
 
   // ===== MOVE PACMAN ===== //
  
@@ -233,6 +234,35 @@ const App = () => {
           // Forced to go back (only option)
           finalMove = possibleMoves[0]
         }
+
+      } else if (ghost.personality === 'shy') { 
+      // SHY: Gets scared when close to Pacman
+        const distanceToPacman = Math.abs(ghost.x - pacmanPosition.x) + 
+                                Math.abs(ghost.y - pacmanPosition.y)
+        
+        if (distanceToPacman <= 3) {
+        // Too close! Run away
+          const awayMoves = possibleMoves.filter(move => {
+            const newDistance = Math.abs(move.x - pacmanPosition.x) + 
+                              Math.abs(move.y - pacmanPosition.y)
+            return newDistance > distanceToPacman
+          })
+          
+          if (awayMoves.length > 0) {
+            finalMove = awayMoves[
+              Math.floor(Math.random() * awayMoves.length)
+            ]
+          } else {
+            finalMove = possibleMoves[
+              Math.floor(Math.random() * possibleMoves.length)
+            ]
+          }
+        } else {
+          // Far enough → random
+          finalMove = possibleMoves[
+            Math.floor(Math.random() * possibleMoves.length)
+          ]
+        }
         
       } else {
         // FALLBACK: Default to random if personality unknown
@@ -242,7 +272,7 @@ const App = () => {
       }
     }
       
-      // ===== CHECK IF ANOTHER GHOST IS THERE ===== //
+    // ===== CHECK IF ANOTHER GHOST IS THERE ===== //
       const isOccupied = newGhosts.some((otherGhost, otherIndex) => {
         //  Check ONLY already moved spirits (lower index)
         if (otherIndex >= currentIndex) return false
@@ -284,7 +314,7 @@ const App = () => {
       }
     } 
 
-      // ===== CHECK COLLISION =====
+    // ===== CHECK COLLISION =====
       const hitGhost = newGhosts.some(
         ghost => ghost.x === pacmanPosition.x && ghost.y === pacmanPosition.y
       )
@@ -314,9 +344,10 @@ const App = () => {
   setGameStatus('playing')
   setPacmanPosition({ x: 1, y: 1 })
   setGhosts([
-    { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },
-    { x: 7, y: 7, lastDirection: 'DOWN', personality: 'patrol' },
-    { x: 8, y: 7, lastDirection: 'DOWN', personality: 'nervous' }
+    { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // ← Random (truquoise)
+    { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },   // ← Nervous (pink)
+    { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },   // ← Patrol (red)
+    { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' }   // ← Shy (orange)
   ])
   setCoins(generateCoinsFromMaze())  // ← Generate new
   playStart() // ← PLAY START SOUND

@@ -42,9 +42,11 @@
   
   /* ===== GHOST COLORS ===== */
   --ghost-pink: #EF13F2;           /* Use main-color) */
-  --ghost-pink-tr: #EF13F270; 
+  --ghost-pink-tr: #EF13F290; 
   --ghost-cyan: #00FFFF;           /* Use accent-color) */
   --ghost-cyan-tr: #00FFFF70;  
+  --gost-red: #ff435c;
+  --ghost-red-tr:#ff3b5590;
   --ghost-green: #00FF41; 
   --ghost-green-tr: #00FF4170; 
   --ghost-orange: #FFA726;         /* Can be added */
