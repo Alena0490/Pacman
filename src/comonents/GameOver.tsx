@@ -14,6 +14,7 @@ const GameOver = ({score, onRestart}:GameOverProps) => {
                 <button
                     className="new-game" 
                     onClick={onRestart}
+                    aria-label="Restart game"
                 >
                     Play again
                 </button>

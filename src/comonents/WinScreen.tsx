@@ -15,6 +15,7 @@ const WinScreen = ({score, onRestart}:WinScreenProps) => {
                 <button
                     className="new-game" 
                     onClick={onRestart}
+                    aria-label="Restart game"
                 >
                     Play again
                 </button>

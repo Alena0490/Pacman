@@ -105,7 +105,11 @@ const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze }: GameFieldP
     }
 
     return (
-    <div className="game-field">
+    <div 
+        className="game-field"
+        role="application"
+        aria-label={`Pacman game grid, ${gridSize} by ${gridSize} cells`}
+    >
         {rows}
     </div>
     )

@@ -13,6 +13,7 @@ const StartScreen = ({onStart}:StartScreenProps) => {
                 <button
                     className="new-game" 
                     onClick={onStart}
+                    aria-label="Start game" 
                 >
                     Start game
                     </button>

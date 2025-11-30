@@ -5,6 +5,7 @@ import GameOver from "./comonents/GameOver"
 import WinScreen from "./comonents/WinScreen"
 import Lives from "./comonents/Lives"
 import { MAZE, generateCoinsFromMaze, canMoveInDirection } from './data/mazeData'
+import { useSound } from "./hooks/useSound"
 import "./App.css"
 
 // Ghost type definition
@@ -33,6 +34,12 @@ const App = () => {
   ])
 
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
+
+    // Create sound players
+    const playEating = useSound("/sounds/audio_eating.mp3")
+    const playDie = useSound("/sounds/audio_die.mp3")
+    const playWon = useSound("/sounds/audio_victory.mp3")
+    const playStart = useSound("/sounds/audio_opening_song.mp3")
 
   // ===== MOVE PACMAN ===== //
  
@@ -68,8 +75,11 @@ const App = () => {
       setCoins(newCoins)
       setScore(score + 1)
       
+      playEating()  // ← PLAY EATING SOUND
+
       //Check the win
       if (newCoins.length === 0) {
+        playWon()  // ← PLAY WIN SOUND
         setGameStatus('won')
       }
     }
@@ -78,6 +88,7 @@ const App = () => {
     const hitGhost = ghosts.some(ghost => ghost.x === newX && ghost.y === newY)
     
     if (hitGhost) {
+      playDie()  // ← PLAY DIE SOUND
       setLives(lives - 1)
       setPacmanPosition({ x: 1, y: 1 })
       
@@ -86,7 +97,7 @@ const App = () => {
       }
     }
         
-  }, [pacmanPosition, coins, score, ghosts, lives, GRID_SIZE])
+  }, [pacmanPosition, coins, score, ghosts, lives, GRID_SIZE, playEating, playWon, playDie])
 
   // ===== GHOSTS MOVE =====//
   const moveGhosts = useCallback(() => {
@@ -260,6 +271,7 @@ const App = () => {
       
       if (hitGhost) {
         setLives(prev => {
+          playDie()  // ← PLAY DIE SOUND
           const newLives = prev - 1
           if (newLives <= 0) {
             setGameStatus('gameOver')
@@ -271,7 +283,7 @@ const App = () => {
       
       return newGhosts
     })
-  }, [GRID_SIZE, pacmanPosition])
+  }, [GRID_SIZE, pacmanPosition, playDie])
 
  // ===== GAME OVER ===== //
  //Restart the game
@@ -286,6 +298,7 @@ const App = () => {
     { x: 8, y: 7, lastDirection: 'DOWN', personality: 'nervous' }
   ])
   setCoins(generateCoinsFromMaze())  // ← Generate new
+  playStart() // ← PLAY START SOUND
 }
  
   // Event listener
@@ -321,13 +334,28 @@ const App = () => {
 
   if (gameStatus === 'playing') {
     return (
-      <article className="game">
+      <main 
+        className="game"
+        aria-label="Pac Maze – game screen"
+      >
         {/* <h1 className="game-title">Pac Maze</h1> */}
-         <header className="game-hud">           
-            <div className="game-stats">
-            <div className="game-score">Score: {score}</div>
-            <Lives lives={lives} />
+         <header 
+            className="game-hud"
+            aria-label="Game heads-up display"
+          >           
+            <div 
+              className="game-stats"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+
+            <div className="game-score">
+              <span className="visually-hidden">Current score: </span>
+              Score: {score}
             </div>
+            <Lives lives={lives} />
+          </div>
+
         </header>
         <GameField
           pacmanPosition={pacmanPosition}
@@ -336,7 +364,7 @@ const App = () => {
           gridSize={GRID_SIZE}
           maze={MAZE}
           />
-      </article>
+      </main>
     ) }
   if (gameStatus === 'gameOver') {
       return (
@@ -346,8 +374,14 @@ const App = () => {
   if (gameStatus === 'won') {
     return <WinScreen score={score} onRestart={onRestart} />
   }
+
+  const handleStart = () => {
+    playStart() // ← PLAY START SOUND
+    setGameStatus('playing') // ← START GAME
+  }
+
   return (
-    <StartScreen onStart={() => setGameStatus('playing')}></StartScreen>
+    <StartScreen onStart={handleStart} />
   )
 }
 
