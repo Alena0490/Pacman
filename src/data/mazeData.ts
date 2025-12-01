@@ -7,6 +7,7 @@ export type Cell = {
   bottom: boolean   // Wall down
   left: boolean     // Wall left
   hasCoin: boolean  // Has coin?
+  powerPellet?: boolean 
   zone?: 'restricted' | 'ghost-house'  // The cell is outside of the labyrinth
   tunnel?: 'left' | 'right'  // ← TUNNEL - teleport to the other side of labyrinth
 }
@@ -16,16 +17,19 @@ export type Cell = {
 const createCell = (
   walls: string, 
   coin = false, 
-  options?: {    // Is the cel part of the labyrinth?
+  options?: {    // Cell options - is the cell part of the labyrinth?
     zone?: 'restricted' | 'ghost-house'
     tunnel?: 'left' | 'right'
-}): Cell => ({
+    powerPellet?: boolean  
+  }
+): Cell => ({
   top: walls[0] === '1',
   right: walls[1] === '1',
   bottom: walls[2] === '1',
   left: walls[3] === '1',
   hasCoin: coin,
-  zone: options?.zone,      // ← Optional chaining
+  powerPellet: options?.powerPellet, 
+  zone: options?.zone,
   tunnel: options?.tunnel  
 })
 
@@ -34,7 +38,7 @@ export const MAZE: Cell[][] = [
 
   // Row 1
   [
-    createCell('1001',true), 
+    createCell('1001', false, { powerPellet: true }), // [0,0] Left top corner
     createCell('1000',true), 
     createCell('1000',true), 
     createCell('1000',true), 
@@ -50,7 +54,7 @@ export const MAZE: Cell[][] = [
     createCell('1000',true), 
     createCell('1000',true), 
     createCell('1000',true), 
-    createCell('1100',true),
+    createCell('1100',false, { powerPellet: true }),  // [14,0] Right top corner
   ],
 
   // Row 2
@@ -328,7 +332,7 @@ export const MAZE: Cell[][] = [
 
   // Row 15
   [
-    createCell('0011',true),
+    createCell('0011', false, { powerPellet: true }),  // [0,14] Left bottom corner
     createCell('0010',true),
     createCell('0010',true),
     createCell('0010',true),
@@ -344,7 +348,7 @@ export const MAZE: Cell[][] = [
     createCell('0010',true),
     createCell('0010',true),
     createCell('0010',true),
-    createCell('0110',true),
+    createCell('0110', false, { powerPellet: true }),  // [14,14] Right bottom corner
   ],
 ]
 

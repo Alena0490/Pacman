@@ -7,17 +7,20 @@ import Ghost1 from "../img/ghost1.svg"
 import Ghost2 from "../img/ghost2.svg"
 import Ghost3 from "../img/ghost3.svg"
 import Ghost4 from "../img/ghost4.svg"
+import GhostScared from "../img/ghost-scared.svg"
+import GhostEyes from "../img/eyes.svg"
 
 type GameFieldProps = {
   pacmanPosition: { x: number, y: number }
   
-  coins: { x: number, y: number }[]
-  ghosts: { x: number, y: number }[]
-  gridSize: number
-  maze: Cell[][]  
+    coins: { x: number, y: number }[]
+    ghosts: { x: number, y: number }[]
+    gridSize: number
+    maze: Cell[][]  
+    isFrightened: boolean
 }
 
-const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze }: GameFieldProps) => {
+const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze, isFrightened }: GameFieldProps) => {
     // ===== WATCH POSITION CHANGES =====//
     // Remember the last position
   const [prevPosition, setPrevPosition] = useState(pacmanPosition)
@@ -60,27 +63,39 @@ const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze }: GameFieldP
         )
     }
 
-    // ===== CHECK THE WALLS ===== //
-    // if (maze[y][x] === 1) {
-    //     return <div className="wall"></div>  //
-    // }
-
     // 2. Ghosts
     const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y)
-        if (ghostIndex !== -1) {
+    if (ghostIndex !== -1) {
     const ghostImages = [Ghost1, Ghost2, Ghost3, Ghost4]
+    
     return <img 
-        src={ghostImages[ghostIndex]} 
+        src={isFrightened ? GhostScared : ghostImages[ghostIndex]}  // ← Scared ghost if frightened
         alt="Ghost" 
-        className="ghost" 
+        className={`ghost ${isFrightened ? 'frightened' : ''}`}  // ← Add class frightened
         data-ghost={ghostIndex}
     />
     }
 
-    // 3. Coins
+    // 3. Coins & Power Pellets
+    const cell = maze[y][x]
+
+    // Power pellet (large coin)
+    if (cell.powerPellet) {
+    return <img 
+        src={Coin}  // ←  Same source as coin
+        alt="Power Pellet" 
+        className="coin large"  // ←  CSS  .large
+    />
+    }
+
+    // Regular coin
     const isCoin = coins.some(coin => coin.x === x && coin.y === y)
     if (isCoin) {
-    return <img src={Coin} alt="Coin" className="coin" />
+    return <img 
+        src={Coin} // ←  Same source as Power Pellet
+        alt="Coin" 
+        className="coin" 
+    />
     }
 
     // 4. Empty field

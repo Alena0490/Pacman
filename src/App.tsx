@@ -4,7 +4,11 @@ import StartScreen from "./comonents/StartScreen"
 import GameOver from "./comonents/GameOver"
 import WinScreen from "./comonents/WinScreen"
 import Lives from "./comonents/Lives"
-import { MAZE, generateCoinsFromMaze, canMoveInDirection } from './data/mazeData'
+import { 
+  MAZE, 
+  generateCoinsFromMaze, 
+  canMoveInDirection 
+} from './data/mazeData'
 import { useSound } from "./hooks/useSound"
 import "./App.css"
 
@@ -18,6 +22,14 @@ type Ghost = {
 
 type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won'
 
+/*** GHOST SPAWN - SAVE THE LAST POSITIONS */
+const GHOST_SPAWNS: Ghost[] = [
+  { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },
+  { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },
+  { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },
+  { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' },
+]
+
 const App = () => {
 // ===== GAME STATE ===== //
   const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
@@ -28,12 +40,11 @@ const App = () => {
   
   // ===== POSITION ===== //
   const [pacmanPosition, setPacmanPosition] = useState({ x: 1, y: 1 }) 
-  const [ghosts, setGhosts] = useState<Ghost[]>([
-    { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // ← Random (truquoise)
-    { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },   // ← Nervous (pink)
-    { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },   // ← Patrol (red)
-    { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' }   // ← Shy (orange)
-  ])
+  const [ghosts, setGhosts] = useState<Ghost[]>(GHOST_SPAWNS)
+
+  // ===== FRIGHTENED MODE ===== //
+  const [isFrightened, setIsFrightened] = useState(false)
+  const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
 
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
 
@@ -42,11 +53,13 @@ const App = () => {
   const playDie = useSound("/sounds/audio_die.mp3")
   const playWon = useSound("/sounds/audio_victory.mp3")
   const playStart = useSound("/sounds/audio_opening_song.mp3")
+  const playEatGhost = useSound("/sounds/audio_eatghost.mp3")
+  const playFrightened = useSound("/sounds/audio_intermission.mp3")
+  const playEatPellet = useSound("/sounds/audio_eatpill.mp3")
 
   // ===== MOVE PACMAN ===== //
- 
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
-    // ===== CHECK IF MOVE IS VALID =====
+    // ===== CHECK IF MOVE IS VALID ===== //
     if (!canMoveInDirection(
       MAZE, 
       pacmanPosition.x, 
@@ -55,8 +68,8 @@ const App = () => {
       GRID_SIZE
     )) {
 
-      // ===== CHECK FOR TUNNEL TELEPORTATION ===== //
-      const currentCell = MAZE[pacmanPosition.y][pacmanPosition.x]
+    // ===== CHECK FOR TUNNEL TELEPORTATION ===== //
+    const currentCell = MAZE[pacmanPosition.y][pacmanPosition.x]
       
       // Only teleport if trying to exit through tunnel
       if (currentCell.tunnel === 'left' && direction === 'LEFT') {
@@ -73,7 +86,7 @@ const App = () => {
 
       return  // Can't move - wall or border!
     }
-    
+   
     // ===== CALCULATE NEW POSITION =====
     let newX = pacmanPosition.x
     let newY = pacmanPosition.y
@@ -103,22 +116,95 @@ const App = () => {
         setGameStatus('won')
       }
     }
-    
-    // ===== GHOST COLLISION =====
-    const hitGhost = ghosts.some(ghost => ghost.x === newX && ghost.y === newY)
-    
-    if (hitGhost) {
-      playDie()  // ← PLAY DIE SOUND
-      setAnnouncement(`Hit by ghost! ${lives - 1} lives remaining`)  // ← Announce
-      setLives(lives - 1)
-      setPacmanPosition({ x: 1, y: 1 })
+    // ===== COLLECTING POWER PELLETS ===== //
+    const currentCell = MAZE[newY][newX]
+
+      if (currentCell.powerPellet && !isFrightened) {
+        // Remove the Power Pellet from the map
+        currentCell.powerPellet = false  
+        // Activate frightened mode
+        setIsFrightened(true)
+        playEatPellet()
+        
+        // Clear existing timer if any
+        if (frightenedTimer) {
+          clearTimeout(frightenedTimer)
+        }
       
-      if (lives - 1 <= 0) {
-        setGameStatus('gameOver')
+        // Set 10 second timer
+        const timer = setTimeout(() => {
+          setIsFrightened(false)
+        }, 10000)  // 10 seconds
+        
+        setFrightenedTimer(timer)
+        
+        playFrightened()
+      
+        setAnnouncement('Power pellet! Ghosts are scared!')
+      }
+
+    // ===== GHOST COLLISION ===== //
+    const collidedIndex = ghosts.findIndex(
+      ghost => ghost.x === newX && ghost.y === newY
+    )
+
+    if (collidedIndex !== -1) {
+      // If ghosts are frightened - eat the ghost
+      if (isFrightened) {
+        playEatGhost()
+
+        // After eating the ghost -> increase the score
+        setScore(prev => {
+          const newScore = prev + 200  // +200 poins for ghost
+          setAnnouncement(`Ghost eaten! Score: ${newScore}`)
+          return newScore
+        })
+
+        // Send the eaten ghost back to the spawn position
+        setGhosts(prevGhosts =>
+          prevGhosts.map((g, index) =>
+            index === collidedIndex
+              ? { ...GHOST_SPAWNS[index] }
+              : g
+          )
+        )
+      } else {
+        // Normal ghost - lose life
+        playDie()
+        const remainingLives = lives - 1
+        setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
+        setLives(remainingLives)
+        setPacmanPosition({ x: 1, y: 1 })
+          
+        if (remainingLives <= 0) {
+          setGameStatus('gameOver')
+        }
+    }
+  }},[
+       pacmanPosition,
+        coins,
+        score,
+        ghosts,
+        lives,
+        GRID_SIZE,
+        playEating,
+        playWon,
+        playDie,
+        playEatGhost,
+        playFrightened,
+        playEatPellet,
+        isFrightened,
+        frightenedTimer,
+      ])
+  
+  // Cleanup frightened timer on unmount
+  useEffect(() => {
+    return () => {
+      if (frightenedTimer) {
+        clearTimeout(frightenedTimer)
       }
     }
-        
-  }, [pacmanPosition, coins, score, ghosts, lives, GRID_SIZE, playEating, playWon, playDie])
+  }, [frightenedTimer])
 
   // ===== GHOSTS MOVE =====//
   const moveGhosts = useCallback(() => {
@@ -314,16 +400,29 @@ const App = () => {
       }
     } 
 
-    // ===== CHECK COLLISION =====
-      const hitGhost = newGhosts.some(
-        ghost => ghost.x === pacmanPosition.x && ghost.y === pacmanPosition.y
-      )
-      
-      if (hitGhost) {
+    // ===== CHECK COLLISION ===== //
+    const collidedIndex = newGhosts.findIndex(
+      ghost => ghost.x === pacmanPosition.x && ghost.y === pacmanPosition.y
+    )
+
+    if (collidedIndex !== -1) {
+      if (isFrightened) {
+        // Pacman eats the ghost
+        playEatGhost()
+        setScore(prev => {
+          const newScore = prev + 10
+          setAnnouncement(`Ghost eaten! Score: ${newScore}`)
+          return newScore
+        })
+
+        // Set ghost to the spawn position
+        newGhosts[collidedIndex] = { ...GHOST_SPAWNS[collidedIndex] }
+      } else {
+        // Normal state → Pacman dies
         setLives(prev => {
-          playDie()  // ← PLAY DIE SOUND
-          setAnnouncement(`Hit by ghost! ${lives - 1} lives remaining`)  // ← Announce
           const newLives = prev - 1
+          playDie()
+          setAnnouncement(`Hit by ghost! ${newLives} lives remaining`)
           if (newLives <= 0) {
             setGameStatus('gameOver')
           }
@@ -331,10 +430,23 @@ const App = () => {
         })
         setPacmanPosition({ x: 1, y: 1 })
       }
-      
+    }
+          
       return newGhosts
     })
-  }, [GRID_SIZE, pacmanPosition, playDie, setAnnouncement, lives])
+  }, [
+        GRID_SIZE,
+        pacmanPosition,
+        isFrightened,
+        playDie,
+        playEatGhost,
+        setScore,
+        setAnnouncement,
+        setLives,
+        setGameStatus,
+        setPacmanPosition,
+        setGhosts,
+      ])
 
  // ===== GAME OVER ===== //
  //Restart the game
@@ -343,13 +455,14 @@ const App = () => {
   setScore(0)
   setGameStatus('playing')
   setPacmanPosition({ x: 1, y: 1 })
-  setGhosts([
-    { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // ← Random (truquoise)
-    { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },   // ← Nervous (pink)
-    { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },   // ← Patrol (red)
-    { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' }   // ← Shy (orange)
-  ])
-  setCoins(generateCoinsFromMaze())  // ← Generate new
+  setGhosts(GHOST_SPAWNS)
+  setCoins(generateCoinsFromMaze())  // ← Generate new coins
+  // Reset frightened mode
+  setIsFrightened(false)            // ← Remove frightened mode
+    if (frightenedTimer) {             // ← Reset timer
+      clearTimeout(frightenedTimer)
+    }
+  setFrightenedTimer(null)   
   playStart() // ← PLAY START SOUND
 }
  
@@ -382,7 +495,10 @@ const App = () => {
     return () => {
       clearInterval(ghostInterval)
     }
-  }, [moveGhosts, gameStatus])
+  }, [
+      moveGhosts, 
+      gameStatus
+    ])
 
   if (gameStatus === 'playing') {
     return (
@@ -422,6 +538,7 @@ const App = () => {
           ghosts={ghosts}
           gridSize={GRID_SIZE}
           maze={MAZE}
+          isFrightened={isFrightened}
           />
       </main>
     ) }
