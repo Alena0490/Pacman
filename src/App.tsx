@@ -49,7 +49,15 @@ const App = () => {
   const [isFrightened, setIsFrightened] = useState(false)
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
 
+    // ===== COINS STATE ===== //
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
+  // ===== POWER PELLETS STATE ===== //
+  const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>([
+    { x: 0, y: 0 },    // Levý horní
+    { x: 14, y: 0 },   // Pravý horní
+    { x: 0, y: 14 },   // Levý dolní
+    { x: 14, y: 14 }   // Pravý dolní
+  ])
 
   // Create sound players
   const playEating = useSound("/sounds/pac-man-waka-waka.mp3")
@@ -120,14 +128,18 @@ const App = () => {
       }
     }
     // ===== COLLECTING POWER PELLETS ===== //
-    const currentCell = MAZE[newY][newX]
+    const hasPowerPellet = powerPellets.some(
+      pellet => pellet.x === newX && pellet.y === newY
+    )
 
-      if (currentCell.powerPellet && !isFrightened) {
-        // Remove the Power Pellet from the map
-        currentCell.powerPellet = false  
-        // Activate frightened mode
-        setIsFrightened(true)
-        playEatPellet()
+    if (hasPowerPellet && !isFrightened) {
+      // Remove this power pellet
+      setPowerPellets(prev => 
+        prev.filter(pellet => !(pellet.x === newX && pellet.y === newY))
+      )
+      
+      setIsFrightened(true)
+      playEatPellet()
         
         // Clear existing timer if any
         if (frightenedTimer) {
@@ -141,7 +153,10 @@ const App = () => {
         
         setFrightenedTimer(timer)
         
-        playFrightened()
+          // ✅ Wait 400 ms then frightened sound:
+          setTimeout(() => {
+            playFrightened()
+          }, 400)  // Delay = eatPellet sound length
       
         setAnnouncement('Power pellet! Ghosts are scared!')
       }
@@ -179,8 +194,9 @@ const App = () => {
         }
     }
   }},[
-       pacmanPosition,
+        pacmanPosition,
         coins,
+        powerPellets,  
         score,
         ghosts,
         lives,
@@ -495,13 +511,7 @@ const App = () => {
         isFrightened,
         playDie,
         playEatGhost,
-        setScore,
-        setAnnouncement,
-        setLives,
-        setGameStatus,
-        setPacmanPosition,
         ghosts,
-        setGhosts,
       ])
 
  // ===== GAME OVER ===== //
@@ -514,6 +524,13 @@ const App = () => {
   setGhosts(GHOST_SPAWNS)
   setEatenGhosts([]) 
   setCoins(generateCoinsFromMaze())  // ← Generate new coins
+    // Reset power pellets
+    setPowerPellets([
+      { x: 0, y: 0 },
+      { x: 14, y: 0 },
+      { x: 0, y: 14 },
+      { x: 14, y: 14 }
+    ])
   // Reset frightened mode
   setIsFrightened(false)            // ← Remove frightened mode
     if (frightenedTimer) {             // ← Reset timer
@@ -592,6 +609,7 @@ const App = () => {
         <GameField
           pacmanPosition={pacmanPosition}
           coins={coins}
+          powerPellets={powerPellets} 
           ghosts={ghosts}
           gridSize={GRID_SIZE}
           maze={MAZE}

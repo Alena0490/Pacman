@@ -14,6 +14,7 @@ type GameFieldProps = {
   pacmanPosition: { x: number, y: number }
   
     coins: { x: number, y: number }[]
+    powerPellets: { x: number, y: number }[] 
     ghosts: { x: number, y: number }[]
     gridSize: number
     maze: Cell[][]  
@@ -24,6 +25,7 @@ type GameFieldProps = {
 const GameField = ({ 
     pacmanPosition, 
     coins, 
+    powerPellets,
     ghosts, 
     gridSize, 
     maze, 
@@ -93,14 +95,18 @@ const GameField = ({
     }
 
     // 3. Coins & Power Pellets
-    const cell = maze[y][x]
 
     // Power pellet (large coin)
-    if (cell.powerPellet) {
+    // Power pellet (check STATE, not maze)
+    const hasPowerPellet = powerPellets.some(
+        pellet => pellet.x === x && pellet.y === y
+    )
+
+    if (hasPowerPellet) {
     return <img 
-        src={Coin}  // ←  Same source as coin
+        src={Coin} 
         alt="Power Pellet" 
-        className="coin large"  // ←  CSS  .large
+        className="coin large"
     />
     }
 
