@@ -50,7 +50,16 @@ const App = () => {
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
   const [ghostsEatenCount, setGhostsEatenCount] = useState(0)
 
-    // ===== COINS STATE ===== //
+  // ===== FLOATING SCORE POPUPS ===== //
+  const [floatingScores, setFloatingScores] = useState<Array<{
+    x: number
+    y: number
+    points: number
+    id: number  // Unique ID for key
+  }>>([])
+
+
+  // ===== COINS STATE ===== //
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
   // ===== POWER PELLETS STATE ===== //
   const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>([
@@ -169,6 +178,7 @@ const App = () => {
       ghost => ghost.x === newX && ghost.y === newY
     )
 
+    /*** EATING GOSTS */ 
     if (collidedIndex !== -1) {
       // If ghosts are frightened - eat the ghost
       if (isFrightened) {
@@ -176,8 +186,25 @@ const App = () => {
 
         // Calculate points: 200, 400, 800, 1600
         const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
+        
+        /*** POP UP SCREEN */ 
+          // Add floating score popup
+          setFloatingScores(prev => [
+            ...prev,
+            {
+              x: newX,
+              y: newY,
+              points: points,
+              id: Date.now()  // Unique ID
+            }
+          ])
+          
+          // Remove popup after animation (1 second)
+          setTimeout(() => {
+            setFloatingScores(prev => prev.slice(1))  // Remove first (oldest)
+          }, 1000)
 
-        // After eating the ghost -> increase the score
+      // After eating the ghost -> increase the score
       setScore(prev => {
           const newScore = prev + points
           setAnnouncement(`Ghost eaten! +${points} points! Score: ${newScore}`) // Double the received points after each ghost eaten
@@ -488,6 +515,25 @@ const App = () => {
         // Pacman eats the ghost
         playEatGhost()
         const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
+
+        const ghost = newGhosts[collidedIndex]
+        
+         /*** POP UP SCREEN */ 
+        // Add floating score popup
+        setFloatingScores(prev => [
+          ...prev,
+          {
+            x: ghost.x,
+            y: ghost.y,
+            points: points,
+            id: Date.now()
+          }
+        ])
+        
+        setTimeout(() => {
+          setFloatingScores(prev => prev.slice(1))
+        }, 1000)
+
         setScore(prev => {
           const newScore = prev + points
           setAnnouncement(`Ghost eaten! +${points} points! Score: ${newScore}`)
@@ -626,6 +672,7 @@ const App = () => {
           maze={MAZE}
           isFrightened={isFrightened}
           eatenGhosts={eatenGhosts}
+          floatingScores={floatingScores}
           />
       </main>
     ) }

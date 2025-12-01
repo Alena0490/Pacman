@@ -195,6 +195,25 @@ background: radial-gradient(
   animation: ghost-eyes-float 0.3s ease-in-out infinite;
 }
 
+/*** GHOSTS -  SCORE INCREASE */
+.floating-score {
+  position: absolute;
+  color: cyan;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 
+    0 0 0.3rem var(--accent-color),
+    0 0 0.6rem var(--accent-color);
+  animation: float-up 1s ease-out forwards;
+  pointer-events: none;
+  z-index: 100;
+
+  /* Position based on data attributes */
+  left: calc(var(--x) * var(--cell-size) + var(--cell-size) / 2);
+  top: calc(var(--y) * var(--cell-size) + var(--cell-size) / 2);
+  transform: translate(-50%, -50%);
+}
+
 /* ===== QUERIES ===== */
 @media (max-width: 768px) {
   html {
@@ -252,3 +271,15 @@ background: radial-gradient(
     0%, 100% { transform: scale(1.6) translateY(0); }
     50% { transform: scale(1.5) translateY(-2px); }
   }
+
+  /* Score increase */
+  @keyframes float-up {
+  0% { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% { 
+    opacity: 0;
+    transform: translateY(-2rem);
+  }
+}

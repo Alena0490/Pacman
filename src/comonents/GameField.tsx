@@ -20,6 +20,12 @@ type GameFieldProps = {
     maze: Cell[][]  
     isFrightened: boolean
     eatenGhosts: number[]
+    floatingScores: Array<{ 
+        x: number
+        y: number
+        points: number
+        id: number
+    }>
 }
 
 const GameField = ({ 
@@ -30,8 +36,37 @@ const GameField = ({
     gridSize, 
     maze, 
     isFrightened, 
-    eatenGhosts 
+    eatenGhosts,
+    floatingScores 
 }: GameFieldProps) => {
+
+// ===== LOCAL STATE pro testování ===== //
+  const [testScores, setTestScores] = useState<Array<{
+    x: number
+    y: number
+    points: number
+    id: number
+  }>>([])
+
+  // ===== TEST FUNCTION ===== //
+  const testFloatingScore = () => {
+    setTestScores(prev => [
+      ...prev,
+      {
+        x: 7,
+        y: 7,
+        points: 1600,
+        id: Date.now()
+      }
+    ])
+    
+    setTimeout(() => {
+      setTestScores(prev => prev.slice(1))
+    }, 1200)
+  }
+
+
+
     // ===== WATCH POSITION CHANGES =====//
     // Remember the last position
   const [prevPosition, setPrevPosition] = useState(pacmanPosition)
@@ -165,6 +200,52 @@ const GameField = ({
         aria-label={`Pacman game grid, ${gridSize} by ${gridSize} cells`}
     >
         {rows}
+ {/* TEST: Floating scores */}
+      {testScores.map(score => (
+        <div
+          key={score.id}
+          className="floating-score"
+          style={{
+            left: `calc(${score.x} * var(--cell-size) + var(--cell-size) / 2)`,
+            top: `calc(${score.y} * var(--cell-size) + var(--cell-size) / 2)`,
+          }}
+        >
+          {score.points}
+        </div>
+      ))}
+
+        {/* Floating score popups */}
+        {floatingScores.map(score => (
+        <div
+            key={score.id}
+            className="floating-score"
+            style={{
+                left: `calc(${score.x} * var(--cell-size) + var(--cell-size) / 2)`,
+                top: `calc(${score.y} * var(--cell-size) + var(--cell-size) / 2)`,
+            }}
+        >
+            {score.points}
+        </div>
+        ))}
+
+              {/* TEST BUTTON */}
+      <button
+        onClick={testFloatingScore}
+        style={{
+          position: 'absolute',
+          top: '-3rem',
+          right: '0',
+          zIndex: 1000,
+          padding: '0.5rem 1rem',
+          background: 'var(--accent-color)',
+          color: 'black',
+          border: 'none',
+          borderRadius: '0.25rem',
+          cursor: 'pointer',
+        }}
+      >
+        Test Score
+      </button>
     </div>
     )
 }
