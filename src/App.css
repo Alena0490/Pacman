@@ -147,8 +147,8 @@ background: radial-gradient(
   width: var(--coin-size-large);
   height: var(--coin-size-large);
   filter: 
-    drop-shadow(0 0 0.4rem var(--shadow-glow-yellow))
-    brightness(1.2);
+    drop-shadow(0 0 0.4rem var(--coin-color))
+    contrast(1.2);
 }
 
 /* GHOSTS  */
@@ -187,6 +187,12 @@ background: radial-gradient(
 /* Blinking before frightened ends */
 .ghost[data-ghost].frightened.ending {
   animation: ghost-blink 0.3s infinite;
+}
+
+.ghost.eaten {
+  transform: scale(2);
+  filter: brightness(1.5);  /* No glow for eyes */
+  animation: ghost-eyes-float 0.3s ease-in-out infinite;
 }
 
 /* ===== QUERIES ===== */
@@ -240,4 +246,9 @@ background: radial-gradient(
     50%, 100% { 
       color: rgba(255, 255, 255, 0.7);  /* White flash */
     }
+  }
+
+  @keyframes ghost-eyes-float {
+    0%, 100% { transform: scale(1.6) translateY(0); }
+    50% { transform: scale(1.5) translateY(-2px); }
   }

@@ -101,7 +101,7 @@
   --cell-size: min(2.5rem, 6vw, 5vh);    /* 40px OR 6%  */
   --pacman-size: clamp(1.6rem, 1.4rem + 1.4vw, 1.9rem);
   --ghost-size: 75%;
-  --coin-size: 45%;
+  --coin-size: 40%;
   --coin-size-large: 85%;
   --game-padding: 0.625rem;
 

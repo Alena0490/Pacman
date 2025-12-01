@@ -18,9 +18,18 @@ type GameFieldProps = {
     gridSize: number
     maze: Cell[][]  
     isFrightened: boolean
+    eatenGhosts: number[]
 }
 
-const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze, isFrightened }: GameFieldProps) => {
+const GameField = ({ 
+    pacmanPosition, 
+    coins, 
+    ghosts, 
+    gridSize, 
+    maze, 
+    isFrightened, 
+    eatenGhosts 
+}: GameFieldProps) => {
     // ===== WATCH POSITION CHANGES =====//
     // Remember the last position
   const [prevPosition, setPrevPosition] = useState(pacmanPosition)
@@ -68,10 +77,17 @@ const GameField = ({ pacmanPosition, coins, ghosts, gridSize, maze, isFrightened
     if (ghostIndex !== -1) {
     const ghostImages = [Ghost1, Ghost2, Ghost3, Ghost4]
     
+    // Check if this ghost is eaten (showing eyes)
+    const isEaten = eatenGhosts.includes(ghostIndex)
+    
     return <img 
-        src={isFrightened ? GhostScared : ghostImages[ghostIndex]}  // ← Scared ghost if frightened
+        src={
+        isEaten 
+            ? GhostEyes  // Eyes returning to spawn
+            : (isFrightened ? GhostScared : ghostImages[ghostIndex])  // Normal/scared
+        }
         alt="Ghost" 
-        className={`ghost ${isFrightened ? 'frightened' : ''}`}  // ← Add class frightened
+        className={`ghost ${isFrightened && !isEaten ? 'frightened' : ''} ${isEaten ? 'eaten' : ''}`}
         data-ghost={ghostIndex}
     />
     }

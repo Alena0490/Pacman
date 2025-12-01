@@ -42,6 +42,9 @@ const App = () => {
   const [pacmanPosition, setPacmanPosition] = useState({ x: 1, y: 1 }) 
   const [ghosts, setGhosts] = useState<Ghost[]>(GHOST_SPAWNS)
 
+  // ===== EATEN GHOSTS (returning to spawn) ===== //
+  const [eatenGhosts, setEatenGhosts] = useState<number[]>([])  // Array of ghost indices
+
   // ===== FRIGHTENED MODE ===== //
   const [isFrightened, setIsFrightened] = useState(false)
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
@@ -49,7 +52,7 @@ const App = () => {
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
 
   // Create sound players
-  const playEating = useSound("/sounds/audio_eating.mp3")
+  const playEating = useSound("/sounds/pac-man-waka-waka.mp3")
   const playDie = useSound("/sounds/audio_die.mp3")
   const playWon = useSound("/sounds/audio_victory.mp3")
   const playStart = useSound("/sounds/audio_opening_song.mp3")
@@ -131,10 +134,10 @@ const App = () => {
           clearTimeout(frightenedTimer)
         }
       
-        // Set 10 second timer
+        // Set 8 second timer
         const timer = setTimeout(() => {
           setIsFrightened(false)
-        }, 10000)  // 10 seconds
+        }, 8000)  // 8 seconds
         
         setFrightenedTimer(timer)
         
@@ -161,14 +164,9 @@ const App = () => {
         })
 
         // Send the eaten ghost back to the spawn position
-        setGhosts(prevGhosts =>
-          prevGhosts.map((g, index) =>
-            index === collidedIndex
-              ? { ...GHOST_SPAWNS[index] }
-              : g
-          )
-        )
-      } else {
+        setEatenGhosts(prev => [...prev, collidedIndex])
+
+      } else {         
         // Normal ghost - lose life
         playDie()
         const remainingLives = lives - 1
@@ -208,6 +206,63 @@ const App = () => {
 
   // ===== GHOSTS MOVE =====//
   const moveGhosts = useCallback(() => {
+
+    // ===== MOVE EATEN GHOSTS (eyes) BACK TO SPAWN ===== //
+    setEatenGhosts(prevEaten => {
+      const stillReturning: number[] = []
+
+      prevEaten.forEach(ghostIndex => {
+        const ghost = ghosts[ghostIndex]
+        const spawn = GHOST_SPAWNS[ghostIndex]
+
+        // Check if ghost reached spawn
+        if (ghost.x === spawn.x && ghost.y === spawn.y) {
+          // Ghost is home - respawn normally
+          // Don't add to stillReturning (remove from eatenGhosts)
+        } else {
+          // Move toward spawn (simple pathfinding)
+          setGhosts(prevGhosts => {
+            const updated = [...prevGhosts]
+            const current = updated[ghostIndex]
+
+            // Move horizontally first, then vertically
+            if (current.x < spawn.x) {
+              updated[ghostIndex] = {
+                 ...current, 
+                x: current.x + 1, 
+                lastDirection: 'RIGHT' 
+              }
+            } else if (current.x > spawn.x) {
+              updated[ghostIndex] = { 
+                ...current, 
+                x: current.x - 1, 
+                lastDirection: 'LEFT' 
+              }
+            } else if (current.y < spawn.y) {
+              updated[ghostIndex] = { 
+                ...current, 
+                y: current.y + 1, 
+                lastDirection: 'DOWN' 
+              }
+            } else if (current.y > spawn.y) {
+              updated[ghostIndex] = { 
+                ...current, 
+                y: current.y - 1, 
+                lastDirection: 'UP' 
+              }
+            }
+
+            return updated
+          })
+
+          stillReturning.push(ghostIndex)
+        }
+      })
+
+      return stillReturning
+    })
+
+    // ===== NORMAL GHOST MOVEMENT ===== //
     setGhosts(prevGhosts => {
       const newGhosts: Ghost[] = []  // Empty array for ghost positions
 
@@ -382,7 +437,7 @@ const App = () => {
             lastDirection: move.direction,
             personality: ghost.personality  // ← Preserve personality
           })
-            break  // ← Breaf if found
+            break  // ← Break if found
           }
         }
         
@@ -416,7 +471,7 @@ const App = () => {
         })
 
         // Set ghost to the spawn position
-        newGhosts[collidedIndex] = { ...GHOST_SPAWNS[collidedIndex] }
+        setEatenGhosts(prev => [...prev, collidedIndex])
       } else {
         // Normal state → Pacman dies
         setLives(prev => {
@@ -445,6 +500,7 @@ const App = () => {
         setLives,
         setGameStatus,
         setPacmanPosition,
+        ghosts,
         setGhosts,
       ])
 
@@ -456,6 +512,7 @@ const App = () => {
   setGameStatus('playing')
   setPacmanPosition({ x: 1, y: 1 })
   setGhosts(GHOST_SPAWNS)
+  setEatenGhosts([]) 
   setCoins(generateCoinsFromMaze())  // ← Generate new coins
   // Reset frightened mode
   setIsFrightened(false)            // ← Remove frightened mode
@@ -539,6 +596,7 @@ const App = () => {
           gridSize={GRID_SIZE}
           maze={MAZE}
           isFrightened={isFrightened}
+          eatenGhosts={eatenGhosts}
           />
       </main>
     ) }
