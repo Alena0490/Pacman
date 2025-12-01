@@ -39,7 +39,7 @@ const App = () => {
   const [announcement, setAnnouncement] = useState('')
   
   // ===== POSITION ===== //
-  const [pacmanPosition, setPacmanPosition] = useState({ x: 1, y: 1 }) 
+  const [pacmanPosition, setPacmanPosition] = useState({ x: 7, y: 11 })
   const [ghosts, setGhosts] = useState<Ghost[]>(GHOST_SPAWNS)
 
   // ===== EATEN GHOSTS (returning to spawn) ===== //
@@ -48,6 +48,7 @@ const App = () => {
   // ===== FRIGHTENED MODE ===== //
   const [isFrightened, setIsFrightened] = useState(false)
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
+  const [ghostsEatenCount, setGhostsEatenCount] = useState(0)
 
     // ===== COINS STATE ===== //
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
@@ -139,6 +140,7 @@ const App = () => {
       )
       
       setIsFrightened(true)
+      setGhostsEatenCount(0) // Reset count when new Power Pellet is eaten
       playEatPellet()
         
         // Clear existing timer if any
@@ -149,6 +151,7 @@ const App = () => {
         // Set 8 second timer
         const timer = setTimeout(() => {
           setIsFrightened(false)
+          setGhostsEatenCount(0)  // ← RESET when frightened mode ends
         }, 8000)  // 8 seconds
         
         setFrightenedTimer(timer)
@@ -171,14 +174,17 @@ const App = () => {
       if (isFrightened) {
         playEatGhost()
 
+        // Calculate points: 200, 400, 800, 1600
+        const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
+
         // After eating the ghost -> increase the score
-        setScore(prev => {
-          const newScore = prev + 200  // +200 poins for ghost
-          setAnnouncement(`Ghost eaten! Score: ${newScore}`)
+      setScore(prev => {
+          const newScore = prev + points
+          setAnnouncement(`Ghost eaten! +${points} points! Score: ${newScore}`) // Double the received points after each ghost eaten
           return newScore
         })
-
         // Send the eaten ghost back to the spawn position
+        setGhostsEatenCount(prev => prev + 1)  // ← Increment counter
         setEatenGhosts(prev => [...prev, collidedIndex])
 
       } else {         
@@ -187,7 +193,7 @@ const App = () => {
         const remainingLives = lives - 1
         setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
         setLives(remainingLives)
-        setPacmanPosition({ x: 1, y: 1 })
+         setPacmanPosition({ x: 7, y: 11 })
           
         if (remainingLives <= 0) {
           setGameStatus('gameOver')
@@ -205,6 +211,7 @@ const App = () => {
         playWon,
         playDie,
         playEatGhost,
+        ghostsEatenCount,
         playFrightened,
         playEatPellet,
         isFrightened,
@@ -480,13 +487,15 @@ const App = () => {
       if (isFrightened) {
         // Pacman eats the ghost
         playEatGhost()
+        const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
         setScore(prev => {
-          const newScore = prev + 10
-          setAnnouncement(`Ghost eaten! Score: ${newScore}`)
+          const newScore = prev + points
+          setAnnouncement(`Ghost eaten! +${points} points! Score: ${newScore}`)
           return newScore
         })
 
         // Set ghost to the spawn position
+        setGhostsEatenCount(prev => prev + 1)  // ← Increment
         setEatenGhosts(prev => [...prev, collidedIndex])
       } else {
         // Normal state → Pacman dies
@@ -499,7 +508,7 @@ const App = () => {
           }
           return newLives
         })
-        setPacmanPosition({ x: 1, y: 1 })
+        setPacmanPosition({ x: 7, y: 11 }) 
       }
     }
           
@@ -512,6 +521,7 @@ const App = () => {
         playDie,
         playEatGhost,
         ghosts,
+        ghostsEatenCount,
       ])
 
  // ===== GAME OVER ===== //
@@ -520,7 +530,7 @@ const App = () => {
   setLives(3)
   setScore(0)
   setGameStatus('playing')
-  setPacmanPosition({ x: 1, y: 1 })
+  setPacmanPosition({ x: 7, y: 11 })
   setGhosts(GHOST_SPAWNS)
   setEatenGhosts([]) 
   setCoins(generateCoinsFromMaze())  // ← Generate new coins
@@ -537,6 +547,7 @@ const App = () => {
       clearTimeout(frightenedTimer)
     }
   setFrightenedTimer(null)   
+  setGhostsEatenCount(0) 
   playStart() // ← PLAY START SOUND
 }
  
