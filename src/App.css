@@ -198,12 +198,13 @@ background: radial-gradient(
 /*** GHOSTS -  SCORE INCREASE */
 .floating-score {
   position: absolute;
-  color: cyan;
+  color: var(--text-color);
   font-size: 1.5rem;
   font-weight: bold;
   text-shadow: 
-    0 0 0.3rem var(--accent-color),
-    0 0 0.6rem var(--accent-color);
+    0 0 0.3rem var(--ghost-cyan),  /* Cyan */
+    0 0 0.8rem var(--ghost-green),  /* Green */
+    0 0 1.5rem var(--ghost-pink);  /* Magenta */
   animation: float-up 1s ease-out forwards;
   pointer-events: none;
   z-index: 100;
