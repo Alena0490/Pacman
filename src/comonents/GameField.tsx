@@ -23,7 +23,8 @@ type GameFieldProps = {
     floatingScores: Array<{ 
         x: number
         y: number
-        points: number
+        points?: number
+        text?: string | undefined
         id: number
     }>
 }
@@ -40,37 +41,11 @@ const GameField = ({
     floatingScores 
 }: GameFieldProps) => {
 
-// ===== LOCAL STATE pro testování ===== //
-  const [testScores, setTestScores] = useState<Array<{
-    x: number
-    y: number
-    points: number
-    id: number
-  }>>([])
 
-  // ===== TEST FUNCTION ===== //
-  const testFloatingScore = () => {
-    setTestScores(prev => [
-      ...prev,
-      {
-        x: 7,
-        y: 7,
-        points: 1600,
-        id: Date.now()
-      }
-    ])
-    
-    setTimeout(() => {
-      setTestScores(prev => prev.slice(1))
-    }, 1200)
-  }
-
-
-
-    // ===== WATCH POSITION CHANGES =====//
-    // Remember the last position
-  const [prevPosition, setPrevPosition] = useState(pacmanPosition)
-  const [lastDirection, setLastDirection] = useState('right')
+// ===== WATCH POSITION CHANGES =====//
+// Remember the last position
+const [prevPosition, setPrevPosition] = useState(pacmanPosition)
+const [lastDirection, setLastDirection] = useState('right')
   
     // If position changed set the new direction
     if (pacmanPosition.x !== prevPosition.x || pacmanPosition.y !== prevPosition.y) {
@@ -184,7 +159,7 @@ const GameField = ({
                 {getCellContent(x, y)}
                 </div>
             )
-            }
+        }
 
         rows.push(
         <div key={y} className="row">
@@ -200,52 +175,20 @@ const GameField = ({
         aria-label={`Pacman game grid, ${gridSize} by ${gridSize} cells`}
     >
         {rows}
- {/* TEST: Floating scores */}
-      {testScores.map(score => (
-        <div
-          key={score.id}
-          className="floating-score"
-          style={{
-            left: `calc(${score.x} * var(--cell-size) + var(--cell-size) / 2)`,
-            top: `calc(${score.y} * var(--cell-size) + var(--cell-size) / 2)`,
-          }}
-        >
-          {score.points}
-        </div>
-      ))}
-
-        {/* Floating score popups */}
-        {floatingScores.map(score => (
-        <div
-            key={score.id}
-            className="floating-score"
-            style={{
-                left: `calc(${score.x} * var(--cell-size) + var(--cell-size) / 2)`,
-                top: `calc(${score.y} * var(--cell-size) + var(--cell-size) / 2)`,
-            }}
-        >
-            {score.points}
-        </div>
+ 
+        {/* Floating messages (scores + READY) */}
+        {floatingScores.map(item => (
+            <div
+                key={item.id}
+                className={`floating-score ${item.text ? 'ready-message' : ''}`}
+                style={{
+                left: `calc(${item.x} * var(--cell-size) + var(--cell-size) / 2)`,
+                top: `calc(${item.y} * var(--cell-size) + var(--cell-size) / 2)`,
+                }}
+            >
+                {item.text || item.points}
+            </div>
         ))}
-
-              {/* TEST BUTTON */}
-      <button
-        onClick={testFloatingScore}
-        style={{
-          position: 'absolute',
-          top: '-3rem',
-          right: '0',
-          zIndex: 1000,
-          padding: '0.5rem 1rem',
-          background: 'var(--accent-color)',
-          color: 'black',
-          border: 'none',
-          borderRadius: '0.25rem',
-          cursor: 'pointer',
-        }}
-      >
-        Test Score
-      </button>
     </div>
     )
 }

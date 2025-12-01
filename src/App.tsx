@@ -54,10 +54,10 @@ const App = () => {
   const [floatingScores, setFloatingScores] = useState<Array<{
     x: number
     y: number
-    points: number
-    id: number  // Unique ID for key
+    points?: number    // ← Optional (?)
+    text?: string      // ← Optional
+    id: number
   }>>([])
-
 
   // ===== COINS STATE ===== //
   const [coins, setCoins] = useState(() => generateCoinsFromMaze())
@@ -220,12 +220,26 @@ const App = () => {
         const remainingLives = lives - 1
         setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
         setLives(remainingLives)
-         setPacmanPosition({ x: 7, y: 11 })
+        setPacmanPosition({ x: 7, y: 11 })
           
         if (remainingLives <= 0) {
-          setGameStatus('gameOver')
+          setGameStatus('gameOver')  
+        } else {
+           // Show "READY!" after death (only if lives remain)
+          setTimeout(() => {
+            setFloatingScores([{
+              x: 7,
+              y: 7,
+              text: 'READY!',
+              id: Date.now()
+            }])
+            
+            setTimeout(() => {
+              setFloatingScores([])
+            }, 2000)
+          }, 500)
         }
-    }
+      }
   }},[
         pacmanPosition,
         coins,
@@ -594,6 +608,17 @@ const App = () => {
     }
   setFrightenedTimer(null)   
   setGhostsEatenCount(0) 
+  // Show "READY!" message
+  setFloatingScores([{
+    x: 7,
+    y: 7,
+    text: 'READY!',
+    id: Date.now()
+  }])
+  
+  setTimeout(() => {
+    setFloatingScores([])
+  }, 2000)
   playStart() // ← PLAY START SOUND
 }
  
@@ -697,6 +722,19 @@ const App = () => {
   const handleStart = () => {
     playStart() // ← PLAY START SOUND
     setGameStatus('playing') // ← START GAME
+
+    // Show "READY!" message
+    setFloatingScores([{
+      x: 7,           // Middle of the labyrinth
+      y: 7,           // Middle of the labyrinth
+      text: 'READY!',
+      id: Date.now()
+    }])
+    
+    // Remove after 2 seconds
+    setTimeout(() => {
+      setFloatingScores([])
+    }, 2000)
   }
 
   return (

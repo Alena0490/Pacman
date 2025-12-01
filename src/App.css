@@ -205,7 +205,9 @@ background: radial-gradient(
     0 0 0.3rem var(--ghost-cyan),  /* Cyan */
     0 0 0.8rem var(--ghost-green),  /* Green */
     0 0 1.5rem var(--ghost-pink);  /* Magenta */
-  animation: float-up 1s ease-out forwards;
+  animation: 
+    float-up 1.2s ease-out forwards,
+    glow-pulse 0.3s ease-in-out 3;  /* 3× pulse */
   pointer-events: none;
   z-index: 100;
 
@@ -214,6 +216,14 @@ background: radial-gradient(
   top: calc(var(--y) * var(--cell-size) + var(--cell-size) / 2);
   transform: translate(-50%, -50%);
 }
+
+
+/* READY! message - bigger, different animation */
+.floating-score.ready-message {
+  font-size: 3rem;
+  animation: pulse-ready 2s ease-in-out forwards;
+}
+
 
 /* ===== QUERIES ===== */
 @media (max-width: 768px) {
@@ -282,5 +292,34 @@ background: radial-gradient(
   100% { 
     opacity: 0;
     transform: translateY(-2rem);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    filter: brightness(1);
+  }
+  50% { 
+    filter: brightness(1.5);
+  }
+}
+
+/* Ready */
+@keyframes pulse-ready {
+  0% { 
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  10% { 
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  90% { 
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% { 
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
   }
 }

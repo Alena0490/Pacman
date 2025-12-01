@@ -19,7 +19,7 @@ const WinScreen = ({score, onRestart, announcement}:WinScreenProps) => {
                 </div>
                 <h2>You won</h2>
                 <p>Well done, you've collected all the coins.</p>
-                <p className="score-status">Your score is <span>{score}</span></p>
+                <p className="score-status">Your score is: <span>{score}</span></p>
                 <button
                     className="new-game" 
                     onClick={onRestart}
