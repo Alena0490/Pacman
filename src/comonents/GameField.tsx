@@ -3,19 +3,25 @@ import { type Cell } from '../data/mazeData'
 
 import Pacman from "../img/pacman.svg"
 import Coin from "../img/skull-game-coin.png"
-import Ghost1 from "../img/ghost1.svg"
-import Ghost2 from "../img/ghost2.svg"
-import Ghost3 from "../img/ghost3.svg"
-import Ghost4 from "../img/ghost4.svg"
-import GhostScared from "../img/ghost-scared.svg"
-import GhostEyes from "../img/eyes.svg"
+// import Ghost1 from "../img/ghost1.svg"
+// import Ghost2 from "../img/ghost2.svg"
+// import Ghost3 from "../img/ghost3.svg"
+// import Ghost4 from "../img/ghost4.svg"
+// import GhostScared from "../img/ghost-scared.svg"
+// import GhostEyes from "../img/eyes.svg"
+import AnimatedGhost from '../svg/AnimatedGhosts'
+// import AnimatedPacman from '../svg/AnimatedPacman'
 
 type GameFieldProps = {
   pacmanPosition: { x: number, y: number }
   
     coins: { x: number, y: number }[]
     powerPellets: { x: number, y: number }[] 
-    ghosts: { x: number, y: number }[]
+    ghosts: Array<{                          // ← GHOST ARRAY
+        x: number
+        y: number
+        lastDirection: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'  // ← Ghost direction
+    }>
     gridSize: number
     maze: Cell[][]  
     isFrightened: boolean
@@ -86,23 +92,21 @@ const [lastDirection, setLastDirection] = useState('right')
 
     // 2. Ghosts
     const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y)
-    if (ghostIndex !== -1) {
-    const ghostImages = [Ghost1, Ghost2, Ghost3, Ghost4]
-    
-    // Check if this ghost is eaten (showing eyes)
-    const isEaten = eatenGhosts.includes(ghostIndex)
-    
-    return <img 
-        src={
-        isEaten 
-            ? GhostEyes  // Eyes returning to spawn
-            : (isFrightened ? GhostScared : ghostImages[ghostIndex])  // Normal/scared
+        if (ghostIndex !== -1) {
+        const isEaten = eatenGhosts.includes(ghostIndex)
+        const currentGhost = ghosts[ghostIndex]
+        
+        return (
+            <div className="ghost" data-ghost={ghostIndex}>
+            <AnimatedGhost
+                ghostIndex={ghostIndex as 0 | 1 | 2 | 3}
+                direction={currentGhost.lastDirection}
+                isScared={isFrightened && !isEaten}
+                isEaten={isEaten}
+            />
+            </div>
+        )
         }
-        alt="Ghost" 
-        className={`ghost ${isFrightened && !isEaten ? 'frightened' : ''} ${isEaten ? 'eaten' : ''}`}
-        data-ghost={ghostIndex}
-    />
-    }
 
     // 3. Coins & Power Pellets
 

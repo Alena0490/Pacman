@@ -152,36 +152,65 @@ background: radial-gradient(
 }
 
 /* GHOSTS  */
- 
+
+/* Ghost sizing  */
 .ghost {
-  width: var(--ghost-size);  /* 75 % of cell */
+  width: var(--ghost-size);
   height: var(--ghost-size);
+  min-height: 27px;
   display: inline-block;
-  filter: drop-shadow(0 0 0.25rem currentColor)
-        drop-shadow(0 0 0.6rem currentColor);
+  filter: brightness(1.2)
+  drop-shadow(0 0 0.25rem currentColor)
+         drop-shadow(0 0 0.75rem currentColor);
   animation: ghost-float 2s ease-in-out infinite;
+  transition: transform 0.1s ease-out;
 }
 
+/* Ghost colors  */
 .ghost[data-ghost="0"] {
-  color: var(--ghost-cyan-tr);
+  color: var(--ghost-cyan);  /* #00FFFF */
+  filter: 
+    drop-shadow(0 0 0.25rem var(--ghost-cyan-tr))
+    drop-shadow(0 0 0.75rem var(--ghost-cyan-tr));
 }
 
 .ghost[data-ghost="1"] {
-  color: var(--ghost-pink-tr);
+  color: var(--ghost-pink);  /* #EF13F2 */
+  filter: 
+    drop-shadow(0 0 0.25rem var(--ghost-pink-tr))
+    drop-shadow(0 0 0.75rem var(--ghost-pink-tr));
 }
 
 .ghost[data-ghost="2"] {
-  color: var(--ghost-red-tr);
+  color: var(--ghost-red);  /* #ff435c */
+  filter: 
+    drop-shadow(0 0 0.25rem var(--ghost-red-tr))
+    drop-shadow(0 0 0.75rem var(--ghost-red-tr));
 }
 
 .ghost[data-ghost="3"] {
-  color: var(--ghost-orange-tr);
+  color: var(--ghost-orange);  /* #FFA726 */
+  filter: 
+    drop-shadow(0 0 0.25rem var(--ghost-orange-tr))
+    drop-shadow(0 0 0.75rem var(--ghost-orange-tr));
+}
+
+/* Frightened ghost - overrides personality colors  */
+.ghost .animated-ghost.scared {
+  color: var(--ghost-blue);  /* #2121FF */
+  animation: ghost-scared 0.5s ease-in-out infinite;  /* Faster anination */
+}
+
+.ghost:has(.animated-ghost.scared) {
+  filter: 
+    drop-shadow(0 0 0.25rem var(--ghost-blue-tr))
+    drop-shadow(0 0 0.75rem var(--ghost-blue-tr)) !important;
 }
 
 /* Frightened state - overrides personality colors */
 .ghost[data-ghost].frightened {
-  color: var(--ghost-blue-tr) !important;
-  animation: ghost-scared 0.5s ease-in-out infinite;  /* Faster amination */
+  color: var(--ghost-blue) !important;
+  animation: ghost-scared 0.5s ease-in-out infinite;  /* Faster anination */
 }
 
 /* Blinking before frightened ends */
@@ -193,6 +222,16 @@ background: radial-gradient(
   transform: scale(2);
   filter: brightness(1.5);  /* No glow for eyes */
   animation: ghost-eyes-float 0.3s ease-in-out infinite;
+}
+
+/* Animated ghost */
+.animated-ghost {
+  width: 100%;
+  height: 100%;
+}
+
+.animated-ghost .pupil {
+  transition: cx 0.15s ease-out, cy 0.15s ease-out;
 }
 
 /*** GHOSTS -  SCORE INCREASE */
@@ -220,10 +259,13 @@ background: radial-gradient(
 
 /* READY! message - bigger, different animation */
 .floating-score.ready-message {
-  font-size: 3rem;
+  width: 100%;
+  margin-top: 0 auto;
+  padding-left: 3%;
+  font-size: 2.25rem;
+  text-align: center;
   animation: pulse-ready 2s ease-in-out forwards;
 }
-
 
 /* ===== QUERIES ===== */
 @media (max-width: 768px) {

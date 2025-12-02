@@ -43,17 +43,17 @@
   
   /* ===== GHOST COLORS ===== */
   --ghost-pink: #EF13F2;           /* use main-color */
-  --ghost-pink-tr: #EF13F290; 
+  --ghost-pink-tr: #EF13F2B0; 
   --ghost-cyan: #00FFFF;           /* use accent-color */
-  --ghost-cyan-tr: #00FFFF70;  
+  --ghost-cyan-tr: #00FFFF90;  
   --ghost-red: #ff435c;
-  --ghost-red-tr:#ff3b5590;
+  --ghost-red-tr:#ff3b55B0;
   --ghost-green: #00FF41; 
-  --ghost-green-tr: #00FF4170; 
+  --ghost-green-tr: #00FF4190; 
   --ghost-orange: #FFA726;         /* use the warning color*/
-  --ghost-orange-tr: #FFA72670; 
+  --ghost-orange-tr: #FFA72690; 
   --ghost-blue: #2121FF;          /* clasic Pacman color */
-  --ghost-blue-tr: #2121FF90;
+  --ghost-blue-tr: #2121FF70;
   
   /* ===== GAME ELEMENTS ===== */
   --coin-color: #F2E30C; 
@@ -101,7 +101,7 @@
   --game-max-width: 52rem;
   --cell-size: min(2.5rem, 6vw, 5vh);    /* 40px OR 6%  */
   --pacman-size: clamp(1.6rem, 1.4rem + 1.4vw, 1.9rem);
-  --ghost-size: 75%;
+  --ghost-size: 85%;
   --coin-size: 40%;
   --coin-size-large: 85%;
   --game-padding: 0.625rem;
