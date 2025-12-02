@@ -237,7 +237,6 @@ button:focus-visible {
 }
 
 .game-score {
-  /* font-weight: 700; */
   font-size: 1.75rem;
   text-shadow: 0 0 0.4rem var(--shadow-glow-yellow);
 }

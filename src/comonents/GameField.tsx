@@ -3,12 +3,6 @@ import { type Cell } from '../data/mazeData'
 
 import Pacman from "../img/pacman.svg"
 import Coin from "../img/skull-game-coin.png"
-// import Ghost1 from "../img/ghost1.svg"
-// import Ghost2 from "../img/ghost2.svg"
-// import Ghost3 from "../img/ghost3.svg"
-// import Ghost4 from "../img/ghost4.svg"
-// import GhostScared from "../img/ghost-scared.svg"
-// import GhostEyes from "../img/eyes.svg"
 import AnimatedGhost from '../svg/AnimatedGhosts'
 // import AnimatedPacman from '../svg/AnimatedPacman'
 
@@ -47,7 +41,6 @@ const GameField = ({
     floatingScores 
 }: GameFieldProps) => {
 
-
 // ===== WATCH POSITION CHANGES =====//
 // Remember the last position
 const [prevPosition, setPrevPosition] = useState(pacmanPosition)
@@ -79,7 +72,8 @@ const [lastDirection, setLastDirection] = useState('right')
     }
    
     const getCellContent = (x: number, y: number) => {
-        // 1. Pacman
+
+    // 1. Pacman
         if (x === pacmanPosition.x && y === pacmanPosition.y) {
         return (
             <img 
@@ -93,19 +87,19 @@ const [lastDirection, setLastDirection] = useState('right')
     // 2. Ghosts
     const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y)
         if (ghostIndex !== -1) {
-        const isEaten = eatenGhosts.includes(ghostIndex)
-        const currentGhost = ghosts[ghostIndex]
-        
-        return (
-            <div className="ghost" data-ghost={ghostIndex}>
-            <AnimatedGhost
-                ghostIndex={ghostIndex as 0 | 1 | 2 | 3}
-                direction={currentGhost.lastDirection}
-                isScared={isFrightened && !isEaten}
-                isEaten={isEaten}
-            />
-            </div>
-        )
+            const isEaten = eatenGhosts.includes(ghostIndex)
+            const currentGhost = ghosts[ghostIndex]
+            
+            return (
+                <div className="ghost" data-ghost={ghostIndex}>
+                <AnimatedGhost
+                    ghostIndex={ghostIndex as 0 | 1 | 2 | 3}
+                    direction={currentGhost.lastDirection}
+                    isScared={isFrightened && !isEaten}
+                    isEaten={isEaten}
+                />
+                </div>
+            )
         }
 
     // 3. Coins & Power Pellets
@@ -127,11 +121,11 @@ const [lastDirection, setLastDirection] = useState('right')
     // Regular coin
     const isCoin = coins.some(coin => coin.x === x && coin.y === y)
     if (isCoin) {
-    return <img 
-        src={Coin} // ←  Same source as Power Pellet
-        alt="Coin" 
-        className="coin" 
-    />
+        return <img 
+            src={Coin} // ←  Same source as Power Pellet
+            alt="Coin" 
+            className="coin" 
+        />
     }
 
     // 4. Empty field

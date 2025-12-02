@@ -225,7 +225,7 @@ const App = () => {
         if (remainingLives <= 0) {
           setGameStatus('gameOver')  
         } else {
-           // Show "READY!" after death (only if lives remain)
+          // Show "READY!" after death (only if lives remain)
           setTimeout(() => {
             setFloatingScores([{
               x: 7,
@@ -594,13 +594,13 @@ const App = () => {
   setGhosts(GHOST_SPAWNS)
   setEatenGhosts([]) 
   setCoins(generateCoinsFromMaze())  // ← Generate new coins
-    // Reset power pellets
-    setPowerPellets([
-      { x: 0, y: 0 },
-      { x: 14, y: 0 },
-      { x: 0, y: 14 },
-      { x: 14, y: 14 }
-    ])
+  // Reset power pellets
+  setPowerPellets([
+    { x: 0, y: 0 },
+    { x: 14, y: 0 },
+    { x: 0, y: 14 },
+    { x: 14, y: 14 }
+  ])
   // Reset frightened mode
   setIsFrightened(false)            // ← Remove frightened mode
     if (frightenedTimer) {             // ← Reset timer
@@ -704,18 +704,17 @@ const App = () => {
   if (gameStatus === 'gameOver') {
       return (
         <GameOver 
-        score={score} 
-        onRestart={onRestart} 
-        announcement={announcement}
-      ></GameOver>
+          score={score} 
+          onRestart={onRestart} 
+          announcement={announcement}
+        ></GameOver>
       )
   } 
   if (gameStatus === 'won') {
-    return <WinScreen 
-      score={score} 
-      onRestart={onRestart} 
-      announcement={announcement}
-
+      return <WinScreen 
+        score={score} 
+        onRestart={onRestart} 
+        announcement={announcement}
     />
   }
 

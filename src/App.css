@@ -1,6 +1,4 @@
-
 .game-field {
-  /* width: 100%; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,9 +33,9 @@
     var(--cell-bg) 100%);
 background: radial-gradient(
   circle at 30% 25%, 
-  var(--cell-bg) 0,        /* nejblíž rohu = nejtmavší */
-  #050308C0 45%,           /* přechod */
-  #14101dA0 100%           /* dál od rohu = světlejší */
+  var(--cell-bg) 0,        /* closer to the corner = darkest */
+  #050308C0 45%,           /* transition */
+  #14101dA0 100%           /* far from the corner = lighter*/
 );
   font-size: 1.25rem;
   border-left: 1px solid transparent;
@@ -152,7 +150,6 @@ background: radial-gradient(
 }
 
 /* GHOSTS  */
-
 /* Ghost sizing  */
 .ghost {
   width: var(--ghost-size);
@@ -255,7 +252,6 @@ background: radial-gradient(
   top: calc(var(--y) * var(--cell-size) + var(--cell-size) / 2);
   transform: translate(-50%, -50%);
 }
-
 
 /* READY! message - bigger, different animation */
 .floating-score.ready-message {
