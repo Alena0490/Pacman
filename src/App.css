@@ -104,12 +104,19 @@ background: radial-gradient(
 }
 
 /* PAC-MAN */
+/* Pacman base */
 .pacman {
   width: var(--pacman-size);  /* 95 % of cell */
   height: var(--pacman-size);
   display: inline-block;
   color:  var(--pacman-color);
   transition: transform var(--transition-speed) ease;
+}
+
+/* Animated Pacman SVG */
+.animated-pacman {
+  width: 100%;
+  height: 100%;
 }
 
 /* Rotation */
@@ -128,7 +135,6 @@ background: radial-gradient(
 .pacman-up {
   transform: rotate(270deg);  /* ↑ up */
 }
-
 
 /* COINS */
 .coin {
@@ -360,4 +366,11 @@ background: radial-gradient(
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.8);
   }
+}
+
+/* PAC-MAN */
+@keyframes death-fade {
+  0% { opacity: 1; }
+  80% { opacity: 0.8; }
+  100% { opacity: 0; }
 }

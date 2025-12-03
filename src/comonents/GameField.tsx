@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { type Cell } from '../data/mazeData'
 
-import Pacman from "../img/pacman.svg"
+// import Pacman from "../img/pacman.svg"
 import Coin from "../img/skull-game-coin.png"
 import AnimatedGhost from '../svg/AnimatedGhosts'
-// import AnimatedPacman from '../svg/AnimatedPacman'
+import AnimatedPacman from '../svg/AnimatedPacman'
 
 type GameFieldProps = {
   pacmanPosition: { x: number, y: number }
@@ -27,6 +27,7 @@ type GameFieldProps = {
         text?: string | undefined
         id: number
     }>
+    isPacmanDying: boolean
 }
 
 const GameField = ({ 
@@ -38,7 +39,8 @@ const GameField = ({
     maze, 
     isFrightened, 
     eatenGhosts,
-    floatingScores 
+    floatingScores,
+    isPacmanDying ,
 }: GameFieldProps) => {
 
 // ===== WATCH POSITION CHANGES =====//
@@ -75,14 +77,22 @@ const [lastDirection, setLastDirection] = useState('right')
 
     // 1. Pacman
         if (x === pacmanPosition.x && y === pacmanPosition.y) {
-        return (
-            <img 
-            src={Pacman} 
-            alt="Pacman" 
-            className={`pacman pacman-${lastDirection}`}
-            />
-        )
-    }
+
+            // Detect if eating coin
+                const isEatingCoin = coins.some(
+                    coin => coin.x === pacmanPosition.x && coin.y === pacmanPosition.y
+                )
+
+            return (
+                <div className={`pacman pacman-${lastDirection}`}>
+                    <AnimatedPacman 
+                        direction={lastDirection}
+                        isDying={isPacmanDying} 
+                        isEating={isEatingCoin} 
+                    />
+                </div>
+            )
+        }
 
     // 2. Ghosts
     const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y)

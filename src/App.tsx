@@ -35,6 +35,7 @@ const App = () => {
   const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
+  const [isPacmanDying, setIsPacmanDying] = useState(false)
   const GRID_SIZE = 15
   const [announcement, setAnnouncement] = useState('')
   
@@ -216,29 +217,36 @@ const App = () => {
 
       } else {         
         // Normal ghost - lose life
+        setIsPacmanDying(true) // ← START death animation
         playDie()
-        const remainingLives = lives - 1
-        setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
-        setLives(remainingLives)
-        setPacmanPosition({ x: 7, y: 11 })
-          
-        if (remainingLives <= 0) {
-          setGameStatus('gameOver')  
-        } else {
+
+        // ⏱️ WAIT 1s (death animation), THEN teleport
+        setTimeout(() => {
+          setIsPacmanDying(false)  // ← END death animation
+          setPacmanPosition({ x: 7, y: 11 })
+
+          const remainingLives = lives - 1
+          setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
+          setLives(remainingLives)
+        
+          if (remainingLives <= 0) {
+            setGameStatus('gameOver')  
+          } else {
           // Show "READY!" after death (only if lives remain)
-          setTimeout(() => {
-            setFloatingScores([{
-              x: 7,
-              y: 7,
-              text: 'READY!',
-              id: Date.now()
-            }])
-            
             setTimeout(() => {
-              setFloatingScores([])
-            }, 2000)
-          }, 500)
-        }
+              setFloatingScores([{
+                x: 7,
+                y: 7,
+                text: 'READY!',
+                id: Date.now()
+              }])
+              
+              setTimeout(() => {
+                setFloatingScores([])
+              }, 2000)
+            }, 300) // respawn
+          }
+        }, 1000)  // ← 1 s for death animation
       }
   }},[
         pacmanPosition,
@@ -559,16 +567,22 @@ const App = () => {
         setEatenGhosts(prev => [...prev, collidedIndex])
       } else {
         // Normal state → Pacman dies
-        setLives(prev => {
-          const newLives = prev - 1
-          playDie()
-          setAnnouncement(`Hit by ghost! ${newLives} lives remaining`)
-          if (newLives <= 0) {
-            setGameStatus('gameOver')
-          }
-          return newLives
-        })
-        setPacmanPosition({ x: 7, y: 11 }) 
+        setIsPacmanDying(true)  // ← PŘIDEJ
+        playDie()
+        
+        setTimeout(() => {  // ← PŘIDEJ timeout
+          setIsPacmanDying(false)
+          setPacmanPosition({ x: 7, y: 11 })
+          
+          setLives(prev => {
+            const newLives = prev - 1
+            setAnnouncement(`Hit by ghost! ${newLives} lives remaining`)
+            if (newLives <= 0) {
+              setGameStatus('gameOver')
+            }
+            return newLives
+          })
+        }, 1200)  // ← 1s pro animaci
       }
     }
           
@@ -698,6 +712,7 @@ const App = () => {
           isFrightened={isFrightened}
           eatenGhosts={eatenGhosts}
           floatingScores={floatingScores}
+          isPacmanDying={isPacmanDying}
           />
       </main>
     ) }
