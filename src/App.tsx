@@ -150,7 +150,7 @@ const App = () => {
       setPowerPellets(prev => 
         prev.filter(pellet => !(pellet.x === newX && pellet.y === newY))
       )
-      
+      setScore(score + 50)
       setIsFrightened(true)
       setGhostsEatenCount(0) // Reset count when new Power Pellet is eaten
       playEatPellet(isMuted)
