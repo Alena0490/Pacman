@@ -203,7 +203,7 @@ const App = () => {
           // Remove popup after animation (1 second)
           setTimeout(() => {
             setFloatingScores(prev => prev.slice(1))  // Remove first (oldest)
-          }, 1000)
+          }, 1200)
 
       // After eating the ghost -> increase the score
       setScore(prev => {
@@ -246,7 +246,7 @@ const App = () => {
               }, 2000)
             }, 300) // respawn
           }
-        }, 1000)  // ← 1 s for death animation
+        }, 1500)  // ← 1.5 s for death animation
       }
   }},[
         pacmanPosition,
@@ -582,7 +582,7 @@ const App = () => {
             }
             return newLives
           })
-        }, 1200)  // ← 1s pro animaci
+        }, 1200)  // ← 1.2s pro animaci
       }
     }
           
