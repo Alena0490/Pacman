@@ -18,6 +18,7 @@ const GameOver = ({score, onRestart, announcement}:GameOverProps) => {
                     {announcement}
                 </div>
                 <h2>Game over!</h2>
+                <p>Better luck next time!</p>
                 <p className="score-status">Your score is: <span>{score}</span></p>
                 <button
                     className="new-game" 

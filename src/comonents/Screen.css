@@ -9,7 +9,7 @@
 .screen {
   width: min(32rem, 90vw);
   padding: 2rem 1.5rem;
-  border-radius: 1.25rem;
+  border-radius: 0.5rem;
   margin: 0 auto;
   text-align: center;
   background:
@@ -17,10 +17,10 @@
         var(--background-light) 0,
         var(--background-medium) 55%,
         var(--background-dark) 100%);
-  border: 2px solid var(--screen-border-soft);
+  border: 2px solid var(--pacman-color);
   box-shadow:
-      0 0 0.9rem var(--shadow-glow),
-      0 0 2.4rem var(--shadow-glow),
+      0 0 0.5rem var(--secondary-color),
+      0 0 2rem var(--secondary-color-tr),
       0 0 3.2rem rgba(0, 0, 0, 0.95),
       0 0 0.7rem rgba(0, 0, 0, 0.85) inset;  
   display: flex;
@@ -31,101 +31,94 @@
 }
 
 .screen h2 {
-  font-family: "BD Cartoon Shout", system-ui, sans-serif;
+  font-family: "Crackman", sans-serif;
   text-transform: uppercase;
-  font-size: 2rem;
-  letter-spacing: 0.12em;
-  color: var(--secondary-color);
-  text-shadow:
-    0 0 0.4rem var(--secondary-color),
-    0 0 0.8rem var(--secondary-color);
+  text-align: center;
+  margin-bottom: 0;
+  font-size: clamp(2rem, 4vw, 3.5rem);  
+  color: var(--pacman-color);
 }
 
 .screen p {
   max-width: 26rem;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
+  text-align: start;
+  line-height: 1.8;
   color: var(--text-muted);
 }
 
+.score-status {
+  width: 100%;
+}
+
 .new-game {
-  background: linear-gradient(
-    135deg, 
-    var(--accent-color), 
-    var(--accent-color-dark));
-  box-shadow: 0 0 10px var(--accent-color);
+  font-size: 1rem;
   border: none;
 }
 
 .new-game:hover {
-  box-shadow: 0 0 12px var(--accent-color);
+  box-shadow: 0 0 7px var(--secondary-color);
 }
 
 /* SCREEN TYPE */
 .screen--start h2 {
-  color: var(--accent-color);
   text-shadow:
-    0 0 0.4rem var(--accent-color),
-    0 0 0.9rem var(--accent-color);
+    0 0 0.1rem var(--background-dark),
+    0 0 0.3rem var(--background-light);
 }
 
 .screen--game-over {
-    border-color: var(--screen-border-danger-soft);
+    border-color: var(--ghost-red-tr);
     box-shadow:
-        0 0 0.9rem var(--screen-glow-danger),
-        0 0 2.4rem var(--screen-glow-danger),
+        0 0 0.9rem var(--ghost-red),
+        0 0 2.4rem var(--ghost-red-tr),
         0 0 3.2rem rgba(0, 0, 0, 0.95),
         0 0 0.7rem rgba(0, 0, 0, 0.85) inset;
 }
 
 .screen--game-over h2 {
-    color: var(--danger);
-    text-shadow: 
-      0 0 0.4rem var(--shadow-glow-yellow), 
-      0 0 0.8rem var(--danger);
+    color: var(--ghost-red);
 }
 
 .screen--game-over .new-game {
   color: var(--text-color);
-  text-shadow: 1px 1px 2px var(--danger);
+  text-shadow: 1px 1px 2px var(--danger-light);
   border: none;
   background: linear-gradient(
     135deg, 
-  var(--danger-light), 
-  var(--danger));
-  box-shadow: 0 0 10px var(--danger);
+  var(--ghost-red), 
+  var(--danger-light));
+  box-shadow: 0 0 10px var(--danger-light);
 }
 
 .screen--game-over .new-game:hover {
-   box-shadow: 0 0 12px var(--danger);
+   box-shadow: 0 0 12px var(--ghost-red);
 }
 
 .screen--win {
-    border-color: var(--screen-border-success-soft);
+    border-color: var(--ghost-green-tr);
     box-shadow:
-        0 0 0.9rem var(--screen-glow-success),
-        0 0 2.4rem var(--screen-glow-success),
+        0 0 0.9rem var(--ghost-green),
+        0 0 2.4rem var(--ghost-green-tr),
         0 0 3.2rem rgba(0, 0, 0, 0.95),
         0 0 0.7rem rgba(0, 0, 0, 0.85) inset;
 }
 
 .screen--win h2 {
-  color: var(--success);
-      text-shadow: 
-      0 0 0.4rem var(--success), 
-      0 0 0.8rem var(--success-dark);
+  color: var(--ghost-green);
 }
 
 .screen--win .new-game {
-  text-shadow: 1px 1px 2px var(--success-dark);
-  color: var(--text-color);
+  text-shadow: 1px 1px 2px var(--ghost-green);
+  color: var(--text-dark);
   border: none;
   background: linear-gradient(
     135deg, 
-    var(--success), 
-    var(--success-dark));
-  box-shadow: 0 0 10px var(--success);
+    var(--ghost-green), 
+    var(--ghost-green-dark));
+  box-shadow: 0 0 2px var(--ghost-green);
 }
 
 .screen--win .new-game:hover {
-  box-shadow: 0 0 12px var(--success);
+  box-shadow: 0 0 7px var(--ghost-green);
 }

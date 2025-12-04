@@ -232,6 +232,7 @@ const App = () => {
           setLives(remainingLives)
         
           if (remainingLives <= 0) {
+            setFloatingScores([])
             setGameStatus('gameOver')  
           } else {
           // Show "READY!" after death (only if lives remain)
