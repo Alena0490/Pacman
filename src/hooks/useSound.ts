@@ -17,7 +17,10 @@ export const useSound = (soundPath: string) => {
         }
     }, [soundPath])
 
-      const play = useCallback(() => {
+      const play = useCallback((isMuted: boolean) => { // Adding the isMuted state
+
+            if (isMuted) return  // ← is isMuted = true - do not do anything
+
             if (audioRef.current) {
                 // Reset to start if already playing
                 audioRef.current.currentTime = 0

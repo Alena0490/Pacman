@@ -10,6 +10,7 @@ import {
   canMoveInDirection 
 } from './data/mazeData'
 import { useSound } from "./hooks/useSound"
+import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import "./App.css"
 
 // Ghost type definition
@@ -38,6 +39,7 @@ const App = () => {
   const [isPacmanDying, setIsPacmanDying] = useState(false)
   const GRID_SIZE = 15
   const [announcement, setAnnouncement] = useState('')
+  const [isMuted, setIsMuted] = useState(false)
   
   // ===== POSITION ===== //
   const [pacmanPosition, setPacmanPosition] = useState({ x: 7, y: 11 })
@@ -129,12 +131,12 @@ const App = () => {
       setCoins(newCoins)
       setScore(score + 1)
       
-      playEating()  // ← PLAY EATING SOUND
+      playEating(isMuted)  // ← PLAY EATING SOUND
       setAnnouncement(`Coin collected. Score: ${score + 1}`)  // ← Announce
 
       //Check the win
       if (newCoins.length === 0) {
-        playWon()  // ← PLAY WIN SOUND
+        playWon(isMuted)  // ← PLAY WIN SOUND
         setGameStatus('won')
       }
     }
@@ -151,7 +153,7 @@ const App = () => {
       
       setIsFrightened(true)
       setGhostsEatenCount(0) // Reset count when new Power Pellet is eaten
-      playEatPellet()
+      playEatPellet(isMuted)
         
         // Clear existing timer if any
         if (frightenedTimer) {
@@ -168,7 +170,7 @@ const App = () => {
         
           // ✅ Wait 400 ms then frightened sound:
           setTimeout(() => {
-            playFrightened()
+            playFrightened(isMuted)
           }, 400)  // Delay = eatPellet sound length
       
         setAnnouncement('Power pellet! Ghosts are scared!')
@@ -183,7 +185,7 @@ const App = () => {
     if (collidedIndex !== -1) {
       // If ghosts are frightened - eat the ghost
       if (isFrightened) {
-        playEatGhost()
+        playEatGhost(isMuted)
 
         // Calculate points: 200, 400, 800, 1600
         const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
@@ -218,7 +220,7 @@ const App = () => {
       } else {         
         // Normal ghost - lose life
         setIsPacmanDying(true) // ← START death animation
-        playDie()
+        playDie(isMuted)
 
         // ⏱️ WAIT 1s (death animation), THEN teleport
         setTimeout(() => {
@@ -265,6 +267,7 @@ const App = () => {
         playEatPellet,
         isFrightened,
         frightenedTimer,
+        isMuted
       ])
   
   // Cleanup frightened timer on unmount
@@ -535,7 +538,7 @@ const App = () => {
     if (collidedIndex !== -1) {
       if (isFrightened) {
         // Pacman eats the ghost
-        playEatGhost()
+        playEatGhost(isMuted)
         const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
 
         const ghost = newGhosts[collidedIndex]
@@ -568,7 +571,7 @@ const App = () => {
       } else {
         // Normal state → Pacman dies
         setIsPacmanDying(true)  // ← PŘIDEJ
-        playDie()
+        playDie(isMuted)
         
         setTimeout(() => {  // ← PŘIDEJ timeout
           setIsPacmanDying(false)
@@ -596,6 +599,7 @@ const App = () => {
         playEatGhost,
         ghosts,
         ghostsEatenCount,
+        isMuted,
       ])
 
  // ===== GAME OVER ===== //
@@ -633,7 +637,7 @@ const App = () => {
   setTimeout(() => {
     setFloatingScores([])
   }, 2000)
-  playStart() // ← PLAY START SOUND
+  playStart(isMuted) // ← PLAY START SOUND
 }
  
   // Event listener
@@ -694,13 +698,18 @@ const App = () => {
               aria-atomic="true"
             >
 
-            <div className="game-score">
-              <span className="visually-hidden">Current score: </span>
-              Score: {score}
-            </div>
+              <div className="game-score">
+                <span className="visually-hidden">Current score: </span>
+                Score: {score}
+              </div>
             <Lives lives={lives} />
+            <button 
+              className="mute"
+              onClick={() => setIsMuted(!isMuted)}
+            >
+              {isMuted ? <HiSpeakerXMark /> : <HiSpeakerWave /> }
+            </button>
           </div>
-
         </header>
         <GameField
           pacmanPosition={pacmanPosition}
@@ -734,7 +743,7 @@ const App = () => {
   }
 
   const handleStart = () => {
-    playStart() // ← PLAY START SOUND
+    playStart(isMuted) // ← PLAY START SOUND
     setGameStatus('playing') // ← START GAME
 
     // Show "READY!" message
