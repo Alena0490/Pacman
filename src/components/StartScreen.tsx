@@ -8,12 +8,12 @@ const StartScreen = ({onStart}:StartScreenProps) => {
     return (
         <div className="screen-wrapper">
             <article className="screen screen--start">
-                <h2>Pac Maze</h2>
+                <h2>Pac-Man</h2>
                 <div 
                     className="instructions"
                     aria-label="Game controls"
                 >
-                    <p>Use arrow keys to move Pacman</p>
+                    <p>Use arrow keys to move the Pac-Man</p>
                     <p>Collect all coins to win!</p>
                     <p>Avoid the ghosts!</p>
                 </div>

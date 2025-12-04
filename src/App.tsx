@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react"
-import GameField from "./comonents/GameField"
-import StartScreen from "./comonents/StartScreen"
-import GameOver from "./comonents/GameOver"
-import WinScreen from "./comonents/WinScreen"
-import Lives from "./comonents/Lives"
+import GameField from "./components/GameField"
+import StartScreen from "./components/StartScreen"
+import GameOver from "./components/GameOver"
+import WinScreen from "./components/WinScreen"
+import Lives from "./components/Lives"
 import { 
   MAZE, 
   generateCoinsFromMaze, 
