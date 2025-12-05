@@ -1,16 +1,22 @@
 import { useState } from "react"
 import { type Cell } from '../data/mazeData'
 
-// import Pacman from "../img/pacman.svg"
 import Coin from "../img/skull-game-coin.png"
 import Dot from "../img/PacmanDot.svg"
 import AnimatedGhost from '../svg/AnimatedGhosts'
 import AnimatedPacman from '../svg/AnimatedPacman'
+import type { Fruit } from "../data/FruitTypes"
+import CherryImg from '../img/cherries.png'
+import StrawberryImg from '../img/strawberry.svg'
+import OrangeImg from '../img/orange.svg'
+import AppleImg from '../img/apple.svg'
+import MelonImg from '../img/melon.svg'
+import GalaxianImg from '../img/galaxian.webp'
 
 type GameFieldProps = {
-  pacmanPosition: { x: number, y: number }
-  
-    coins: { x: number, y: number }[]
+    pacmanPosition: { x: number, y: number }
+    fruit: Fruit 
+    dots: { x: number, y: number }[]
     powerPellets: { x: number, y: number }[] 
     ghosts: Array<{                          // ← GHOST ARRAY
         x: number
@@ -33,7 +39,8 @@ type GameFieldProps = {
 
 const GameField = ({ 
     pacmanPosition, 
-    coins, 
+    fruit,
+    dots, 
     powerPellets,
     ghosts, 
     gridSize, 
@@ -79,9 +86,9 @@ const [lastDirection, setLastDirection] = useState('right')
     // 1. Pacman
         if (x === pacmanPosition.x && y === pacmanPosition.y) {
 
-            // Detect if eating coin
-                const isEatingCoin = coins.some(
-                    coin => coin.x === pacmanPosition.x && coin.y === pacmanPosition.y
+            // Detect if eating dot
+                const isEatingDot = dots.some(
+                    dot => dot.x === pacmanPosition.x && dot.y === pacmanPosition.y
                 )
 
             return (
@@ -89,7 +96,7 @@ const [lastDirection, setLastDirection] = useState('right')
                     <AnimatedPacman 
                         direction={lastDirection}
                         isDying={isPacmanDying} 
-                        isEating={isEatingCoin} 
+                        isEating={isEatingDot} 
                     />
                 </div>
             )
@@ -115,7 +122,6 @@ const [lastDirection, setLastDirection] = useState('right')
 
     // 3. Dots & Power Pellets
 
-    // Power pellet (large coin)
     // Power pellet (check STATE, not maze)
     const hasPowerPellet = powerPellets.some(
         pellet => pellet.x === x && pellet.y === y
@@ -129,17 +135,36 @@ const [lastDirection, setLastDirection] = useState('right')
     />
     }
 
-    // Regular coin
-    const isCoin = coins.some(coin => coin.x === x && coin.y === y)
-    if (isCoin) {
+    // Pac-Man dot
+    const isDot = dots.some(dot => dot.x === x && dot.y === y)
+    if (isDot) {
         return <img 
-            src={Dot} // ←  Changed from coin to dot
-            alt="Coin" 
+            src={Dot} // ←  Changed to dot
+            alt="Dot" 
             className="coin" 
         />
     }
 
-    // 4. Empty field
+      // 4. 🍒 FRUIT 
+        if (fruit.position && x === fruit.position.x && y === fruit.position.y) {
+            const fruitImages = {
+            cherry: CherryImg,
+            strawberry: StrawberryImg,
+            orange: OrangeImg,
+            apple: AppleImg,
+            melon: MelonImg,
+            galaxian: GalaxianImg
+        }
+            
+            return <img 
+                src={fruitImages[fruit.type!]} 
+                alt="Fruit" 
+                className="fruit" 
+                data-fruit={fruit.type} 
+            />
+        }
+
+    // 5. Empty field
     return null
     }
 

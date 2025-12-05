@@ -25,6 +25,7 @@
   width: var(--cell-size);
   height: var(--cell-size);
   display: flex;
+  overflow: visible;
   align-items: center;
   justify-content: center;
   background: radial-gradient(
@@ -139,7 +140,8 @@ background: radial-gradient(
   align-items: center;
   justify-content: center;
   animation: coin-pulse 0.9s ease-in-out infinite;
-  filter: drop-shadow(0 0 0.4rem var(--background-dark));
+  filter: drop-shadow(0 0 0.4rem var(--background-dark))
+          brightness(0.7);
 }
 
 .coin.large {
@@ -148,6 +150,50 @@ background: radial-gradient(
   filter: 
     drop-shadow(0 0 0.4rem var(--coin-color))
     contrast(1.2);
+}
+
+.fruit {
+  width: var(--coin-size-large);
+  height: var(--coin-size-large);
+  object-fit: contain; 
+  image-rendering: pixelated; 
+  z-index: 200;
+}
+
+.fruit[data-fruit="cherry"] {
+  filter: brightness(1.2)
+  drop-shadow(0 0 5px var(--danger-light));
+  transform: scale(0.95);
+}
+
+.fruit[data-fruit="strawberry"] {
+  filter: brightness(1.2)
+  drop-shadow(0 0 5px var(--danger));
+  transform: scale(0.9);
+}
+
+.fruit[data-fruit="orange"] {
+  filter: brightness(1.1)
+  drop-shadow(0 0 5px var(--warning));  
+  transform: scale(1.1);
+}
+
+.fruit[data-fruit="apple"] {
+  filter: contrast(1.1)
+  drop-shadow(0 0 5px var(--danger));
+}
+
+.fruit[data-fruit="melon"] {
+  filter: drop-shadow(0 0 5px var(--ghost-green-tr))
+  contrast(1.2);
+  transform: scale(1.2);
+}
+
+.fruit[data-fruit="galaxian"] {
+  filter: brightness(1.1)
+  drop-shadow(0 0 5px var(--ghost-blue)); 
+  transform: scale(1.4);
+  animation: galaxianFloat 2s ease-in-out infinite, galaxianGlow 1.5s ease-in-out infinite;
 }
 
 /* GHOSTS  */
@@ -368,4 +414,29 @@ background: radial-gradient(
   0% { opacity: 1; }
   80% { opacity: 0.8; }
   100% { opacity: 0; }
+}
+
+/* GALAXIAN */
+@keyframes galaxianFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1.4);
+  }
+  25% {
+    transform: translateY(-3px) rotate(-5deg) scale(1.4);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg) scale(1.4);
+  }
+  75% {
+    transform: translateY(3px) rotate(5deg) scale(1.4);
+  }
+}
+
+@keyframes galaxianGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.9));
+  }
 }

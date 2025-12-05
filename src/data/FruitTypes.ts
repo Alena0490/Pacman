@@ -6,16 +6,25 @@ export type Fruit = {
   spawnTime: number | null
 }
 
+export const FRUIT_POINTS: Record<FruitType, number> = {
+  cherry: 100,
+  strawberry: 300,
+  orange: 500,
+  apple: 700,
+  melon: 1000,
+  galaxian: 2000
+}
+
 export const FRUIT_PROGRESSION: FruitType[] = [
-  'cherry',      // 1. spawn (70 coins)
-  'strawberry',  // 2. spawn (170 coins)
+  'cherry',      // 1. spawn (70 dots)
+  'strawberry',  // 2. spawn (170 dots)
   'orange',      // 3. spawn (restart po smrti?)
   'apple',       // 4. spawn
   'melon',       // 5. spawn
   'galaxian'     // 6. spawn
 ]
 
-export const FRUIT_SPAWN_COINS = {
+export const FRUIT_SPAWN_DOTS = {
   first: 70,
   second: 170
 }

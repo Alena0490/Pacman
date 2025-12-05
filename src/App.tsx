@@ -6,9 +6,17 @@ import WinScreen from "./components/WinScreen"
 import Lives from "./components/Lives"
 import { 
   MAZE, 
-  generateCoinsFromMaze, 
+  generateDotsFromMaze, 
   canMoveInDirection 
 } from './data/mazeData'
+import type { Fruit, FruitType } from './data/FruitTypes'
+import { 
+  FRUIT_POINTS,
+  FRUIT_PROGRESSION,
+  FRUIT_SPAWN_DOTS,
+  FRUIT_TIMEOUT,
+  FRUIT_SPAWN_POSITION 
+} from './data/FruitTypes'
 import { useSound } from "./hooks/useSound"
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import "./App.css"
@@ -62,15 +70,17 @@ const App = () => {
     id: number
   }>>([])
 
-  // ===== COINS STATE ===== //
-  const [coins, setCoins] = useState(() => generateCoinsFromMaze())
+  // ===== DOTS STATE ===== //
+  const [dots, setDots] = useState(() => generateDotsFromMaze())
+
   // ===== POWER PELLETS STATE ===== //
   const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>([
-    { x: 0, y: 0 },    // Levý horní
-    { x: 14, y: 0 },   // Pravý horní
-    { x: 0, y: 14 },   // Levý dolní
-    { x: 14, y: 14 }   // Pravý dolní
+    { x: 0, y: 0 },    // Top left
+    { x: 14, y: 0 },   // Top right
+    { x: 0, y: 14 },   // Bottom left
+    { x: 14, y: 14 }   // Bottom right
   ])
+
 
   // Create sound players
   const playEating = useSound("/sounds/pac-man-waka-waka.mp3")
@@ -80,6 +90,32 @@ const App = () => {
   const playEatGhost = useSound("/sounds/audio_eatghost.mp3")
   const playFrightened = useSound("/sounds/audio_intermission.mp3")
   const playEatPellet = useSound("/sounds/audio_eatpill.mp3")
+
+  // ===== FRUITS ===== //
+const [fruit, setFruit] = useState<Fruit>({
+  type: null,
+  position: null,
+  spawnTime: null
+})
+
+// ===== TESTING ===== //
+
+// const [fruit, setFruit] = useState<Fruit>({
+//   type: 'cherry',  // ← Změň na: cherry, strawberry, orange, apple, melon, galaxian
+//   position: FRUIT_SPAWN_POSITION,
+//   spawnTime: Date.now()
+// })
+// ===== END TESTING ===== //
+
+const [fruitIndex, setFruitIndex] = useState(0)
+
+const spawnFruit = useCallback((fruitType: FruitType) => {
+  setFruit({
+    type: fruitType,
+    position: FRUIT_SPAWN_POSITION,
+    spawnTime: Date.now()
+  })
+}, []) 
 
   // ===== MOVE PACMAN ===== //
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
@@ -122,20 +158,61 @@ const App = () => {
         
     setPacmanPosition({ x: newX, y: newY })
 
-    // ===== COLLECTING COINS =====
-    const hasCoin = coins.some(coin => coin.x === newX && coin.y === newY)
-    if (hasCoin) {
-      const newCoins = coins.filter(coin => {
-        return !(coin.x === newX && coin.y === newY)
+    // ===== COLLECTING DOTS AND FRUITS ===== //
+    const hasDot = dots.some(dot => dot.x === newX && dot.y === newY)
+    // V movePacman, PŘED "if (hasDot)" check:
+
+  // 🍒 FRUIT COLLISION
+  if (fruit.position && newX === fruit.position.x && newY === fruit.position.y) {
+    const points = FRUIT_POINTS[fruit.type!] 
+    
+    setScore(prev => prev + points)
+    
+    // Floating score popup
+    setFloatingScores(prev => [...prev, {
+      x: newX,
+      y: newY,
+      points: points,
+      id: Date.now()
+    }])
+    
+    setTimeout(() => {
+      setFloatingScores(prev => prev.slice(1))
+    }, 1200)
+    
+    // Remove fruit
+    setFruit({ type: null, position: null, spawnTime: null })
+    
+    setAnnouncement(`Fruit collected! +${points} points!`)
+  }
+
+    if (hasDot) {
+      const newDots = dots.filter(dot => {
+        return !(dot.x === newX && dot.y === newY)
       })
-      setCoins(newCoins)
-      setScore(score + 1)
-      
+      setDots(newDots)
+      setScore(score + 10)
+ 
       playEating(isMuted)  // ← PLAY EATING SOUND
-      setAnnouncement(`Coin collected. Score: ${score + 10}`)  // ← Announce
+      setAnnouncement(`Dot collected. Score: ${score + 10}`)  // ← Announce
+
+      // 🍒 FRUIT SPAWN:
+      const totalDots = 181
+      const dotsEaten = totalDots - newDots.length
+      
+      // First spawn after 70 dots collected
+      if (dotsEaten === FRUIT_SPAWN_DOTS.first && !fruit.type) {
+        spawnFruit(FRUIT_PROGRESSION[fruitIndex])
+      }
+
+      // Second spawn after 170 dots collected
+      if (dotsEaten === FRUIT_SPAWN_DOTS.second && !fruit.type) {
+        const nextIndex = (fruitIndex + 1) % FRUIT_PROGRESSION.length
+        spawnFruit(FRUIT_PROGRESSION[nextIndex])
+      }
 
       //Check the win
-      if (newCoins.length === 0) {
+      if (newDots.length === 0) {
         playWon(isMuted)  // ← PLAY WIN SOUND
         setGameStatus('won')
       }
@@ -253,7 +330,7 @@ const App = () => {
       }
   }},[
         pacmanPosition,
-        coins,
+        dots,
         powerPellets,  
         score,
         ghosts,
@@ -268,10 +345,14 @@ const App = () => {
         playEatPellet,
         isFrightened,
         frightenedTimer,
-        isMuted
+        isMuted,
+        fruitIndex,
+        fruit.type,
+        fruit.position,
+        spawnFruit,
       ])
   
-  // Cleanup frightened timer on unmount
+  /*** 1. Cleanup frightened timer on unmount */
   useEffect(() => {
     return () => {
       if (frightenedTimer) {
@@ -571,10 +652,10 @@ const App = () => {
         setEatenGhosts(prev => [...prev, collidedIndex])
       } else {
         // Normal state → Pacman dies
-        setIsPacmanDying(true)  // ← PŘIDEJ
+        setIsPacmanDying(true)  
         playDie(isMuted)
         
-        setTimeout(() => {  // ← PŘIDEJ timeout
+        setTimeout(() => {  // ← adding timeout
           setIsPacmanDying(false)
           setPacmanPosition({ x: 7, y: 11 })
           
@@ -603,16 +684,18 @@ const App = () => {
         isMuted,
       ])
 
- // ===== GAME OVER ===== //
- //Restart the game
- const onRestart = () => {
+// ===== GAME OVER ===== //
+//Restart the game
+const onRestart = () => {
   setLives(3)
   setScore(0)
   setGameStatus('playing')
   setPacmanPosition({ x: 7, y: 11 })
   setGhosts(GHOST_SPAWNS)
   setEatenGhosts([]) 
-  setCoins(generateCoinsFromMaze())  // ← Generate new coins
+  setFruit({ type: null, position: null, spawnTime: null })
+  setFruitIndex(0)  
+  setDots(generateDotsFromMaze())  // ← Generate new dots
   // Reset power pellets
   setPowerPellets([
     { x: 0, y: 0 },
@@ -641,7 +724,7 @@ const App = () => {
   playStart(isMuted) // ← PLAY START SOUND
 }
  
-  // Event listener
+  /*** 2. Event listener */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowUp') movePacman('UP')
@@ -658,7 +741,7 @@ const App = () => {
     }
   }, [ movePacman])
 
-  /** Random ghost movement */
+  /** 3. Random ghost movement */
   useEffect(() => {
     // When status = playing => move ghosts
     if (gameStatus !== 'playing') return
@@ -674,6 +757,17 @@ const App = () => {
       moveGhosts, 
       gameStatus
     ])
+
+  /*** 4. FRUIT TIMEOUT */
+  useEffect(() => {
+    if (!fruit.spawnTime) return
+    
+    const timeout = setTimeout(() => {
+      setFruit({ type: null, position: null, spawnTime: null })
+    }, FRUIT_TIMEOUT)
+    
+    return () => clearTimeout(timeout)
+  }, [fruit.spawnTime])
 
   if (gameStatus === 'playing') {
     return (
@@ -714,7 +808,7 @@ const App = () => {
         </header>
         <GameField
           pacmanPosition={pacmanPosition}
-          coins={coins}
+          dots={dots}
           powerPellets={powerPellets} 
           ghosts={ghosts}
           gridSize={GRID_SIZE}
@@ -723,6 +817,7 @@ const App = () => {
           eatenGhosts={eatenGhosts}
           floatingScores={floatingScores}
           isPacmanDying={isPacmanDying}
+          fruit={fruit}
           />
       </main>
     ) }

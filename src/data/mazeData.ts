@@ -6,7 +6,7 @@ export type Cell = {
   right: boolean    // Wall right
   bottom: boolean   // Wall down
   left: boolean     // Wall left
-  hasCoin: boolean  // Has coin?
+  hasDot: boolean  // Has dot?
   powerPellet?: boolean 
   zone?: 'restricted' | 'ghost-house'  // The cell is outside of the labyrinth
   tunnel?: 'left' | 'right'  // ← TUNNEL - teleport to the other side of labyrinth
@@ -16,7 +16,7 @@ export type Cell = {
 // Format: "TRBL" (Top, Right, Bottom, Left)
 const createCell = (
   walls: string, 
-  coin = false, 
+  dot = false, 
   options?: {    // Cell options - is the cell part of the labyrinth?
     zone?: 'restricted' | 'ghost-house'
     tunnel?: 'left' | 'right'
@@ -27,7 +27,7 @@ const createCell = (
   right: walls[1] === '1',
   bottom: walls[2] === '1',
   left: walls[3] === '1',
-  hasCoin: coin,
+  hasDot: dot,
   powerPellet: options?.powerPellet, 
   zone: options?.zone,
   tunnel: options?.tunnel  
@@ -235,7 +235,7 @@ export const MAZE: Cell[][] = [
 
     createCell('0000',true),
     createCell('0000',true),
-    createCell('0000',true),
+    createCell('0000',false),
     createCell('0000',true),
     createCell('0000',true),
 
@@ -352,34 +352,34 @@ export const MAZE: Cell[][] = [
   ],
 ]
 
-// ===== GENERATE COINS FROM MAZE =====
-export const generateCoinsFromMaze = (): { x: number, y: number }[] => {
-  const coins: { x: number, y: number }[] = []
-  const COIN_COUNT = 181  // ← genrate till there's 80 coins
+// ===== GENERATE DOTS FROM MAZE =====
+export const generateDotsFromMaze = (): { x: number, y: number }[] => {
+  const dots: { x: number, y: number }[] = []
+  const DOT_COUNT = 180  // ← genrate till there's 180 dots
   
-  // Find fields with hasCoin: true
+  // Find fields with hasDot: true
   const allowedPositions: { x: number, y: number }[] = []
   
   for (let y = 0; y < MAZE.length; y++) {
     for (let x = 0; x < MAZE[y].length; x++) {
-      if (MAZE[y][x].hasCoin) {
+      if (MAZE[y][x].hasDot) {
         allowedPositions.push({ x, y })
       }
     }
   }
   
-  // Chose 30 random positions from hasCoin: true
-  while (coins.length < COIN_COUNT && allowedPositions.length > 0) {
+  // Chose 30 random positions from hasDot: true
+  while (dots.length < DOT_COUNT && allowedPositions.length > 0) {
     const randomIndex = Math.floor(Math.random() * allowedPositions.length)
     const position = allowedPositions[randomIndex]
     
-    coins.push(position)
+    dots.push(position)
     
-    // Do not add coins to the position, where the coins are already added
+    // Do not add dots to the position, where the dots are already added
     allowedPositions.splice(randomIndex, 1)
   }
   
-  return coins
+  return dots
 }
 
 // ===== CHECK IF MOVE IS VALID (no walls) =====
