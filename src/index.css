@@ -196,7 +196,6 @@ body {
   gap: 0.5rem;
 }
 
-
 h2 {
   margin: 0.5rem auto;
   font-family: "Crackman", sans-serif;
@@ -206,9 +205,14 @@ h2 {
   font-size: 2rem;
 }
 
+.lives-img {
+  margin-inline: 0.75rem;
+}
+
 .lives-img img  {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-block;
   margin-inline: 0.25rem;
   filter: drop-shadow(0 0 2px var(--pacman-color))
   brightness(1.2);

@@ -355,7 +355,7 @@ export const MAZE: Cell[][] = [
 // ===== GENERATE COINS FROM MAZE =====
 export const generateCoinsFromMaze = (): { x: number, y: number }[] => {
   const coins: { x: number, y: number }[] = []
-  const COIN_COUNT = 80  // ← genrate till there's 80 coins
+  const COIN_COUNT = 180  // ← genrate till there's 80 coins
   
   // Find fields with hasCoin: true
   const allowedPositions: { x: number, y: number }[] = []
@@ -423,3 +423,5 @@ export const canMoveInDirection = (
   // All checks passed - move is valid!
   return true
 }
+
+

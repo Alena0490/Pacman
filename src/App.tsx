@@ -132,7 +132,7 @@ const App = () => {
       setScore(score + 1)
       
       playEating(isMuted)  // ← PLAY EATING SOUND
-      setAnnouncement(`Coin collected. Score: ${score + 1}`)  // ← Announce
+      setAnnouncement(`Coin collected. Score: ${score + 10}`)  // ← Announce
 
       //Check the win
       if (newCoins.length === 0) {
