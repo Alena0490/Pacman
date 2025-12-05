@@ -29,7 +29,7 @@
   
   /* ===== TEXT ===== */
   --text-color: #fdfdfd; 
-  --text-muted: #B8B8B8;
+  --text-muted: #c8c8c8;
   --text-dark: #0D0D0D;
   
   /* ===== UI STATES ===== */
@@ -103,7 +103,7 @@
   --cell-size: min(2.5rem, 6vw, 5vh);    /* 40px OR 6%  */
   --pacman-size: clamp(1.6rem, 1.4rem + 1.4vw, 1.9rem);
   --ghost-size: 85%;
-  --coin-size: 40%;
+  --dot-size: 20%;
   --coin-size-large: 85%;
   --game-padding: 0.625rem;
 

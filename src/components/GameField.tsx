@@ -3,6 +3,7 @@ import { type Cell } from '../data/mazeData'
 
 // import Pacman from "../img/pacman.svg"
 import Coin from "../img/skull-game-coin.png"
+import Dot from "../img/PacmanDot.svg"
 import AnimatedGhost from '../svg/AnimatedGhosts'
 import AnimatedPacman from '../svg/AnimatedPacman'
 
@@ -112,7 +113,7 @@ const [lastDirection, setLastDirection] = useState('right')
             )
         }
 
-    // 3. Coins & Power Pellets
+    // 3. Dots & Power Pellets
 
     // Power pellet (large coin)
     // Power pellet (check STATE, not maze)
@@ -132,7 +133,7 @@ const [lastDirection, setLastDirection] = useState('right')
     const isCoin = coins.some(coin => coin.x === x && coin.y === y)
     if (isCoin) {
         return <img 
-            src={Coin} // ←  Same source as Power Pellet
+            src={Dot} // ←  Changed from coin to dot
             alt="Coin" 
             className="coin" 
         />

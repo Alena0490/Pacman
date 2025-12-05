@@ -131,15 +131,15 @@ background: radial-gradient(
   transform: rotate(270deg);  /* ↑ up */
 }
 
-/* COINS */
+/* COINS (DOTS) */
 .coin {
-  width: var(--coin-size);
-  height: var(--coin-size);
+  width: var(--dot-size);
+  height: var(--dot-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   animation: coin-pulse 0.9s ease-in-out infinite;
-  filter: drop-shadow(0 0 0.4rem var(--shadow-glow-yellow));
+  filter: drop-shadow(0 0 0.4rem var(--background-dark));
 }
 
 .coin.large {
@@ -283,7 +283,7 @@ background: radial-gradient(
 
 
 /* ===== KEYFRAMES ===== */
-/* Coin */
+/* Dot */
 @keyframes coin-pulse {
   0%, 100% {
     transform: scale(1);

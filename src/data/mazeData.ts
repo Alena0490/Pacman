@@ -60,7 +60,7 @@ export const MAZE: Cell[][] = [
   // Row 2
   [
     createCell('0001',true),
-    createCell('1001'),
+    createCell('1001', true),
     createCell('0000',true),
     createCell('1100',true),
     createCell('1000',true),
@@ -277,7 +277,7 @@ export const MAZE: Cell[][] = [
 
     createCell('0000',true), 
     createCell('1100',true), 
-    createCell('0000',true), 
+    createCell('0000',false), 
     createCell('1001',true), 
     createCell('0000',true),
 
@@ -355,7 +355,7 @@ export const MAZE: Cell[][] = [
 // ===== GENERATE COINS FROM MAZE =====
 export const generateCoinsFromMaze = (): { x: number, y: number }[] => {
   const coins: { x: number, y: number }[] = []
-  const COIN_COUNT = 180  // ← genrate till there's 80 coins
+  const COIN_COUNT = 181  // ← genrate till there's 80 coins
   
   // Find fields with hasCoin: true
   const allowedPositions: { x: number, y: number }[] = []
