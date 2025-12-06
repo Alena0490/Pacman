@@ -50,6 +50,7 @@ const App = () => {
   const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
+  const [isInvincible, setIsInvincible] = useState(false) // Pacman can't be killed
   const [isPacmanDying, setIsPacmanDying] = useState(false)
   const GRID_SIZE = 15
   const [announcement, setAnnouncement] = useState('')
@@ -346,7 +347,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
         
         /*** POP UP SCREEN */ 
-          // Add floating score popup
+        // Add floating score popup
           setFloatingScores(prev => [
             ...prev,
             {
@@ -372,8 +373,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         setGhostsEatenCount(prev => prev + 1)  // ← Increment counter
         setEatenGhosts(prev => [...prev, collidedIndex])
 
+      /***  NORMAL GHOST - LOSE LIFE */
        } else if (!isAlreadyEaten) {  
-        // Normal ghost - lose life
         setIsPacmanDying(true) // ← START death animation
         playDie(isMuted)
 
@@ -381,6 +382,14 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         setTimeout(() => {
           setIsPacmanDying(false)  // ← END death animation
           setPacmanPosition({ x: 7, y: 11 })
+
+          // Active invincibility - Pac-Man can't be killed during respawn
+          setIsInvincible(true)
+
+          // Turn off after 2 seconds
+          setTimeout(() => {
+            setIsInvincible(false)
+          }, 2000)
 
           const remainingLives = lives - 1
           setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
@@ -702,7 +711,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
       ghost => ghost.x === pacmanPosition.x && ghost.y === pacmanPosition.y
     )
 
-    if (collidedIndex !== -1) {
+    if (collidedIndex !== -1 && !isInvincible)  {
       const isAlreadyEaten = eatenGhosts.includes(collidedIndex)  
 
       if (isFrightened&& !isAlreadyEaten) {
@@ -773,6 +782,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         ghosts,
         ghostsEatenCount,
         isMuted,
+        isInvincible,
       ])
 
   // ===== GHOSTS SPEED =====//
@@ -941,6 +951,7 @@ const onRestart = () => {
           floatingScores={floatingScores}
           isPacmanDying={isPacmanDying}
           fruit={fruit}
+          isInvincible={isInvincible}
           />
           <div className="bottom-menu">
             <Lives lives={lives} />

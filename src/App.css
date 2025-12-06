@@ -132,6 +132,15 @@ background: radial-gradient(
   transform: rotate(270deg);  /* ↑ up */
 }
 
+.invincible {
+  animation: blink 0.2s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
 /* COINS (DOTS) */
 .coin {
   width: var(--dot-size);

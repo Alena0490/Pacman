@@ -35,6 +35,7 @@ type GameFieldProps = {
         id: number
     }>
     isPacmanDying: boolean
+    isInvincible: boolean
 }
 
 const GameField = ({ 
@@ -49,6 +50,7 @@ const GameField = ({
     eatenGhosts,
     floatingScores,
     isPacmanDying ,
+    isInvincible,
 }: GameFieldProps) => {
 
 // ===== WATCH POSITION CHANGES =====//
@@ -97,6 +99,7 @@ const [lastDirection, setLastDirection] = useState('right')
                         direction={lastDirection}
                         isDying={isPacmanDying} 
                         isEating={isEatingDot} 
+                        className={isInvincible ? 'invincible' : ''}
                     />
                 </div>
             )
