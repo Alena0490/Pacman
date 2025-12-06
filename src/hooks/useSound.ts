@@ -1,33 +1,48 @@
 import { useRef, useCallback, useEffect } from "react";
 
+// Global array for tracking audio
+const globalAudioRefs: HTMLAudioElement[] = []
+
 export const useSound = (soundPath: string) => {
-    const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
-    useEffect(() => {
-
-        // Initialize audio on first call
-        audioRef.current = new Audio(soundPath)
-
-        // ← CLEANUP
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause()      // Stop playback
-                audioRef.current = null        // Remove reference
-            }
+  useEffect(() => {
+    audioRef.current = new Audio(soundPath)
+    globalAudioRefs.push(audioRef.current)
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        
+        // Remove from global array
+        const index = globalAudioRefs.indexOf(audioRef.current)
+        if (index > -1) {
+          globalAudioRefs.splice(index, 1)
         }
-    }, [soundPath])
-
-      const play = useCallback((isMuted: boolean) => { // Adding the isMuted state
-
-            if (isMuted) return  // ← is isMuted = true - do not do anything
-
-            if (audioRef.current) {
-                // Reset to start if already playing
-                audioRef.current.currentTime = 0
-                audioRef.current.play().catch(err => {
-                    console.log('Audio play failed:', err)
-                })
-            }
-        }, [])
-        return play
+        
+        audioRef.current = null
+      }
     }
+  }, [soundPath])
+
+  const play = useCallback((isMuted: boolean) => {
+    if (isMuted) return
+    
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0
+      audioRef.current.play().catch(err => {
+        console.log('Audio play failed:', err)
+      })
+    }
+  }, [])
+  
+  return play
+}
+
+// Export function for mute button
+export const stopAllSounds = () => {
+  globalAudioRefs.forEach(audio => {
+    audio.pause()
+    audio.currentTime = 0
+  })
+}

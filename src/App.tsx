@@ -17,7 +17,7 @@ import {
   FRUIT_TIMEOUT,
   FRUIT_SPAWN_POSITION 
 } from './data/FruitTypes'
-import { useSound } from "./hooks/useSound"
+import { useSound, stopAllSounds } from "./hooks/useSound"
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import CherryImg from './img/cherries.png'
 import StrawberryImg from './img/strawberry.svg'
@@ -892,9 +892,12 @@ const onRestart = () => {
             </div>
             <button 
               className="mute"
-              onClick={() => setIsMuted(!isMuted)}
+              onClick={() => {
+                setIsMuted(!isMuted)
+                stopAllSounds()
+              }}
             >
-              {isMuted ? <HiSpeakerXMark /> : <HiSpeakerWave /> }
+              {isMuted ? <HiSpeakerXMark /> : <HiSpeakerWave />}
             </button>
           </div>
         </header>
