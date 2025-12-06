@@ -19,6 +19,12 @@ import {
 } from './data/FruitTypes'
 import { useSound } from "./hooks/useSound"
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
+import CherryImg from './img/cherries.png'
+import StrawberryImg from './img/strawberry.svg'
+import OrangeImg from './img/orange.svg'
+import AppleImg from './img/apple.svg'
+import MelonImg from './img/melon.svg'
+import GalaxianImg from './img/galaxian.webp'
 import "./App.css"
 
 // Ghost type definition
@@ -119,6 +125,7 @@ const LEVEL_FRUITS: [FruitType, FruitType][] = [
 // ===== END TESTING ===== //
 
 const [fruitIndex, setFruitIndex] = useState(0)
+const currentLevelFruits = LEVEL_FRUITS[level - 1]
 
 const spawnFruit = useCallback((fruitType: FruitType) => {
   setFruit({
@@ -129,7 +136,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
 }, []) 
 
   // ===== LEVEL UP ===== //
-  const levelUp = () => {
+  const levelUp = useCallback(() => {
     // Increase level
     setLevel(prev => prev + 1)
 
@@ -170,7 +177,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
   }])
   
   setTimeout(() => setFloatingScores([]), 2000)
-}
+}, [frightenedTimer]) 
 
   // ===== MOVE PACMAN ===== //
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
@@ -258,13 +265,12 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
       
       // First spawn after 70 dots collected
       if (dotsEaten === FRUIT_SPAWN_DOTS.first && !fruit.type) {
-        spawnFruit(FRUIT_PROGRESSION[fruitIndex])
+        spawnFruit(currentLevelFruits[0])  // ← First level fruit
       }
 
       // Second spawn after 170 dots collected
       if (dotsEaten === FRUIT_SPAWN_DOTS.second && !fruit.type) {
-        const nextIndex = (fruitIndex + 1) % FRUIT_PROGRESSION.length
-        spawnFruit(FRUIT_PROGRESSION[nextIndex])
+        spawnFruit(currentLevelFruits[1])  // ← Second level fruit
       }
 
       //Check the win/ level up
@@ -415,12 +421,13 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         isFrightened,
         frightenedTimer,
         isMuted,
-        fruitIndex,
+        // fruitIndex,
         fruit.type,
         fruit.position,
         spawnFruit,
         level,
         levelUp,
+        currentLevelFruits,
       ])
   
   /*** 1. Cleanup frightened timer on unmount */
@@ -723,7 +730,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         // Set ghost to the spawn position
         setGhostsEatenCount(prev => prev + 1)  // ← Increment
         setEatenGhosts(prev => [...prev, collidedIndex])
-        
+
        } else if (!isAlreadyEaten) { 
         // Normal state → Pacman dies
         setIsPacmanDying(true)  
@@ -902,7 +909,18 @@ const onRestart = () => {
           />
           <div className="bottom-menu">
             <Lives lives={lives} />
-            <div className="fruits-eaten"></div>
+            <div className="level-fruits">
+                {level >= 1 && <img src={CherryImg} />}
+                {level >= 2 && <img src={StrawberryImg} />}
+                {level >= 3 && <img src={OrangeImg} />}
+                {level >= 4 && <img src={OrangeImg} />}
+                {level >= 5 && <img src={AppleImg} />}
+                {level >= 6 && <img src={AppleImg} />}
+                {level >= 7 && <img src={MelonImg} />}
+                {level >= 8 && <img src={MelonImg} />}
+                {level >= 9 && <img src={GalaxianImg} />}
+                {level >= 10 && <img src={GalaxianImg} />}
+            </div>
           </div>
       </main>
     ) }
