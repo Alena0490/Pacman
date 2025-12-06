@@ -806,6 +806,11 @@ const onRestart = () => {
                 <span className="visually-hidden">Current score: </span>
                 Score: {score}
               </div>
+
+            <div className="level">
+              <span className="visually-hidden">Current level: </span>
+              Level: 1
+            </div>
             <button 
               className="mute"
               onClick={() => setIsMuted(!isMuted)}

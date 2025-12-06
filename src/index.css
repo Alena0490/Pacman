@@ -196,6 +196,12 @@ body {
   gap: 0.5rem;
 }
 
+.game-score, 
+.level {
+  font-size: 1.25rem;
+  text-shadow: 0 0 0.4rem var(--shadow-glow-yellow);
+}
+
 h2 {
   margin: 0.5rem auto;
   font-family: "Crackman", sans-serif;
@@ -214,7 +220,8 @@ h2 {
   padding: 0.25rem 1.25rem 1rem;
 }
 
-.bottom-menu p {
+.bottom-menu p,
+.fruits-eaten {
   display: flex;
   align-items: center;
   line-height: 1;
@@ -231,6 +238,11 @@ h2 {
   margin-inline: 0.25rem;
   filter: drop-shadow(0 0 2px var(--pacman-color))
   brightness(1.2);
+}
+
+.fruits-eaten {
+  min-width: 2rem;
+  gap: 0.5rem;
 }
 
 button {
@@ -279,11 +291,6 @@ button.mute:hover {
   color: var(--text-color);
 }
 
-.game-score {
-  font-size: 1.25rem;
-  text-shadow: 0 0 0.4rem var(--shadow-glow-yellow);
-}
-
 /* Screen reader only text */
 .visually-hidden {
   position: absolute;
@@ -303,7 +310,8 @@ button.mute:hover {
     font-size: 1rem;
   }
 
-  .game-score {
+  .game-score,
+  .level {
     font-size: 1rem;
   }
 }

@@ -67,7 +67,7 @@ export const MAZE: Cell[][] = [
 
     createCell('1000',true), 
     createCell('1000',true), 
-    createCell('1000',true), 
+    createCell('0000',true), 
     createCell('1000',true), 
     createCell('1000',true),
 
@@ -319,7 +319,7 @@ export const MAZE: Cell[][] = [
 
     createCell('0010',true), 
     createCell('0010',true), 
-    createCell('0010',true), 
+    createCell('0000',true), 
     createCell('0010',true),
     createCell('0010',true),
 
