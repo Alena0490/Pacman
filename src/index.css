@@ -205,6 +205,21 @@ h2 {
   font-size: 2rem;
 }
 
+.bottom-menu {
+  width: 100%;
+  max-width: calc(var(--cell-size) * 15);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 1.25rem 1rem;
+}
+
+.bottom-menu p {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
 .lives-img {
   margin-inline: 0.75rem;
 }

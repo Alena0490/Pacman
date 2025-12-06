@@ -625,7 +625,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
 
     if (collidedIndex !== -1) {
       const isAlreadyEaten = eatenGhosts.includes(collidedIndex)  
-      
+
       if (isFrightened&& !isAlreadyEaten) {
         // Pacman eats the ghost
         playEatGhost(isMuted)
@@ -806,7 +806,6 @@ const onRestart = () => {
                 <span className="visually-hidden">Current score: </span>
                 Score: {score}
               </div>
-            <Lives lives={lives} />
             <button 
               className="mute"
               onClick={() => setIsMuted(!isMuted)}
@@ -828,6 +827,10 @@ const onRestart = () => {
           isPacmanDying={isPacmanDying}
           fruit={fruit}
           />
+          <div className="bottom-menu">
+            <Lives lives={lives} />
+            <div className="fruits-eaten"></div>
+          </div>
       </main>
     ) }
   if (gameStatus === 'gameOver') {
