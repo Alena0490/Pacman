@@ -81,6 +81,8 @@ const App = () => {
     { x: 14, y: 14 }   // Bottom right
   ])
 
+ // ===== LEVEL ===== //
+  const [level, setLevel] = useState(1)
 
   // Create sound players
   const playEating = useSound("/sounds/pac-man-waka-waka.mp3")
@@ -98,6 +100,14 @@ const [fruit, setFruit] = useState<Fruit>({
   position: null,
   spawnTime: null
 })
+
+const LEVEL_FRUITS: [FruitType, FruitType][] = [
+  ['cherry', 'strawberry'],    // Level 1
+  ['orange', 'apple'],          // Level 2  
+  ['melon', 'galaxian'],        // Level 3
+  ['cherry', 'melon'],          // Level 4
+  ['strawberry', 'galaxian']    // Level 5
+]
 
 // ===== TESTING ===== //
 
@@ -117,6 +127,50 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     spawnTime: Date.now()
   })
 }, []) 
+
+  // ===== LEVEL UP ===== //
+  const levelUp = () => {
+    // Increase level
+    setLevel(prev => prev + 1)
+
+    // Set level fruits
+    setFruitIndex(0)
+    
+    // Respawn dots
+    setDots(generateDotsFromMaze())
+    
+    // Respawn power pellets
+    setPowerPellets([
+      { x: 0, y: 0 },
+      { x: 14, y: 0 },
+      { x: 0, y: 14 },
+      { x: 14, y: 14 }
+    ])
+    
+  // Reset positions
+  setPacmanPosition({ x: 7, y: 11 })
+  setGhosts(GHOST_SPAWNS)
+  setEatenGhosts([])
+  
+  // Reset fruit
+  setFruit({ type: null, position: null, spawnTime: null })
+  
+  // Reset frightened
+  setIsFrightened(false)
+  if (frightenedTimer) clearTimeout(frightenedTimer)
+  setFrightenedTimer(null)
+  setGhostsEatenCount(0)
+  
+  // Show message
+  setFloatingScores([{
+    x: 7,
+    y: 7,
+    text: 'LEVEL UP!',
+    id: Date.now()
+  }])
+  
+  setTimeout(() => setFloatingScores([]), 2000)
+}
 
   // ===== MOVE PACMAN ===== //
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
@@ -213,12 +267,19 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         spawnFruit(FRUIT_PROGRESSION[nextIndex])
       }
 
-      //Check the win
+      //Check the win/ level up
       if (newDots.length === 0) {
-        playWon(isMuted)  // ← PLAY WIN SOUND
-        setGameStatus('won')
+        if (level < 5) {  // ← LEVEL UP
+          // Level up!
+          levelUp()
+        } else { // ← WIN - SHOW WIN SCREEN
+          // Final win
+          playWon(isMuted)
+          setGameStatus('won')
+        }
       }
     }
+
     // ===== COLLECTING POWER PELLETS ===== //
     const hasPowerPellet = powerPellets.some(
       pellet => pellet.x === newX && pellet.y === newY
@@ -298,7 +359,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         setGhostsEatenCount(prev => prev + 1)  // ← Increment counter
         setEatenGhosts(prev => [...prev, collidedIndex])
 
-      } else {         
+       } else if (!isAlreadyEaten) {  
         // Normal ghost - lose life
         setIsPacmanDying(true) // ← START death animation
         playDie(isMuted)
@@ -315,6 +376,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
           if (remainingLives <= 0) {
             setFloatingScores([])
             setGameStatus('gameOver')  
+            setLevel(1)
+            setLives(3)
           } else {
           // Show "READY!" after death (only if lives remain)
             setTimeout(() => {
@@ -356,6 +419,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         fruit.type,
         fruit.position,
         spawnFruit,
+        level,
+        levelUp,
       ])
   
   /*** 1. Cleanup frightened timer on unmount */
@@ -658,7 +723,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         // Set ghost to the spawn position
         setGhostsEatenCount(prev => prev + 1)  // ← Increment
         setEatenGhosts(prev => [...prev, collidedIndex])
-      } else {
+        
+       } else if (!isAlreadyEaten) { 
         // Normal state → Pacman dies
         setIsPacmanDying(true)  
         playDie(isMuted)
@@ -672,6 +738,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
             setAnnouncement(`Hit by ghost! ${newLives} lives remaining`)
             if (newLives <= 0) {
               setGameStatus('gameOver')
+              setLevel(1)
+              setLives(3)
             }
             return newLives
           })
@@ -809,7 +877,7 @@ const onRestart = () => {
 
             <div className="level">
               <span className="visually-hidden">Current level: </span>
-              Level: 1
+              Level: {level}
             </div>
             <button 
               className="mute"

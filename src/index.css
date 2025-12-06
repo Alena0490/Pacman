@@ -236,9 +236,10 @@ h2 {
   height: 1.5rem;
   display: inline-block;
   margin-inline: 0.25rem;
-  filter: drop-shadow(0 0 2px var(--pacman-color))
-  brightness(1.2);
-}
+  filter: 
+    drop-shadow(0 0 2px var(--pacman-color))
+    brightness(1.2);
+  }
 
 .fruits-eaten {
   min-width: 2rem;
