@@ -142,6 +142,7 @@ background: radial-gradient(
   animation: coin-pulse 0.9s ease-in-out infinite;
   filter: drop-shadow(0 0 0.4rem var(--background-dark))
           brightness(0.7);
+  image-rendering: pixelated;
 }
 
 .coin.large {
@@ -158,6 +159,7 @@ background: radial-gradient(
   object-fit: contain; 
   image-rendering: pixelated; 
   z-index: 200;
+  image-rendering: pixelated;
 }
 
 .fruit[data-fruit="cherry"] {

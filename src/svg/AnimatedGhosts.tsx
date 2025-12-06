@@ -40,7 +40,7 @@ const AnimatedGhost = ({
           cy={42 + offset.y} 
           rx="6" 
           ry="8.5" 
-          fill="#2C3E50"
+          fill="#0000ff"
           className="pupil"
         />
         
@@ -52,7 +52,7 @@ const AnimatedGhost = ({
           cy={42 + offset.y} 
           rx="6" 
           ry="8.5" 
-          fill="#2C3E50"
+          fill="#0000ff"
           className="pupil"
         />
       </svg>
@@ -140,7 +140,7 @@ const AnimatedGhost = ({
         cy={42 + offset.y} 
         rx="6" 
         ry="8.5" 
-        fill="#2C3E50"
+        fill="#0000ff"
         className="pupil pupil-left"
       />
       
@@ -152,7 +152,7 @@ const AnimatedGhost = ({
         cy={42 + offset.y} 
         rx="6" 
         ry="8.5" 
-        fill="#2C3E50"
+        fill="#0000ff"
         className="pupil pupil-right"
       />
     </svg>
