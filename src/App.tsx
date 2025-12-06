@@ -142,6 +142,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
   const levelUp = useCallback(() => {
     // Increase level
     setLevel(prev => prev + 1)
+    playStart(isMuted)
 
     // Set level fruits
     setFruitIndex(0)
@@ -180,7 +181,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
   }])
   
   setTimeout(() => setFloatingScores([]), 2000)
-}, [frightenedTimer]) 
+}, [frightenedTimer, playStart, isMuted]) 
 
   // ===== MOVE PACMAN ===== //
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
