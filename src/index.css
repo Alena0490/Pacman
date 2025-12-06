@@ -249,6 +249,7 @@ h2 {
   }
 
 .level-fruits {
+  display: flex;
   min-width: 2rem;
   gap: 0.5rem;
 }

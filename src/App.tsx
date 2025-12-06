@@ -12,7 +12,7 @@ import {
 import type { Fruit, FruitType } from './data/FruitTypes'
 import { 
   FRUIT_POINTS,
-  FRUIT_PROGRESSION,
+  // FRUIT_PROGRESSION,
   FRUIT_SPAWN_DOTS,
   FRUIT_TIMEOUT,
   FRUIT_SPAWN_POSITION 
@@ -107,6 +107,9 @@ const [fruit, setFruit] = useState<Fruit>({
   spawnTime: null
 })
 
+// Level-specific fruit pairs
+// Based on limited documentation - each level spawns 2 specific fruits
+// May need adjustment if more official spawn data is found
 const LEVEL_FRUITS: [FruitType, FruitType][] = [
   ['cherry', 'strawberry'],    // Level 1
   ['orange', 'apple'],          // Level 2  
@@ -910,15 +913,15 @@ const onRestart = () => {
           <div className="bottom-menu">
             <Lives lives={lives} />
             <div className="level-fruits">
-                {level >= 1 && <img src={CherryImg} />}
-                {level >= 2 && <img src={StrawberryImg} />}
-                {level >= 3 && <img src={OrangeImg} />}
-                {level >= 4 && <img src={OrangeImg} />}
-                {level >= 5 && <img src={AppleImg} />}
-                {level >= 6 && <img src={AppleImg} />}
-                {level >= 7 && <img src={MelonImg} />}
-                {level >= 8 && <img src={MelonImg} />}
-                {level >= 9 && <img src={GalaxianImg} />}
+                {level >= 1 && <img src={CherryImg} alt="level 1"/>}
+                {level >= 2 && <img src={StrawberryImg} alt="level 2"/>}
+                {level >= 3 && <img src={OrangeImg} alt="level 3"/>}
+                {level >= 4 && <img src={OrangeImg} alt="level 4"/>}
+                {level >= 5 && <img src={AppleImg} alt="level 5"/>}
+                {level >= 6 && <img src={AppleImg} alt="level 6"/>}
+                {level >= 7 && <img src={MelonImg} alt="level 7"/>}
+                {level >= 8 && <img src={MelonImg} alt="level 8"/>}
+                {level >= 9 && <img src={GalaxianImg} alt="level 1"/>}
                 {level >= 10 && <img src={GalaxianImg} />}
             </div>
           </div>
