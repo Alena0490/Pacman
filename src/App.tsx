@@ -90,6 +90,7 @@ const App = () => {
   const playEatGhost = useSound("/sounds/audio_eatghost.mp3")
   const playFrightened = useSound("/sounds/audio_intermission.mp3")
   const playEatPellet = useSound("/sounds/audio_eatpill.mp3")
+  const playEatFruit = useSound("../public/sounds/pacman_eatfruit.wav")
 
   // ===== FRUITS ===== //
 const [fruit, setFruit] = useState<Fruit>({
@@ -167,7 +168,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     const points = FRUIT_POINTS[fruit.type!] 
     
     setScore(prev => prev + points)
-    
+    playEatFruit(isMuted)
+
     // Floating score popup
     setFloatingScores(prev => [...prev, {
       x: newX,
@@ -260,8 +262,10 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
 
     /*** EATING GOSTS */ 
     if (collidedIndex !== -1) {
+      const isAlreadyEaten = eatenGhosts.includes(collidedIndex) // Check if the ghost is already eaten
+
       // If ghosts are frightened - eat the ghost
-      if (isFrightened) {
+      if (isFrightened && !isAlreadyEaten) {
         playEatGhost(isMuted)
 
         // Calculate points: 200, 400, 800, 1600
@@ -334,6 +338,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         powerPellets,  
         score,
         ghosts,
+        eatenGhosts,
         lives,
         GRID_SIZE,
         playEating,
@@ -343,6 +348,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         ghostsEatenCount,
         playFrightened,
         playEatPellet,
+        playEatFruit,
         isFrightened,
         frightenedTimer,
         isMuted,
@@ -618,7 +624,9 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     )
 
     if (collidedIndex !== -1) {
-      if (isFrightened) {
+      const isAlreadyEaten = eatenGhosts.includes(collidedIndex)  
+      
+      if (isFrightened&& !isAlreadyEaten) {
         // Pacman eats the ghost
         playEatGhost(isMuted)
         const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
@@ -677,6 +685,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         GRID_SIZE,
         pacmanPosition,
         isFrightened,
+        eatenGhosts,
         playDie,
         playEatGhost,
         ghosts,
