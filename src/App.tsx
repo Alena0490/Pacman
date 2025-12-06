@@ -142,6 +142,9 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
   const levelUp = useCallback(() => {
     // Increase level
     setLevel(prev => prev + 1)
+    // Stop current souds
+    stopAllSounds()
+    // Play start for the new level
     playStart(isMuted)
 
     // Set level fruits
@@ -771,6 +774,31 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         ghostsEatenCount,
         isMuted,
       ])
+
+  // ===== GHOSTS SPEED =====//
+  useEffect(() => {
+  if (gameStatus !== 'playing') return
+  
+  // Calculate speed based on level
+  const baseSpeed = 500  // Level 1
+  const speedIncrease = 50  // Speed increase 50ms per level
+  const maxSpeed = 200  // Maximum speed
+  
+  const ghostSpeed = Math.max(baseSpeed - (level - 1) * speedIncrease, maxSpeed)
+  // Level 1: 500ms
+  // Level 2: 450ms
+  // Level 3: 400ms
+  // Level 4: 350ms
+  // Level 5: 300ms
+  
+  const ghostInterval = setInterval(() => {
+    moveGhosts()
+  }, ghostSpeed)  // ← Use calculated speed
+  
+  return () => {
+    clearInterval(ghostInterval)
+  }
+}, [moveGhosts, gameStatus, level]) 
 
 // ===== GAME OVER ===== //
 //Restart the game
