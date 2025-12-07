@@ -17,6 +17,20 @@ import {
   FRUIT_TIMEOUT,
   FRUIT_SPAWN_POSITION 
 } from './data/FruitTypes'
+
+import { 
+  GRID_SIZE, 
+  GHOST_SPAWNS, 
+  POWER_PELLET_POSITIONS,
+  GHOST_SPEED_CONFIG,
+  INVINCIBILITY_DURATION,
+  FRIGHTENED_DURATION,
+  PACMAN_SPAWN,
+  LEVEL_FRUITS,
+  type Ghost,
+  type GameStatus
+} from './data/gameConstants'
+
 import { useSound, stopAllSounds } from "./hooks/useSound"
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import CherryImg from './img/cherries.png'
@@ -27,24 +41,6 @@ import MelonImg from './img/melon.svg'
 import GalaxianImg from './img/galaxian.webp'
 import "./App.css"
 
-// Ghost type definition
-type Ghost = {
-  x: number
-  y: number
-  lastDirection: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
-  personality: 'random' | 'patrol' | 'nervous' | 'shy'
-}
-
-type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won'
-
-/*** GHOST SPAWN - SAVE THE LAST POSITIONS */
-const GHOST_SPAWNS: Ghost[] = [
-  { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },
-  { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },
-  { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },
-  { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' },
-]
-
 const App = () => {
 // ===== GAME STATE ===== //
   const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
@@ -52,12 +48,12 @@ const App = () => {
   const [lives, setLives] = useState(3)
   const [isInvincible, setIsInvincible] = useState(false) // Pacman can't be killed
   const [isPacmanDying, setIsPacmanDying] = useState(false)
-  const GRID_SIZE = 15
+
   const [announcement, setAnnouncement] = useState('')
   const [isMuted, setIsMuted] = useState(false)
   
   // ===== POSITION ===== //
-  const [pacmanPosition, setPacmanPosition] = useState({ x: 7, y: 11 })
+  const [pacmanPosition, setPacmanPosition]  = useState(PACMAN_SPAWN)
   const [ghosts, setGhosts] = useState<Ghost[]>(GHOST_SPAWNS)
 
   // ===== EATEN GHOSTS (returning to spawn) ===== //
@@ -81,12 +77,7 @@ const App = () => {
   const [dots, setDots] = useState(() => generateDotsFromMaze())
 
   // ===== POWER PELLETS STATE ===== //
-  const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>([
-    { x: 0, y: 0 },    // Top left
-    { x: 14, y: 0 },   // Top right
-    { x: 0, y: 14 },   // Bottom left
-    { x: 14, y: 14 }   // Bottom right
-  ])
+  const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>(POWER_PELLET_POSITIONS)
 
  // ===== LEVEL ===== //
   const [level, setLevel] = useState(1)
@@ -107,17 +98,6 @@ const [fruit, setFruit] = useState<Fruit>({
   position: null,
   spawnTime: null
 })
-
-// Level-specific fruit pairs
-// Based on limited documentation - each level spawns 2 specific fruits
-// May need adjustment if more official spawn data is found
-const LEVEL_FRUITS: [FruitType, FruitType][] = [
-  ['cherry', 'strawberry'],    // Level 1
-  ['orange', 'apple'],          // Level 2  
-  ['melon', 'galaxian'],        // Level 3
-  ['cherry', 'melon'],          // Level 4
-  ['strawberry', 'galaxian']    // Level 5
-]
 
 // ===== TESTING ===== //
 
@@ -155,15 +135,10 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     setDots(generateDotsFromMaze())
     
     // Respawn power pellets
-    setPowerPellets([
-      { x: 0, y: 0 },
-      { x: 14, y: 0 },
-      { x: 0, y: 14 },
-      { x: 14, y: 14 }
-    ])
+    setPowerPellets(POWER_PELLET_POSITIONS)
     
   // Reset positions
-  setPacmanPosition({ x: 7, y: 11 })
+  setPacmanPosition(PACMAN_SPAWN)
   setGhosts(GHOST_SPAWNS)
   setEatenGhosts([])
   
@@ -317,9 +292,9 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         // Set 8 second timer
         const timer = setTimeout(() => {
           setIsFrightened(false)
-          setGhostsEatenCount(0)  // ← RESET when frightened mode ends
-        }, 8000)  // 8 seconds
-        
+          setGhostsEatenCount(0) // ← RESET when frightened mode ends
+        }, FRIGHTENED_DURATION)  // ← 8 seconds
+
         setFrightenedTimer(timer)
         
           // ✅ Wait 400 ms then frightened sound:
@@ -381,7 +356,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         // ⏱️ WAIT 1s (death animation), THEN teleport
         setTimeout(() => {
           setIsPacmanDying(false)  // ← END death animation
-          setPacmanPosition({ x: 7, y: 11 })
+          setPacmanPosition(PACMAN_SPAWN)
 
           // Active invincibility - Pac-Man can't be killed during respawn
           setIsInvincible(true)
@@ -389,7 +364,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
           // Turn off after 2 seconds
           setTimeout(() => {
             setIsInvincible(false)
-          }, 2000)
+          }, INVINCIBILITY_DURATION)  // ← 2s
 
           const remainingLives = lives - 1
           setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
@@ -425,7 +400,6 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         ghosts,
         eatenGhosts,
         lives,
-        GRID_SIZE,
         playEating,
         playWon,
         playDie,
@@ -754,7 +728,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         
         setTimeout(() => {  // ← adding timeout
           setIsPacmanDying(false)
-          setPacmanPosition({ x: 7, y: 11 })
+          setPacmanPosition(PACMAN_SPAWN)
           
           setLives(prev => {
             const newLives = prev - 1
@@ -773,7 +747,6 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
       return newGhosts
     })
   }, [
-        GRID_SIZE,
         pacmanPosition,
         isFrightened,
         eatenGhosts,
@@ -790,17 +763,11 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
   if (gameStatus !== 'playing') return
   
   // Calculate speed based on level
-  const baseSpeed = 500  // Level 1
-  const speedIncrease = 50  // Speed increase 50ms per level
-  const maxSpeed = 200  // Maximum speed
-  
-  const ghostSpeed = Math.max(baseSpeed - (level - 1) * speedIncrease, maxSpeed)
-  // Level 1: 500ms
-  // Level 2: 450ms
-  // Level 3: 400ms
-  // Level 4: 350ms
-  // Level 5: 300ms
-  
+    const ghostSpeed = Math.max(
+    GHOST_SPEED_CONFIG.base - (level - 1) * GHOST_SPEED_CONFIG.increase,
+    GHOST_SPEED_CONFIG.max
+  )
+
   const ghostInterval = setInterval(() => {
     moveGhosts()
   }, ghostSpeed)  // ← Use calculated speed
@@ -816,19 +783,14 @@ const onRestart = () => {
   setLives(3)
   setScore(0)
   setGameStatus('playing')
-  setPacmanPosition({ x: 7, y: 11 })
+  setPacmanPosition(PACMAN_SPAWN)
   setGhosts(GHOST_SPAWNS)
   setEatenGhosts([]) 
   setFruit({ type: null, position: null, spawnTime: null })
   setFruitIndex(0)  
   setDots(generateDotsFromMaze())  // ← Generate new dots
   // Reset power pellets
-  setPowerPellets([
-    { x: 0, y: 0 },
-    { x: 14, y: 0 },
-    { x: 0, y: 14 },
-    { x: 14, y: 14 }
-  ])
+  setPowerPellets(POWER_PELLET_POSITIONS)
   // Reset frightened mode
   setIsFrightened(false)            // ← Remove frightened mode
     if (frightenedTimer) {             // ← Reset timer

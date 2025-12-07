@@ -1,5 +1,3 @@
-// data/mazeData.ts
-
 // ===== TYPE CELL =====
 export type Cell = {
   top: boolean      // Wall up
@@ -423,5 +421,3 @@ export const canMoveInDirection = (
   // All checks passed - move is valid!
   return true
 }
-
-
