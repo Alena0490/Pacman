@@ -48,6 +48,7 @@ const App = () => {
   const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
+  const [nextExtraLifeAt, setNextExtraLifeAt] = useState(10000)
   const [isInvincible, setIsInvincible] = useState(false) // Pacman can't be killed
   const [isPacmanDying, setIsPacmanDying] = useState(false)
   const [highScore, setHighScore] = useState(0)
@@ -92,7 +93,8 @@ const App = () => {
   const playEatGhost = useSound("/sounds/audio_eatghost.mp3")
   const playFrightened = useSound("/sounds/audio_intermission.mp3")
   const playEatPellet = useSound("/sounds/audio_eatpill.mp3")
-  const playEatFruit = useSound("../public/sounds/pacman_eatfruit.wav")
+  const playEatFruit = useSound("/sounds/pacman_eatfruit.wav")
+  const playExtraLife = useSound("/public/sounds/audio_extra lives.mp3")
 
   // ===== FRUITS ===== //
 const [fruit, setFruit] = useState<Fruit>({
@@ -178,6 +180,18 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
   
   setTimeout(() => setFloatingScores([]), 2000)
 }, [frightenedTimer, playStart, isMuted]) 
+
+  // ===== EXTRA LIFE ===== //
+  // Add extra life at every 10 000 points
+
+useEffect(() => {
+  if (score >= nextExtraLifeAt) {
+    setLives(prev => prev + 1)
+    setNextExtraLifeAt(prev => prev + 10000)  // ← Next threshold
+    setAnnouncement('Extra life! 10,000 points reached!')
+    playExtraLife(isMuted)
+  }
+}, [score, nextExtraLifeAt, isMuted, playExtraLife])
 
   // ===== MOVE PACMAN ===== //
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
@@ -688,6 +702,7 @@ const onRestart = () => {
     }
   setFrightenedTimer(null)   
   setGhostsEatenCount(0) 
+  setNextExtraLifeAt(10000)  // ← Reset threshold
   // Show "READY!" message
   setFloatingScores([{
     x: 7,
