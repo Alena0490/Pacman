@@ -328,7 +328,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     )
 
     /*** EATING GOSTS */ 
-    if (collidedIndex !== -1) {
+    if (collidedIndex !== -1 && !isInvincible) { 
       const isAlreadyEaten = eatenGhosts.includes(collidedIndex) // Check if the ghost is already eaten
 
       // If ghosts are frightened - eat the ghost
@@ -368,6 +368,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
       /***  NORMAL GHOST - LOSE LIFE */
        } else if (!isAlreadyEaten) {  
         setIsPacmanDying(true) // ← START death animation
+        // Active invincibility - Pac-Man can't be killed during respawn
+        setIsInvincible(true)      // ← SET IMMIDIATELY! Pac-Man can't be killed twice
         playDie(isMuted)
 
         // ⏱️ WAIT 1s (death animation), THEN teleport
@@ -375,13 +377,10 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
           setIsPacmanDying(false)  // ← END death animation
           setPacmanPosition(PACMAN_SPAWN)
 
-          // Active invincibility - Pac-Man can't be killed during respawn
-          setIsInvincible(true)
-
           // Turn off after 2 seconds
           setTimeout(() => {
             setIsInvincible(false)
-          }, INVINCIBILITY_DURATION)  // ← 2s
+          }, INVINCIBILITY_DURATION)  // ← 2s after respwn
 
           const remainingLives = lives - 1
           setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
@@ -428,6 +427,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         isFrightened,
         frightenedTimer,
         isMuted,
+        isInvincible,
         fruit.type,
         fruit.position,
         spawnFruit,
@@ -608,11 +608,17 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
        } else if (!isAlreadyEaten) { 
         // Normal state → Pacman dies
         setIsPacmanDying(true)  
+        setIsInvincible(true)
         playDie(isMuted)
         
         setTimeout(() => {  // ← adding timeout
           setIsPacmanDying(false)
           setPacmanPosition(PACMAN_SPAWN)
+
+          // Turn off invincibility after respawn
+          setTimeout(() => {
+            setIsInvincible(false)
+          }, INVINCIBILITY_DURATION) 
           
           setLives(prev => {
             const newLives = prev - 1
