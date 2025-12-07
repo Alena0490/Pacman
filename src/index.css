@@ -215,7 +215,7 @@ h2 {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.25rem 1.25rem 1rem;
+  padding: 0.25rem 0 1rem;
 }
 
 .bottom-menu p,
@@ -233,7 +233,7 @@ h2 {
 }
 
 .lives-img {
-  margin-inline: 0.75rem;
+  margin-inline: 0;
 }
 
 .lives-img img  {
@@ -245,7 +245,11 @@ h2 {
     drop-shadow(0 0 2px var(--pacman-color))
     brightness(1.2);
   image-rendering: pixelated;
-  }
+}
+
+.lives-img img:first-of-type {
+  margin-left: 0;
+}
 
 .level-fruits {
   display: flex;
@@ -325,8 +329,7 @@ button.mute:hover {
 
 @media (max-width: 370px) {
 
-  .game-stats,
-  .bottom-menu {
+  .game-stats {
     padding-inline: 1rem;
   }
 

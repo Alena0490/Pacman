@@ -50,7 +50,7 @@ const App = () => {
   const [lives, setLives] = useState(3)
   const [isInvincible, setIsInvincible] = useState(false) // Pacman can't be killed
   const [isPacmanDying, setIsPacmanDying] = useState(false)
-
+  const [highScore, setHighScore] = useState(0)
   const [announcement, setAnnouncement] = useState('')
   const [isMuted, setIsMuted] = useState(false)
   
@@ -120,6 +120,21 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     spawnTime: Date.now()
   })
 }, []) 
+
+  // ===== HIGH SCORE ===== //
+  // Load on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('highScore')
+    if (saved) setHighScore(parseInt(saved))
+  }, [])
+
+  // Update when score changes
+  useEffect(() => {
+    if (score > highScore) {
+      setHighScore(score)
+      localStorage.setItem('highScore', score.toString())
+    }
+  }, [score, highScore])
 
   // ===== LEVEL UP ===== //
   const levelUp = useCallback(() => {
@@ -757,7 +772,7 @@ const onRestart = () => {
 
               <div className="game-score high-score">
                 <span className="visually-hidden">High score: </span>
-                High score: {score}
+                High score: {highScore}
               </div>
 
 
@@ -788,10 +803,10 @@ const onRestart = () => {
           />
           <div className="bottom-menu">
             <Lives lives={lives} />
-            {/* <div className="level">
+            <div className="level">
               <span className="visually-hidden">Current level: </span>
               <p> Level: {level} </p>
-            </div> */}
+            </div>
             <div className="level-fruits">
                 {level >= 1 && <img src={CherryImg} alt="level 1"/>}
                 {level >= 2 && <img src={StrawberryImg} alt="level 2"/>}

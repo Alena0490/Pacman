@@ -7,8 +7,7 @@ type LivesProp = {
 const Lives = ({ lives }: LivesProp) => {
   return (
     <div className="lives">
-      <p>
-        Lives: 
+      <p> 
         <span className="lives-img">
         {Array.from({ length: lives }).map((_, i) => (
             <img 
