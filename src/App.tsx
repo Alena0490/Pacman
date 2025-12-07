@@ -12,12 +12,14 @@ import {
 import type { Fruit, FruitType } from './data/FruitTypes'
 import { 
   FRUIT_POINTS,
-  // FRUIT_PROGRESSION,
   FRUIT_SPAWN_DOTS,
   FRUIT_TIMEOUT,
   FRUIT_SPAWN_POSITION 
 } from './data/FruitTypes'
-
+import {
+  findPossibleMoves,
+  calculateGhostMove
+} from './utils/ghostAI'
 import { 
   GRID_SIZE, 
   GHOST_SPAWNS, 
@@ -205,7 +207,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
 
     // ===== COLLECTING DOTS AND FRUITS ===== //
     const hasDot = dots.some(dot => dot.x === newX && dot.y === newY)
-    // V movePacman, PŘED "if (hasDot)" check:
+    // In movePacman, before "if (hasDot)" check:
 
   // 🍒 FRUIT COLLISION
   if (fruit.position && newX === fruit.position.x && newY === fruit.position.y) {
@@ -411,7 +413,6 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         isFrightened,
         frightenedTimer,
         isMuted,
-        // fruitIndex,
         fruit.type,
         fruit.position,
         spawnFruit,
@@ -493,34 +494,9 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
 
         for (let currentIndex = 0; currentIndex < prevGhosts.length; currentIndex++) {
           const ghost = prevGhosts[currentIndex]
-  
-      // ===== FIND ALL POSSIBLE DIRECTIONS =====
-      const possibleMoves: Array<{
-        x: number, 
-        y: number, 
-        direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
-      }> = []
-      
-      // Try all 4 directions
-      const directions: Array<'UP' | 'DOWN' | 'LEFT' | 'RIGHT'> = ['UP', 'DOWN', 'LEFT', 'RIGHT']
-      
-      for (const dir of directions) {
-        if (canMoveInDirection(MAZE, ghost.x, ghost.y, dir, GRID_SIZE)) {
-          let newX = ghost.x
-          let newY = ghost.y
-          
-          if (dir === 'UP') newY -= 1
-          if (dir === 'DOWN') newY += 1
-          if (dir === 'LEFT') newX -= 1
-          if (dir === 'RIGHT') newX += 1
-          
-          possibleMoves.push({ 
-            x: newX, 
-            y: newY, 
-            direction: dir  // ← SAVE THE DIRECTION
-          })
-        }
-      }
+
+          // ===== FIND ALL POSSIBLE DIRECTIONS =====
+          const possibleMoves = findPossibleMoves(ghost, MAZE, GRID_SIZE)
       
       // No possible moves → stay in place
       if (possibleMoves.length === 0) {
@@ -528,115 +504,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
         continue  // ✅ Continue to the next ghosr
       }
       
-      // ===== PREFER UP IN GHOST HOUSE ===== //
-      // Ghost house area - prefer UP to escape y >= 6 && y <= 8, x >= 6 && x <= 8
-      const isInGhostHouse = (
-        ghost.y >= 5 && ghost.y <= 8 &&
-        ghost.x >= 6 && ghost.x <= 8
-      )
-      
-      let finalMove
-      
-      if (isInGhostHouse) {
-        // Try to find UP direction first
-        const upMove = possibleMoves.find(move => move.direction === 'UP')
-        
-        if (upMove) {
-          finalMove = upMove  // Prefer UP
-        } else {
-          // If UP not possible, choose random
-          finalMove = possibleMoves[
-            Math.floor(Math.random() * possibleMoves.length)
-          ]
-        }
-      } else {
-        // ===== PERSONALITY-BASED MOVEMENT ===== //
-        // Different ghost behaviors outside the house
-      
-      if (ghost.personality === 'random') {
-        // RANDOM: Completely unpredictable movement
-        // Chooses any available direction with equal probability
-        finalMove = possibleMoves[
-          Math.floor(Math.random() * possibleMoves.length)
-        ]
-        
-      } else if (ghost.personality === 'patrol') {
-        // PATROL: Prefers to continue in the same direction
-        // Only changes when hitting a wall (creates patrol patterns)
-        const sameDirection = possibleMoves.find(
-          move => move.direction === ghost.lastDirection
-        )
-        
-        if (sameDirection) {
-          finalMove = sameDirection  // Keep going same way
-        } else {
-          // Can't continue → pick random
-          finalMove = possibleMoves[
-            Math.floor(Math.random() * possibleMoves.length)
-          ]
-        }
-        
-      } else if (ghost.personality === 'nervous') {
-        // NERVOUS: Avoids backtracking (doesn't like going backwards)
-        // More decisive movement, less likely to get stuck
-        const oppositeDir = {
-          'UP': 'DOWN',
-          'DOWN': 'UP',
-          'LEFT': 'RIGHT',
-          'RIGHT': 'LEFT'
-        }[ghost.lastDirection] as 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
-        
-        // Try to avoid opposite direction
-        const filteredMoves = possibleMoves.filter(
-          move => move.direction !== oppositeDir
-        )
-        
-        if (filteredMoves.length > 0) {
-          // Choose from forward/side moves
-          finalMove = filteredMoves[
-            Math.floor(Math.random() * filteredMoves.length)
-          ]
-        } else {
-          // Forced to go back (only option)
-          finalMove = possibleMoves[0]
-        }
-
-      } else if (ghost.personality === 'shy') { 
-      // SHY: Gets scared when close to Pacman
-        const distanceToPacman = Math.abs(ghost.x - pacmanPosition.x) + 
-                                Math.abs(ghost.y - pacmanPosition.y)
-        
-        if (distanceToPacman <= 3) {
-        // Too close! Run away
-          const awayMoves = possibleMoves.filter(move => {
-            const newDistance = Math.abs(move.x - pacmanPosition.x) + 
-                              Math.abs(move.y - pacmanPosition.y)
-            return newDistance > distanceToPacman
-          })
-          
-          if (awayMoves.length > 0) {
-            finalMove = awayMoves[
-              Math.floor(Math.random() * awayMoves.length)
-            ]
-          } else {
-            finalMove = possibleMoves[
-              Math.floor(Math.random() * possibleMoves.length)
-            ]
-          }
-        } else {
-          // Far enough → random
-          finalMove = possibleMoves[
-            Math.floor(Math.random() * possibleMoves.length)
-          ]
-        }
-        
-      } else {
-        // FALLBACK: Default to random if personality unknown
-        finalMove = possibleMoves[
-          Math.floor(Math.random() * possibleMoves.length)
-        ]
-      }
-    }
+      // ===== CALCULATE MOVE BASED ON PERSONALITY =====
+      const finalMove = calculateGhostMove(ghost, possibleMoves, pacmanPosition)
       
     // ===== CHECK IF ANOTHER GHOST IS THERE ===== //
       const isOccupied = newGhosts.some((otherGhost, otherIndex) => {
