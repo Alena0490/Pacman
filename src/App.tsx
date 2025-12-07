@@ -755,10 +755,12 @@ const onRestart = () => {
                 Score: {score}
               </div>
 
-            <div className="level">
-              <span className="visually-hidden">Current level: </span>
-              Level: {level}
-            </div>
+              <div className="game-score high-score">
+                <span className="visually-hidden">High score: </span>
+                High score: {score}
+              </div>
+
+
             <button 
               className="mute"
               onClick={() => {
@@ -786,6 +788,10 @@ const onRestart = () => {
           />
           <div className="bottom-menu">
             <Lives lives={lives} />
+            {/* <div className="level">
+              <span className="visually-hidden">Current level: </span>
+              <p> Level: {level} </p>
+            </div> */}
             <div className="level-fruits">
                 {level >= 1 && <img src={CherryImg} alt="level 1"/>}
                 {level >= 2 && <img src={StrawberryImg} alt="level 2"/>}
