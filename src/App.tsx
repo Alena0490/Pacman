@@ -369,7 +369,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
        } else if (!isAlreadyEaten) {  
         setIsPacmanDying(true) // ← START death animation
         // Active invincibility - Pac-Man can't be killed during respawn
-        setIsInvincible(true)      // ← SET IMMIDIATELY! Pac-Man can't be killed twice
+        setIsInvincible(true)      // ← SET IMMEDIATELY! Pac-Man can't be killed twice
         playDie(isMuted)
 
         // ⏱️ WAIT 1s (death animation), THEN teleport
