@@ -250,27 +250,33 @@ background: radial-gradient(
     drop-shadow(0 0 0.75rem var(--ghost-orange-tr));
 }
 
-/* Frightened ghost - overrides personality colors  */
-.ghost .animated-ghost.scared {
-  color: var(--ghost-blue);  /* #2121FF */
-  animation: ghost-scared 0.5s ease-in-out infinite;  /* Faster anination */
-}
-
-.ghost:has(.animated-ghost.scared) {
+/* Frightened - override všech barev */
+.ghost.frightened {
+  color: var(--ghost-blue) ;
   filter: 
     drop-shadow(0 0 0.25rem var(--ghost-blue-tr))
-    drop-shadow(0 0 0.75rem var(--ghost-blue-tr)) !important;
-}
-
-/* Frightened state - overrides personality colors */
-.ghost[data-ghost].frightened {
-  color: var(--ghost-blue) !important;
-  animation: ghost-scared 0.5s ease-in-out infinite;  /* Faster anination */
+    drop-shadow(0 0 0.75rem var(--ghost-blue-tr));
+  animation: ghost-scared 0.5s ease-in-out infinite !important;
 }
 
 /* Blinking before frightened ends */
 .ghost[data-ghost].frightened.ending {
-  animation: ghost-blink 0.3s infinite;
+  filter: 
+    drop-shadow(0 0 0.25rem var(--text-color)) 
+    drop-shadow(0 0 0.75rem var(--text-color));
+  animation: ghost-ending-blink 0.5s steps(1) 4 !important;  /* 4× opakování */
+}
+
+/* Red mouth */
+.animated-ghost.frightened.ending .ghost-mouth {
+  animation: mouth-blink 0.5s steps(1) 4;
+  fill: var(--danger);
+}
+
+/* Red Eyes */
+.animated-ghost.frightened.ending .ghost-eye {
+  animation: eyes-blink 0.5s steps(1) 4;
+  fill: var(--danger);
 }
 
 .ghost.eaten {
@@ -365,15 +371,31 @@ background: radial-gradient(
     50% { transform: translateY(-3px); }
   }
 
-  @keyframes ghost-blink {
-    0%, 49% { 
-      color: var(--ghost-blue-tr); 
+  @keyframes ghost-ending-blink {
+    0%, 49% {
+      color: var(--ghost-blue);  /* Modrá */
+      filter: 
+        drop-shadow(0 0 0.25rem var(--ghost-blue-tr))
+        drop-shadow(0 0 0.75rem var(--ghost-blue-tr));
     }
-    50%, 100% { 
-      color: rgba(255, 255, 255, 0.7);  /* White flash */
+    50%, 100% {
+      color: var(--text-color);  /* Bílá */
+      filter: 
+        drop-shadow(0 0 0.5rem var(--text-color))
+        drop-shadow(0 0 1rem var(--text-color));
     }
   }
 
+  @keyframes mouth-blink {
+    0%, 49% { fill: #0000a0; } 
+    50%, 100% { fill: var(--danger); } 
+  }
+
+  @keyframes eyes-blink {
+  0%, 49% { fill: #f5f5f5; }  /* Tmavá */
+  50%, 100% { fill: var(--danger); }  /* Červená */
+}
+   
   @keyframes ghost-eyes-float {
     0%, 100% { transform: scale(1.6) translateY(0); }
     50% { transform: scale(1.5) translateY(-2px); }

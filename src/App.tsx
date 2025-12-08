@@ -65,6 +65,7 @@ const App = () => {
   // ===== FRIGHTENED MODE ===== //
   const [isFrightened, setIsFrightened] = useState(false)
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
+  const [frightenedTimeRemaining, setFrightenedTimeRemaining] = useState(0)
   const [ghostsEatenCount, setGhostsEatenCount] = useState(0)
 
   // ===== FLOATING SCORE POPUPS ===== //
@@ -314,7 +315,9 @@ useEffect(() => {
       setIsFrightened(true)
       setGhostsEatenCount(0) // Reset count when new Power Pellet is eaten
       playEatPellet(isMuted)
-        
+
+      setFrightenedTimeRemaining(FRIGHTENED_DURATION)
+      
         // Clear existing timer if any
         if (frightenedTimer) {
           clearTimeout(frightenedTimer)
@@ -324,6 +327,7 @@ useEffect(() => {
         const timer = setTimeout(() => {
           setIsFrightened(false)
           setGhostsEatenCount(0) // ← RESET when frightened mode ends
+          setFrightenedTimeRemaining(0) 
         }, FRIGHTENED_DURATION)  // ← 8 seconds
 
         setFrightenedTimer(timer)
@@ -449,7 +453,9 @@ useEffect(() => {
         levelUp,
         currentLevelFruits,
       ])
-  
+
+  // ===== GHOSTS =====//
+  // ===== GHOSTS FRIGHTENED =====//
   /*** 1. Cleanup frightened timer on unmount */
   useEffect(() => {
     return () => {
@@ -459,8 +465,33 @@ useEffect(() => {
     }
   }, [frightenedTimer])
 
-  // ===== GHOSTS MOVE =====//
-  const moveGhosts = useCallback(() => {
+  /*** 2. Frightened countdown timer */
+ /*** 1. Cleanup frightened timer on unmount */
+useEffect(() => {
+  return () => {
+    if (frightenedTimer) {
+      clearTimeout(frightenedTimer)
+    }
+  }
+}, [frightenedTimer])
+
+/*** 2. Frightened countdown timer - PŘIDAT TENTO! */
+useEffect(() => {
+  if (!isFrightened) return
+  
+  const countdownInterval = setInterval(() => {
+    setFrightenedTimeRemaining(prev => {
+      const newValue = Math.max(0, prev - 100)
+      console.log('⏱️ Countdown:', newValue)
+      return newValue
+    })
+  }, 100)
+  
+  return () => clearInterval(countdownInterval)
+}, [isFrightened])
+
+    // ===== GHOSTS MOVE =====//
+    const moveGhosts = useCallback(() => {
 
     // ===== MOVE EATEN GHOSTS (eyes) BACK TO SPAWN ===== //
     setEatenGhosts(prevEaten => {
@@ -660,6 +691,7 @@ useEffect(() => {
         ghostsEatenCount,
         isMuted,
         isInvincible,
+
       ])
 
   // ===== GHOSTS SPEED =====//
@@ -821,7 +853,8 @@ const onRestart = () => {
           isPacmanDying={isPacmanDying}
           fruit={fruit}
           isInvincible={isInvincible}
-          />
+          frightenedTimeRemaining={frightenedTimeRemaining}
+        />
           <div className="bottom-menu">
             <Lives lives={lives} />
             <div className="level">

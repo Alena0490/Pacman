@@ -36,6 +36,7 @@ type GameFieldProps = {
     }>
     isPacmanDying: boolean
     isInvincible: boolean
+    frightenedTimeRemaining: number
 }
 
 const GameField = ({ 
@@ -46,12 +47,14 @@ const GameField = ({
     ghosts, 
     gridSize, 
     maze, 
+    frightenedTimeRemaining, 
     isFrightened, 
     eatenGhosts,
     floatingScores,
     isPacmanDying ,
     isInvincible,
 }: GameFieldProps) => {
+      console.log('🎮 GameField isFrightened:', isFrightened)
 
 // ===== WATCH POSITION CHANGES =====//
 // Remember the last position
@@ -112,13 +115,20 @@ const [lastDirection, setLastDirection] = useState('right')
             const currentGhost = ghosts[ghostIndex]
             
             return (
-                <div className="ghost" data-ghost={ghostIndex}>
-                <AnimatedGhost
-                    ghostIndex={ghostIndex as 0 | 1 | 2 | 3}
-                    direction={currentGhost.lastDirection}
-                    isScared={isFrightened && !isEaten}
-                    isEaten={isEaten}
-                />
+                <div 
+                    className={`ghost 
+                        ${isFrightened ? 'frightened' : ''} 
+                        ${isFrightened && frightenedTimeRemaining <= 2000 ? 'ending' : ''}
+                        ${isEaten ? 'eaten' : ''}`}
+                    data-ghost={ghostIndex}
+                    >
+                    <AnimatedGhost
+                        ghostIndex={ghostIndex as 0 | 1 | 2 | 3}
+                        direction={currentGhost.lastDirection}
+                        isScared={isFrightened && !isEaten}
+                        isFlashing={isFrightened && frightenedTimeRemaining <= 2000} 
+                        isEaten={isEaten}
+                    />
                 </div>
             )
         }
