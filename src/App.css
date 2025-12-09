@@ -222,7 +222,7 @@ background: radial-gradient(
 }
 
 /* Ghost colors  */
-.ghost[data-ghost="0"] {
+.ghost[data-ghost="2"] {
   color: var(--ghost-cyan);  /* #00FFFF */
   filter: 
     drop-shadow(0 0 0.25rem var(--ghost-cyan-tr))
@@ -236,7 +236,7 @@ background: radial-gradient(
     drop-shadow(0 0 0.75rem var(--ghost-pink-tr));
 }
 
-.ghost[data-ghost="2"] {
+.ghost[data-ghost="0"] {
   color: var(--ghost-red);  /* #ff435c */
   filter: 
     drop-shadow(0 0 0.25rem var(--ghost-red-tr))
@@ -264,18 +264,18 @@ background: radial-gradient(
   filter: 
     drop-shadow(0 0 0.25rem var(--text-color)) 
     drop-shadow(0 0 0.75rem var(--text-color));
-  animation: ghost-ending-blink 0.5s steps(1) 4 !important;  /* 4× opakování */
+  animation: ghost-ending-blink 0.5s steps(1) 5 !important;  /* 5× repeat */
 }
 
 /* Red mouth */
 .animated-ghost.frightened.ending .ghost-mouth {
-  animation: mouth-blink 0.5s steps(1) 4;
+  animation: mouth-blink 0.5s steps(1) 5;
   fill: var(--danger);
 }
 
 /* Red Eyes */
 .animated-ghost.frightened.ending .ghost-eye {
-  animation: eyes-blink 0.5s steps(1) 4;
+  animation: eyes-blink 0.5s steps(1) 5;
   fill: var(--danger);
 }
 

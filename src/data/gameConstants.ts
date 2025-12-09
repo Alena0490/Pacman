@@ -15,10 +15,10 @@ export const GRID_SIZE = 15
 
 // ===== GHOST SPAWN POSITIONS ===== //
 export const GHOST_SPAWNS: Ghost[] = [
-  { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // [0] = 🔵 Cyan (Inky) - random
-  { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },  // [1] = 🩷 Pink (Pinky) - nervous
-  { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },   // [2] = 🔴 Red (Blinky) - agressive patrol
-  { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' },      // [3] = 🟠 Orange (Clyde) - shy
+  { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },   // [0] Blinky
+  { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },  // [1] Pinky
+  { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // [2] Inky
+  { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' },      // [3] Clyde
 ]
 
 

@@ -59,6 +59,14 @@ const App = () => {
   const [pacmanPosition, setPacmanPosition]  = useState(PACMAN_SPAWN)
   const [ghosts, setGhosts] = useState<Ghost[]>(GHOST_SPAWNS)
 
+    // ===== GHOSTS ===== //
+  const [ghostsReleased, setGhostsReleased] = useState<boolean[]>([
+    true,   // Blinky - is outside
+    false,  // Pinky - is released
+    false,  // Inky - wait
+    false   // Clyde - wait
+  ])
+
   // ===== EATEN GHOSTS (returning to spawn) ===== //
   const [eatenGhosts, setEatenGhosts] = useState<number[]>([])  // Array of ghost indices
 
@@ -455,7 +463,7 @@ useEffect(() => {
       ])
 
   // ===== GHOSTS =====//
-  // ===== GHOSTS FRIGHTENED =====//
+
   /*** 1. Cleanup frightened timer on unmount */
   useEffect(() => {
     return () => {
@@ -466,29 +474,46 @@ useEffect(() => {
   }, [frightenedTimer])
 
   /*** 2. Frightened countdown timer */
- /*** 1. Cleanup frightened timer on unmount */
-useEffect(() => {
-  return () => {
-    if (frightenedTimer) {
-      clearTimeout(frightenedTimer)
-    }
-  }
-}, [frightenedTimer])
+  useEffect(() => {
+    if (!isFrightened) return
+    
+    const countdownInterval = setInterval(() => {
+      setFrightenedTimeRemaining(prev => {
+        const newValue = Math.max(0, prev - 100)
+        console.log('⏱️ Countdown:', newValue)
+        return newValue
+      })
+    }, 100)
+    
+    return () => clearInterval(countdownInterval)
+  }, [isFrightened])
 
-/*** 2. Frightened countdown timer - PŘIDAT TENTO! */
-useEffect(() => {
-  if (!isFrightened) return
-  
-  const countdownInterval = setInterval(() => {
-    setFrightenedTimeRemaining(prev => {
-      const newValue = Math.max(0, prev - 100)
-      console.log('⏱️ Countdown:', newValue)
-      return newValue
-    })
-  }, 100)
-  
-  return () => clearInterval(countdownInterval)
-}, [isFrightened])
+  /*** 3. Ghost release timing */
+  useEffect(() => {
+    if (gameStatus !== 'playing') return
+    
+    // Release Pinky after 3s
+    const pinkyTimer = setTimeout(() => {
+      setGhostsReleased([true, true, false, false])
+    }, 3000)
+    
+    // Release Inky after 7s  
+    const inkyTimer = setTimeout(() => {
+      setGhostsReleased([true, true, true, false])
+    }, 7000)
+    
+    // Release Clyde after 12s
+    const clydeTimer = setTimeout(() => {
+      setGhostsReleased([true, true, true, true])
+    }, 12000)
+    
+    // Cleanup timers on unmount
+    return () => {
+      clearTimeout(pinkyTimer)
+      clearTimeout(inkyTimer)
+      clearTimeout(clydeTimer)
+    }
+  }, [gameStatus])
 
     // ===== GHOSTS MOVE =====//
     const moveGhosts = useCallback(() => {
@@ -554,6 +579,11 @@ useEffect(() => {
 
         for (let currentIndex = 0; currentIndex < prevGhosts.length; currentIndex++) {
           const ghost = prevGhosts[currentIndex]
+          // Check if ghost is released
+            if (!ghostsReleased[currentIndex]) {
+              newGhosts.push(ghost)  // Stay in place
+              continue  // Skip to next ghost
+            }
 
           // ===== FIND ALL POSSIBLE DIRECTIONS =====
           const possibleMoves = findPossibleMoves(ghost, MAZE, GRID_SIZE)
@@ -691,6 +721,7 @@ useEffect(() => {
         ghostsEatenCount,
         isMuted,
         isInvincible,
+        ghostsReleased,
 
       ])
 
