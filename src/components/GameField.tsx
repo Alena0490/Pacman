@@ -37,6 +37,7 @@ type GameFieldProps = {
     isPacmanDying: boolean
     isInvincible: boolean
     frightenedTimeRemaining: number
+    ghostsReleased: boolean[] 
 }
 
 const GameField = ({ 
@@ -53,6 +54,7 @@ const GameField = ({
     floatingScores,
     isPacmanDying ,
     isInvincible,
+    ghostsReleased,
 }: GameFieldProps) => {
       console.log('🎮 GameField isFrightened:', isFrightened)
 
@@ -113,13 +115,20 @@ const [lastDirection, setLastDirection] = useState('right')
         if (ghostIndex !== -1) {
             const isEaten = eatenGhosts.includes(ghostIndex)
             const currentGhost = ghosts[ghostIndex]
+            const isWaiting = !ghostsReleased[ghostIndex] 
+
+            // Bounce pattern: Pinky & Clyde up, Inky down
+            const bounceClass = isWaiting 
+                ? (ghostIndex === 1 ? 'bounce-down' : 'bounce-up')  // Inky bounces opposite
+                : ''
             
             return (
                 <div 
                     className={`ghost 
                         ${isFrightened ? 'frightened' : ''} 
                         ${isFrightened && frightenedTimeRemaining <= 2000 ? 'ending' : ''}
-                        ${isEaten ? 'eaten' : ''}`}
+                        ${isEaten ? 'eaten' : ''}
+                        ${bounceClass}`} 
                     data-ghost={ghostIndex}
                     >
                     <AnimatedGhost

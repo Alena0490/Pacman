@@ -885,6 +885,7 @@ const onRestart = () => {
           fruit={fruit}
           isInvincible={isInvincible}
           frightenedTimeRemaining={frightenedTimeRemaining}
+          ghostsReleased={ghostsReleased} 
         />
           <div className="bottom-menu">
             <Lives lives={lives} />
