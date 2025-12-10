@@ -218,7 +218,9 @@ background: radial-gradient(
   drop-shadow(0 0 0.25rem currentColor)
          drop-shadow(0 0 0.75rem currentColor);
   animation: ghost-float 2s ease-in-out infinite;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.1s ease-out,
+    left 0.3s linear,
+    top 0.3s linear;
   z-index: 100;
 }
 
