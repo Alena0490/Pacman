@@ -1,0 +1,51 @@
+[33m6c0e17e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m feat: add dynamic ghost house gate animation
+[33m26a2496[m feat: add bounce animation for ghosts waiting in house
+[33m5e2c4b5[m ghost release function - ghosts are released one by one from the ghost cave
+[33m40954ee[m creating the flickering effect at the end of scared mode, css animation
+[33m0e10ce9[m feat: add extra life every 10,000 points
+[33m88836d7[m fixing the typoo in comments
+[33m11e6e93[m fix: prevent double death with invincibility frames
+[33m0890682[m feat: add high score with localStorage
+[33mcb020a6[m high score UI preparation
+[33m9daee3b[m refactor: extract Ghost AI to utils/ghostAI.ts
+[33m18e2063[m audio bugfixing
+[33m5560937[m added isInvincible - ghost can't be killed during respawn
+[33m2b394d9[m level up - speed progresion
+[33m038f7e1[m mute button fix - stop all sounds
+[33mab1b761[m ghost pupil chsnged to blue
+[33m30f3394[m adding playStart() to level up
+[33m4885864[m level up, rotating the fruits between levels
+[33m2c6b6bd[m adding level fruits (the level icons)
+[33mf58453f[m fixing bug (Pacman was killed by the ghost eyes) adding !isAlredyEaten condition
+[33md6f0436[m adding another to gates to maze
+[33mf67f18e[m UX lives put to the bottom
+[33m7ef33d8[m check if the gost is already eaten
+[33m7cec5f9[m coins renamed to dots, fruits added to the game
+[33m02edd68[m coins changed to dots
+[33md2b944b[m creating the fruit type
+[33meefa04c[m lives: the heart changed for pacman icon
+[33m699ab2f[m adding 50 points for collecting Power Pellet
+[33m1012237[m mute tyling, adding the original pacman fonts, ajdusting styling to the fonst, fixing the bug: the floating text READY! was showing before game over
+[33m33ef1b4[m adding the mute button
+[33mfba20f2[m the pacman svg animation finished
+[33mc9cb24e[m adding animated svg pacman
+[33m50e4f71[m minor refactoring
+[33m50c27e5[m the ghost animation - ghost put in one svg, using sevg path animation
+[33m16a74cb[m the test button removed, adding the floting text READY!
+[33m65cdbd3[m styling the pop up screen
+[33m896a71b[m adding test score button
+[33mbf328b8[m setPacmanPosition({ x: 7, y: 11 })
+[33m5cda467[m power pellert restration, eat pellet vs frightened sound - frightened sound 0.4 s delay - I can hear both sounds
+[33m61e5b16[m eating ghost - the eyes moving to the gost cave
+[33m1645f58[m the ghost firghtened mode active, play eatpill sound for pellet, the ghost can be eaten
+[33m0a15b70[m addinganother ghost to the game
+[33m1236230[m aria label, adding the teleport tunnel
+[33m635440a[m adding sounds to the game
+[33m1db54c5[m creating the useSound hook
+[33m9739fdb[m finishing the ghost moving, adding the ghost personalities, styling
+[33mba44367[m adding css for inaccesible areas
+[33m9afba34[m the ghost move logic, prefer up added for the ghost cave and the fields above it -the ghosts are not cycling inside, labyrinth adjustmens removing some dead ends (the robots can not move and react in the broader perspective)
+[33m7100100[m the labyrinth logic
+[33m65d16ee[m styling
+[33m49e32d9[m game logic + basic styling
+[33ma821ee8[m first commit
