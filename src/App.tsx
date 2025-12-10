@@ -517,61 +517,69 @@ useEffect(() => {
 
     // ===== GHOSTS MOVE =====//
     const moveGhosts = useCallback(() => {
+      // ===== MOVE EATEN GHOSTS (eyes) BACK TO SPAWN ===== //
+      setEatenGhosts(prevEaten => {
+        const stillReturning: number[] = []
 
-    // ===== MOVE EATEN GHOSTS (eyes) BACK TO SPAWN ===== //
-    setEatenGhosts(prevEaten => {
-      const stillReturning: number[] = []
+        prevEaten.forEach(ghostIndex => {
+          const ghost = ghosts[ghostIndex]
+          const spawn = GHOST_SPAWNS[ghostIndex]
 
-      prevEaten.forEach(ghostIndex => {
-        const ghost = ghosts[ghostIndex]
-        const spawn = GHOST_SPAWNS[ghostIndex]
-
-        // Check if ghost reached spawn
-        if (ghost.x === spawn.x && ghost.y === spawn.y) {
-          // Ghost is home - respawn normally
-          // Don't add to stillReturning (remove from eatenGhosts)
-        } else {
+          // Check if ghost reached spawn
+          if (ghost.x === spawn.x && ghost.y === spawn.y) {
+            // Ghost is home - respawn normally
+            // Don't add to stillReturning (remove from eatenGhosts)
+            return  // ✅ Exit THIS forEach iteration, continue to next ghost
+          }
+          
+          // ✅  runs ONLY if ghost is NOT home yet
           // Move toward spawn (simple pathfinding)
           setGhosts(prevGhosts => {
             const updated = [...prevGhosts]
             const current = updated[ghostIndex]
 
-            // Move horizontally first, then vertically
-            if (current.x < spawn.x) {
-              updated[ghostIndex] = {
-                 ...current, 
-                x: current.x + 1, 
-                lastDirection: 'RIGHT' 
+            // PRIORITY 1: Fix X coordinate first
+            if (current.x !== spawn.x) {
+              if (current.x < spawn.x) {
+                updated[ghostIndex] = {
+                  ...current,
+                  x: current.x + 1,
+                  lastDirection: 'RIGHT'
+                }
+              } else {
+                updated[ghostIndex] = {
+                  ...current,
+                  x: current.x - 1,
+                  lastDirection: 'LEFT'
+                }
               }
-            } else if (current.x > spawn.x) {
-              updated[ghostIndex] = { 
-                ...current, 
-                x: current.x - 1, 
-                lastDirection: 'LEFT' 
-              }
-            } else if (current.y < spawn.y) {
-              updated[ghostIndex] = { 
-                ...current, 
-                y: current.y + 1, 
-                lastDirection: 'DOWN' 
-              }
-            } else if (current.y > spawn.y) {
-              updated[ghostIndex] = { 
-                ...current, 
-                y: current.y - 1, 
-                lastDirection: 'UP' 
+            }
+            // PRIORITY 2: Then fix Y coordinate (only if X is correct)
+            else if (current.y !== spawn.y) {
+              if (current.y < spawn.y) {
+                updated[ghostIndex] = {
+                  ...current,
+                  y: current.y + 1,
+                  lastDirection: 'DOWN'
+                }
+              } else {
+                updated[ghostIndex] = {
+                  ...current,
+                  y: current.y - 1,
+                  lastDirection: 'UP'
+                }
               }
             }
 
             return updated
           })
 
+          // Ghost is still returning - keep in array
           stillReturning.push(ghostIndex)
-        }
-      })
+        })  // ✅ Close forEach
 
-      return stillReturning
-    })
+        return stillReturning
+      })  // ✅ Close setEatenGhosts
 
     // ===== NORMAL GHOST MOVEMENT ===== //
     setGhosts(prevGhosts => {

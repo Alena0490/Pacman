@@ -290,7 +290,7 @@ background: radial-gradient(
 }
 
 .ghost.eaten {
-  transform: scale(2);
+  transform: scale(1.25);
   filter: brightness(1.5);  /* No glow for eyes */
   animation: ghost-eyes-float 0.3s ease-in-out infinite;
 }
