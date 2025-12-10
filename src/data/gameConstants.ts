@@ -1,5 +1,6 @@
 import type { FruitType } from './FruitTypes' 
 
+
 // ===== GHOST TYPE DEFINITION ===== //
 export type Ghost = {
   x: number
@@ -21,8 +22,26 @@ export const GHOST_SPAWNS: Ghost[] = [
   { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' },      // [3] Clyde
 ]
 
+// ===== SCATTER MODE SETTINGS ===== //
+export type GhostMode = 'chase' | 'scatter' | 'frightened' | 'eaten'
 
-  // ===== POWER PELLETS STATE ===== //
+// Scatter targets - each ghost goes to a specific corner
+export const SCATTER_TARGETS = [
+  { x: 14, y: 0 },   // [0] Blinky - top right
+  { x: 0, y: 0 },    // [1] Pinky - top left  
+  { x: 14, y: 14 },  // [2] Inky - bottom right
+  { x: 0, y: 14 }    // [3] Clyde - bottom left
+]
+
+// Scatter/Chase wave timing (in seconds)
+export const WAVE_TIMINGS = [
+  { scatter: 7, chase: 20 },   // Wave 1
+  { scatter: 7, chase: 20 },   // Wave 2
+  { scatter: 5, chase: 20 },   // Wave 3
+  { scatter: 5, chase: -1 }    // Wave 4 (chase forever)
+]
+
+// ===== POWER PELLETS STATE ===== //
 export const POWER_PELLET_POSITIONS = [
   { x: 0, y: 0 },    // Top left
   { x: 14, y: 0 },   // Top right

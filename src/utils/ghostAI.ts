@@ -146,9 +146,11 @@ export const findPossibleMoves = (
  * Calculate next move for a ghost based on personality
  */
 export const calculateGhostMove = (
-  ghost: Ghost,
-  possibleMoves: Move[],
-  pacmanPosition: Position
+    ghost: Ghost,
+    possibleMoves: Move[],
+    pacmanPosition: Position,
+     mode?: 'chase' | 'scatter',  
+    scatterTarget?: Position   
 ): Move => {
   // In ghost house - prefer UP to escape
   if (isInGhostHouse(ghost)) {
@@ -156,6 +158,11 @@ export const calculateGhostMove = (
     if (upMove) return upMove
     return randomPersonality(possibleMoves)
   }
+
+    // Scatter mode - go to corner
+    if (mode === 'scatter' && scatterTarget) {
+        return scatterPersonality( possibleMoves, scatterTarget)
+    }
   
   // Outside house - use personality
   switch (ghost.personality) {
@@ -170,4 +177,31 @@ export const calculateGhostMove = (
     default:
       return randomPersonality(possibleMoves)
   }
+}
+
+/**
+ * SCATTER personality: Move toward target corner
+ * Each ghost goes to their home corner
+ */
+export const scatterPersonality = (
+//   ghost: Ghost,
+  possibleMoves: Move[],
+  target: Position
+): Move => {
+  // Find move that gets closest to target corner
+  let bestMove = possibleMoves[0]
+  let bestDistance = Infinity
+  
+  for (const move of possibleMoves) {
+    const distance = 
+      Math.abs(move.x - target.x) + 
+      Math.abs(move.y - target.y)
+    
+    if (distance < bestDistance) {
+      bestDistance = distance
+      bestMove = move
+    }
+  }
+  
+  return bestMove
 }

@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react"
+// COMPONENTS
 import GameField from "./components/GameField"
 import StartScreen from "./components/StartScreen"
 import GameOver from "./components/GameOver"
 import WinScreen from "./components/WinScreen"
 import Lives from "./components/Lives"
+// DATA & TYPES
 import { 
   MAZE, 
   generateDotsFromMaze, 
@@ -23,6 +25,7 @@ import {
 import { 
   GRID_SIZE, 
   GHOST_SPAWNS, 
+  SCATTER_TARGETS,
   POWER_PELLET_POSITIONS,
   GHOST_SPEED_CONFIG,
   INVINCIBILITY_DURATION,
@@ -32,8 +35,10 @@ import {
   type Ghost,
   type GameStatus
 } from './data/gameConstants'
-
+// HOOKS
 import { useSound, stopAllSounds } from "./hooks/useSound"
+import { useGhostBehavior } from './hooks/useGhostBehavior'
+// ICONS
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import CherryImg from './img/cherries.png'
 import StrawberryImg from './img/strawberry.svg'
@@ -41,6 +46,7 @@ import OrangeImg from './img/orange.svg'
 import AppleImg from './img/apple.svg'
 import MelonImg from './img/melon.svg'
 import GalaxianImg from './img/galaxian.webp'
+// STYLES
 import "./App.css"
 
 const App = () => {
@@ -76,6 +82,7 @@ const App = () => {
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
   const [frightenedTimeRemaining, setFrightenedTimeRemaining] = useState(0)
   const [ghostsEatenCount, setGhostsEatenCount] = useState(0)
+  const ghostMode = useGhostBehavior(isFrightened)
 
   // ===== FLOATING SCORE POPUPS ===== //
   const [floatingScores, setFloatingScores] = useState<Array<{
@@ -105,6 +112,8 @@ const App = () => {
   const playEatPellet = useSound("/sounds/audio_eatpill.mp3")
   const playEatFruit = useSound("/sounds/pacman_eatfruit.wav")
   const playExtraLife = useSound("/public/sounds/audio_extra lives.mp3")
+  const playSiren = useSound("/sounds/audio_siren.mp3")
+  const playGhostRetreat = useSound("/sounds/ghost-retreat.mp3")
 
   // ===== FRUITS ===== //
 const [fruit, setFruit] = useState<Fruit>({
@@ -122,7 +131,6 @@ const [fruit, setFruit] = useState<Fruit>({
 // })
 // ===== END TESTING ===== //
 
-const [fruitIndex, setFruitIndex] = useState(0)
 const currentLevelFruits = LEVEL_FRUITS[level - 1]
 
 const spawnFruit = useCallback((fruitType: FruitType) => {
@@ -158,7 +166,6 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     playStart(isMuted)
 
     // Set level fruits
-    setFruitIndex(0)
     
     // Respawn dots
     setDots(generateDotsFromMaze())
@@ -629,7 +636,13 @@ useEffect(() => {
       }
       
       // ===== CALCULATE MOVE BASED ON PERSONALITY =====
-      const finalMove = calculateGhostMove(ghost, possibleMoves, pacmanPosition)
+      const finalMove = calculateGhostMove(
+        ghost, 
+        possibleMoves, 
+        pacmanPosition,
+        ghostMode === 'frightened' ? 'scatter' : ghostMode, 
+        SCATTER_TARGETS[currentIndex]  
+      )
       
     // ===== CHECK IF ANOTHER GHOST IS THERE ===== //
       const isOccupied = newGhosts.some((otherGhost, otherIndex) => {
@@ -756,7 +769,7 @@ useEffect(() => {
         isMuted,
         isInvincible,
         ghostsReleased,
-
+        ghostMode,
       ])
 
   // ===== GHOSTS SPEED =====//
@@ -788,7 +801,6 @@ const onRestart = () => {
   setGhosts(GHOST_SPAWNS)
   setEatenGhosts([]) 
   setFruit({ type: null, position: null, spawnTime: null })
-  setFruitIndex(0)  
   setDots(generateDotsFromMaze())  // ← Generate new dots
   // Reset power pellets
   setPowerPellets(POWER_PELLET_POSITIONS)

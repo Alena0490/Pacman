@@ -102,7 +102,7 @@
   --game-max-width: 52rem;
   --cell-size: min(2.5rem, 6vw, 5vh);    /* 40px OR 6%  */
   --pacman-size: clamp(1.6rem, 1.4rem + 1.4vw, 1.9rem);
-  --ghost-size: 85%;
+  --ghost-size: calc(var(--cell-size) * 0.85);
   --dot-size: 15%;
   --coin-size-large: 85%;
   --game-padding: 0.625rem;
