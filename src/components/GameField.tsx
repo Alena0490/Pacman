@@ -38,6 +38,7 @@ type GameFieldProps = {
     isInvincible: boolean
     frightenedTimeRemaining: number
     ghostsReleased: boolean[] 
+    isGateVisible: boolean 
 }
 
 const GameField = ({ 
@@ -55,6 +56,7 @@ const GameField = ({
     isPacmanDying ,
     isInvincible,
     ghostsReleased,
+    isGateVisible, 
 }: GameFieldProps) => {
       console.log('🎮 GameField isFrightened:', isFrightened)
 
@@ -210,10 +212,13 @@ const [lastDirection, setLastDirection] = useState('right')
             // Zone class (restricted / ghost-house)
             const zoneClass = cell.zone || '' 
             
+            // Gate visibility - add class to cell above ghost house (x:7, y:6)
+            const gateClass = (x === 7 && y === 6 && isGateVisible) ? 'gate-visible' : ''
+
             cells.push(
-                <div className={`cell ${wallClasses} ${zoneClass}`}>
+            <div className={`cell ${wallClasses} ${zoneClass} ${gateClass}`}>
                 {getCellContent(x, y)}
-                </div>
+            </div>
             )
         }
 
@@ -231,7 +236,7 @@ const [lastDirection, setLastDirection] = useState('right')
         aria-label={`Pacman game grid, ${gridSize} by ${gridSize} cells`}
     >
         {rows}
- 
+
         {/* Floating messages (scores + READY) */}
         {floatingScores.map(item => (
             <div

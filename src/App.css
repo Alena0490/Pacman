@@ -99,6 +99,13 @@ background: radial-gradient(
   display: inline-block;
 }
 
+/* Ghost house gate - special border on cell above house */
+.cell.gate-visible {
+  border-top: 0.2rem solid var(--cell-dot-color);
+  transition: 
+    border-top 0.3s ease-in-out,
+}
+
 /* PAC-MAN */
 /* Pacman base */
 .pacman {

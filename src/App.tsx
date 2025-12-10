@@ -66,6 +66,7 @@ const App = () => {
     false,  // Inky - wait
     false   // Clyde - wait
   ])
+  const [isGateVisible, setIsGateVisible] = useState(true)
 
   // ===== EATEN GHOSTS (returning to spawn) ===== //
   const [eatenGhosts, setEatenGhosts] = useState<number[]>([])  // Array of ghost indices
@@ -488,30 +489,55 @@ useEffect(() => {
     return () => clearInterval(countdownInterval)
   }, [isFrightened])
 
-  /*** 3. Ghost release timing */
+  /*** 3. Ghost release timing + gate animation */
   useEffect(() => {
     if (gameStatus !== 'playing') return
     
-    // Release Pinky after 3s
-    const pinkyTimer = setTimeout(() => {
+    // Pinky release (3s)
+    const pinkyGateOut = setTimeout(() => {
+      setIsGateVisible(false)  // Gate fade out
+    }, 2800)  // Slightly before release
+    
+    const pinkyRelease = setTimeout(() => {
       setGhostsReleased([true, true, false, false])
     }, 3000)
     
-    // Release Inky after 7s  
-    const inkyTimer = setTimeout(() => {
+    const pinkyGateIn = setTimeout(() => {
+      setIsGateVisible(true)  // Gate fade in
+    }, 3200)  // After Pinky passes
+    
+    // Inky release (7s)
+    const inkyGateOut = setTimeout(() => {
+      setIsGateVisible(false)
+    }, 6800)
+    
+    const inkyRelease = setTimeout(() => {
       setGhostsReleased([true, true, true, false])
     }, 7000)
     
-    // Release Clyde after 12s
-    const clydeTimer = setTimeout(() => {
+    const inkyGateIn = setTimeout(() => {
+      setIsGateVisible(true)
+    }, 7200)
+    
+    // Clyde release (12s) - gate disappears forever
+    const clydeGateOut = setTimeout(() => {
+      setIsGateVisible(false)
+    }, 11800)
+    
+    const clydeRelease = setTimeout(() => {
       setGhostsReleased([true, true, true, true])
     }, 12000)
     
-    // Cleanup timers on unmount
+    // Cleanup
     return () => {
-      clearTimeout(pinkyTimer)
-      clearTimeout(inkyTimer)
-      clearTimeout(clydeTimer)
+      clearTimeout(pinkyGateOut)
+      clearTimeout(pinkyRelease)
+      clearTimeout(pinkyGateIn)
+      clearTimeout(inkyGateOut)
+      clearTimeout(inkyRelease)
+      clearTimeout(inkyGateIn)
+      clearTimeout(clydeGateOut)
+      clearTimeout(clydeRelease)
     }
   }, [gameStatus])
 
@@ -894,6 +920,7 @@ const onRestart = () => {
           isInvincible={isInvincible}
           frightenedTimeRemaining={frightenedTimeRemaining}
           ghostsReleased={ghostsReleased} 
+          isGateVisible={isGateVisible} 
         />
           <div className="bottom-menu">
             <Lives lives={lives} />
