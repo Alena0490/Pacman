@@ -58,7 +58,6 @@ const GameField = ({
     ghostsReleased,
     isGateVisible, 
 }: GameFieldProps) => {
-      console.log('🎮 GameField isFrightened:', isFrightened)
 
 // ===== WATCH POSITION CHANGES =====//
 // Remember the last position

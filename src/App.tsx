@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 // COMPONENTS
 import GameField from "./components/GameField"
 import StartScreen from "./components/StartScreen"
@@ -103,17 +103,18 @@ const App = () => {
   const [level, setLevel] = useState(1)
 
   // Create sound players
-  const playEating = useSound("/sounds/pac-man-waka-waka.mp3")
-  const playDie = useSound("/sounds/audio_die.mp3")
-  const playWon = useSound("/sounds/audio_victory.mp3")
-  const playStart = useSound("/sounds/audio_opening_song.mp3")
-  const playEatGhost = useSound("/sounds/audio_eatghost.mp3")
-  const playFrightened = useSound("/sounds/audio_intermission.mp3")
-  const playEatPellet = useSound("/sounds/audio_eatpill.mp3")
-  const playEatFruit = useSound("/sounds/pacman_eatfruit.wav")
-  const playExtraLife = useSound("/public/sounds/audio_extra lives.mp3")
-  const playSiren = useSound("/sounds/audio_siren.mp3")
-  const playGhostRetreat = useSound("/sounds/ghost-retreat.mp3")
+  const { play: playEating }  = useSound("/sounds/pac-man-waka-waka.mp3")
+  const { play: playDie }  = useSound("/sounds/audio_die.mp3")
+  const { play: playWon }  = useSound("/sounds/audio_victory.mp3")
+  const { play: playStart }  = useSound("/sounds/audio_opening_song.mp3")
+  const { play: playEatGhost}  = useSound("/sounds/audio_eatghost.mp3")
+  const { play: playFrightened }  = useSound("/sounds/audio_intermission.mp3")
+  const { play: playEatPellet }  = useSound("/sounds/audio_eatpill.mp3")
+  const { play: playEatFruit }  = useSound("/sounds/pacman_eatfruit.wav")
+  const { play: playExtraLife }  = useSound("/public/sounds/audio_extra lives.mp3")
+  const { play: playSiren1, stop: stopSiren1 }  = useSound("../public/sounds/Voicy_Ghost Siren sound.mp3", { loop: true })
+  const { play: playSiren2, stop: stopSiren2 } = useSound("../public/sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
+  const { play: playGhostRetreat }  = useSound("/sounds/ghost-retreat.mp3")
 
   // ===== FRUITS ===== //
 const [fruit, setFruit] = useState<Fruit>({
@@ -209,6 +210,47 @@ useEffect(() => {
     playExtraLife(isMuted)
   }
 }, [score, nextExtraLifeAt, isMuted, playExtraLife])
+
+const siren1Playing = useRef(false)
+const siren2Playing = useRef(false)
+
+useEffect(() => {
+  // Stop all sirens if not playing
+  if (gameStatus !== 'playing' || isFrightened || isPacmanDying) {
+    if (siren1Playing.current) {
+      stopSiren1()
+      siren1Playing.current = false
+    }
+    if (siren2Playing.current) {
+      stopSiren2()
+      siren2Playing.current = false
+    }
+    return
+  }
+  
+  // Play scatter siren
+  if (ghostMode === 'scatter') {
+    if (siren2Playing.current) {
+      stopSiren2()
+      siren2Playing.current = false
+    }
+    if (!siren1Playing.current) {  // ← Spustit POUZE pokud ještě nehraje
+      playSiren1(isMuted)
+      siren1Playing.current = true
+    }
+  } 
+  // Play chase siren
+  else if (ghostMode === 'chase') {
+    if (siren1Playing.current) {
+      stopSiren1()
+      siren1Playing.current = false
+    }
+    if (!siren2Playing.current) {  // ← Spustit POUZE pokud ještě nehraje
+      playSiren2(isMuted)
+      siren2Playing.current = true
+    }
+  }
+}, [gameStatus, ghostMode, isFrightened, isPacmanDying, isMuted, playSiren1, stopSiren1, playSiren2, stopSiren2])
 
   // ===== MOVE PACMAN ===== //
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
@@ -399,6 +441,10 @@ useEffect(() => {
         setGhostsEatenCount(prev => prev + 1)  // ← Increment counter
         setEatenGhosts(prev => [...prev, collidedIndex])
 
+          setTimeout(() => {
+          playGhostRetreat(isMuted)  
+        }, 500)  // ← Short pause after gulp sound "gulp"
+
       /***  NORMAL GHOST - LOSE LIFE */
        } else if (!isAlreadyEaten) {  
         setIsPacmanDying(true) // ← START death animation
@@ -458,6 +504,7 @@ useEffect(() => {
         playFrightened,
         playEatPellet,
         playEatFruit,
+        playGhostRetreat,
         isFrightened,
         frightenedTimer,
         isMuted,
