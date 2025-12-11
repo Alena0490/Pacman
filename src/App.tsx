@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 // COMPONENTS
 import GameField from "./components/GameField"
 import StartScreen from "./components/StartScreen"
@@ -101,6 +101,7 @@ const App = () => {
 
  // ===== LEVEL ===== //
   const [level, setLevel] = useState(1)
+  const [isIntroPlaying, setIsIntroPlaying] = useState(false)
 
   // Create sound players
   const { play: playEating }  = useSound("/sounds/pac-man-waka-waka.mp3")
@@ -112,8 +113,8 @@ const App = () => {
   const { play: playEatPellet }  = useSound("/sounds/audio_eatpill.mp3")
   const { play: playEatFruit }  = useSound("/sounds/pacman_eatfruit.wav")
   const { play: playExtraLife }  = useSound("/public/sounds/audio_extra lives.mp3")
-  const { play: playSiren1, stop: stopSiren1 }  = useSound("../public/sounds/Voicy_Ghost Siren sound.mp3", { loop: true })
-  const { play: playSiren2, stop: stopSiren2 } = useSound("../public/sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
+  const { play: playSiren1, stop: stopSiren1 }  = useSound("/sounds/Voicy_Ghost Siren sound.mp3", { loop: true })
+  const { play: playSiren2, stop: stopSiren2 } = useSound("/sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
   const { play: playGhostRetreat }  = useSound("/sounds/ghost-retreat.mp3")
 
   // ===== FRUITS ===== //
@@ -163,8 +164,16 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     setLevel(prev => prev + 1)
     // Stop current souds
     stopAllSounds()
+
+    setIsIntroPlaying(true) // ← Intro začíná
     // Play start for the new level
     playStart(isMuted)
+    setGameStatus('playing')
+    
+    // Intro skončí za 4s
+    setTimeout(() => {
+      setIsIntroPlaying(false)
+    }, 4000)
 
     // Set level fruits
     
@@ -211,46 +220,41 @@ useEffect(() => {
   }
 }, [score, nextExtraLifeAt, isMuted, playExtraLife])
 
-const siren1Playing = useRef(false)
-const siren2Playing = useRef(false)
-
+// ===== SIREN MANAGEMENT ===== //
 useEffect(() => {
-  // Stop all sirens if not playing
-  if (gameStatus !== 'playing' || isFrightened || isPacmanDying) {
-    if (siren1Playing.current) {
-      stopSiren1()
-      siren1Playing.current = false
-    }
-    if (siren2Playing.current) {
-      stopSiren2()
-      siren2Playing.current = false
-    }
+  // Don't play sirens if game is not playing or Pacman is dying
+  if (gameStatus !== 'playing' || isPacmanDying) {
+    stopSiren1()
+    stopSiren2()
     return
   }
-  
-  // Play scatter siren
-  if (ghostMode === 'scatter') {
-    if (siren2Playing.current) {
-      stopSiren2()
-      siren2Playing.current = false
-    }
-    if (!siren1Playing.current) {  // ← Spustit POUZE pokud ještě nehraje
-      playSiren1(isMuted)
-      siren1Playing.current = true
-    }
-  } 
-  // Play chase siren
-  else if (ghostMode === 'chase') {
-    if (siren1Playing.current) {
-      stopSiren1()
-      siren1Playing.current = false
-    }
-    if (!siren2Playing.current) {  // ← Spustit POUZE pokud ještě nehraje
-      playSiren2(isMuted)
-      siren2Playing.current = true
-    }
+
+  // If frightened mode is active, stop sirens
+  if (isFrightened) {
+    stopSiren1()
+    stopSiren2()
+    return
   }
-}, [gameStatus, ghostMode, isFrightened, isPacmanDying, isMuted, playSiren1, stopSiren1, playSiren2, stopSiren2])
+
+  // Delay siren start after game begins (wait for start sound to finish ~4s)
+  const delay = isIntroPlaying ? 4000 : 0
+
+  const sirenStartDelay = setTimeout(() => {
+    if (ghostMode === 'scatter') {
+      stopSiren2()  // ← Stop chase siren if playing
+      playSiren1(isMuted)
+    } else if (ghostMode === 'chase') {
+      stopSiren1()  // ← Stop scatter siren if playing
+      playSiren2(isMuted)
+    }
+  }, delay)   // ← 4 second delay for start sound
+
+  return () => {
+    clearTimeout(sirenStartDelay)
+    stopSiren1()
+    stopSiren2()
+  }
+}, [gameStatus, isFrightened, isPacmanDying, ghostMode, isMuted, playSiren1, playSiren2, stopSiren1, stopSiren2,isIntroPlaying])
 
   // ===== MOVE PACMAN ===== //
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
@@ -1020,9 +1024,10 @@ const onRestart = () => {
   }
 
   const handleStart = () => {
-    playStart(isMuted) // ← PLAY START SOUND
+    setIsIntroPlaying(true)
+    playStart(isMuted)       // ← PLAY START SOUND
     setGameStatus('playing') // ← START GAME
-
+  
     // Show "READY!" message
     setFloatingScores([{
       x: 7,           // Middle of the labyrinth
@@ -1035,6 +1040,11 @@ const onRestart = () => {
     setTimeout(() => {
       setFloatingScores([])
     }, 2000)
+
+    // End intro after 4s
+    setTimeout(() => {
+      setIsIntroPlaying(false)
+    }, 4000)
   }
 
   return (
