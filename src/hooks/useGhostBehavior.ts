@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
 import { WAVE_TIMINGS } from '../data/gameConstants';
+import type { GameStatus } from '../data/gameConstants'; 
 
-export const useGhostBehavior = (isFrightened: boolean) => {
+export const useGhostBehavior = (
+    isFrightened: boolean,
+    gameStatus: GameStatus  
+) => {
     const [currentMode, setCurrentMode] = useState<'chase' | 'scatter'>('scatter');
     const [currentWave, setCurrentWave] = useState(0);
+    const [ghostsReleased, setGhostsReleased] = useState<boolean[]>([
+        true, false, false, false
+    ])
+    const [isGateVisible, setIsGateVisible] = useState(true) 
+    const [frightenedTimeRemaining, setFrightenedTimeRemaining] = useState(0)  
   
-
-        //  Scatter/Chase wave timer
+        // ===== SCATTER/CHASE MODE SWITCHING ===== //
         useEffect(() => {
             if (isFrightened) return  // ← Pause timer during frightened
 
@@ -26,8 +34,80 @@ export const useGhostBehavior = (isFrightened: boolean) => {
                 
             return () => clearTimeout(timer)
         }, [currentMode, currentWave, isFrightened])
-            
-                const ghostBehavior = isFrightened ? 'frightened' : currentMode
+
+        // ===== GHOST RELEASE ===== //
+        useEffect(() => {
+        if (gameStatus !== 'playing') return
         
-        return ghostBehavior;
+        // Pinky release (3s)
+        const pinkyGateOut = setTimeout(() => {
+            setIsGateVisible(false)
+        }, 2800)
+        
+        const pinkyRelease = setTimeout(() => {
+            setGhostsReleased([true, true, false, false])
+        }, 3000)
+        
+        const pinkyGateIn = setTimeout(() => {
+            setIsGateVisible(true)
+        }, 4200)
+        
+        // Inky release (7s)
+        const inkyGateOut = setTimeout(() => {
+            setIsGateVisible(false)
+        }, 6800)
+        
+        const inkyRelease = setTimeout(() => {
+            setGhostsReleased([true, true, true, false])
+        }, 7000)
+        
+        const inkyGateIn = setTimeout(() => {
+            setIsGateVisible(true)
+        }, 8200)
+        
+        // Clyde release (12s)
+        const clydeGateOut = setTimeout(() => {
+            setIsGateVisible(false)
+        }, 11800)
+        
+        const clydeRelease = setTimeout(() => {
+            setGhostsReleased([true, true, true, true])
+        }, 12000)
+        
+        // Cleanup
+        return () => {
+            clearTimeout(pinkyGateOut)
+            clearTimeout(pinkyRelease)
+            clearTimeout(pinkyGateIn)
+            clearTimeout(inkyGateOut)
+            clearTimeout(inkyRelease)
+            clearTimeout(inkyGateIn)
+            clearTimeout(clydeGateOut)
+            clearTimeout(clydeRelease)
+        }
+        }, [gameStatus])
+
+        // ===== FRIGHTENED MODE ===== //
+        useEffect(() => {
+        if (!isFrightened) return
+        
+        const countdownInterval = setInterval(() => {
+            setFrightenedTimeRemaining(prev => {
+            const newValue = Math.max(0, prev - 100)
+            return newValue
+            })
+        }, 100)
+        
+        return () => clearInterval(countdownInterval)
+        }, [isFrightened])
+
+        const ghostBehavior = isFrightened ? 'frightened' : currentMode
+                          
+        return {
+            ghostBehavior,
+            ghostsReleased,
+            isGateVisible,
+            frightenedTimeRemaining,
+            setFrightenedTimeRemaining 
+        };
     }

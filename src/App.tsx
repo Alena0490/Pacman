@@ -65,24 +65,25 @@ const App = () => {
   const [pacmanPosition, setPacmanPosition]  = useState(PACMAN_SPAWN)
   const [ghosts, setGhosts] = useState<Ghost[]>(GHOST_SPAWNS)
 
-    // ===== GHOSTS ===== //
-  const [ghostsReleased, setGhostsReleased] = useState<boolean[]>([
-    true,   // Blinky - is outside
-    false,  // Pinky - is released
-    false,  // Inky - wait
-    false   // Clyde - wait
-  ])
-  const [isGateVisible, setIsGateVisible] = useState(true)
-
+  // ===== GHOSTS ===== //
   // ===== EATEN GHOSTS (returning to spawn) ===== //
   const [eatenGhosts, setEatenGhosts] = useState<number[]>([])  // Array of ghost indices
 
   // ===== FRIGHTENED MODE ===== //
   const [isFrightened, setIsFrightened] = useState(false)
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
-  const [frightenedTimeRemaining, setFrightenedTimeRemaining] = useState(0)
+  // const [frightenedTimeRemaining, setFrightenedTimeRemaining] = useState(0)
   const [ghostsEatenCount, setGhostsEatenCount] = useState(0)
-  const ghostMode = useGhostBehavior(isFrightened)
+  const { 
+    ghostBehavior, 
+    ghostsReleased, 
+    isGateVisible, 
+    frightenedTimeRemaining, 
+    setFrightenedTimeRemaining  
+  } = useGhostBehavior(
+    isFrightened,
+    gameStatus
+  )
 
   // ===== FLOATING SCORE POPUPS ===== //
   const [floatingScores, setFloatingScores] = useState<Array<{
@@ -123,15 +124,6 @@ const [fruit, setFruit] = useState<Fruit>({
   position: null,
   spawnTime: null
 })
-
-// ===== TESTING ===== //
-
-// const [fruit, setFruit] = useState<Fruit>({
-//   type: 'cherry',  // ← Změň na: cherry, strawberry, orange, apple, melon, galaxian
-//   position: FRUIT_SPAWN_POSITION,
-//   spawnTime: Date.now()
-// })
-// ===== END TESTING ===== //
 
 const currentLevelFruits = LEVEL_FRUITS[level - 1]
 
@@ -174,9 +166,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     setTimeout(() => {
       setIsIntroPlaying(false)
     }, 4000)
-
-    // Set level fruits
-    
+ 
     // Respawn dots
     setDots(generateDotsFromMaze())
     
@@ -240,10 +230,10 @@ useEffect(() => {
   const delay = isIntroPlaying ? 4000 : 0
 
   const sirenStartDelay = setTimeout(() => {
-    if (ghostMode === 'scatter') {
+    if (ghostBehavior === 'scatter') {
       stopSiren2()  // ← Stop chase siren if playing
       playSiren1(isMuted)
-    } else if (ghostMode === 'chase') {
+    } else if (ghostBehavior === 'chase') {
       stopSiren1()  // ← Stop scatter siren if playing
       playSiren2(isMuted)
     }
@@ -254,7 +244,7 @@ useEffect(() => {
     stopSiren1()
     stopSiren2()
   }
-}, [gameStatus, isFrightened, isPacmanDying, ghostMode, isMuted, playSiren1, playSiren2, stopSiren1, stopSiren2,isIntroPlaying])
+}, [gameStatus, isFrightened, isPacmanDying, ghostBehavior, isMuted, playSiren1, playSiren2, stopSiren1, stopSiren2,isIntroPlaying])
 
   // ===== MOVE PACMAN ===== //
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
@@ -407,7 +397,7 @@ useEffect(() => {
       ghost => ghost.x === newX && ghost.y === newY
     )
 
-    /*** EATING GOSTS */ 
+    /*** EATING GHOSTS */ 
     if (collidedIndex !== -1 && !isInvincible) { 
       const isAlreadyEaten = eatenGhosts.includes(collidedIndex) // Check if the ghost is already eaten
 
@@ -519,6 +509,7 @@ useEffect(() => {
         level,
         levelUp,
         currentLevelFruits,
+        setFrightenedTimeRemaining
       ])
 
   // ===== GHOSTS =====//
@@ -533,71 +524,19 @@ useEffect(() => {
   }, [frightenedTimer])
 
   /*** 2. Frightened countdown timer */
-  useEffect(() => {
-    if (!isFrightened) return
+  // useEffect(() => {
+  //   if (!isFrightened) return
     
-    const countdownInterval = setInterval(() => {
-      setFrightenedTimeRemaining(prev => {
-        const newValue = Math.max(0, prev - 100)
-        console.log('⏱️ Countdown:', newValue)
-        return newValue
-      })
-    }, 100)
+  //   const countdownInterval = setInterval(() => {
+  //     setFrightenedTimeRemaining(prev => {
+  //       const newValue = Math.max(0, prev - 100)
+  //       console.log('⏱️ Countdown:', newValue)
+  //       return newValue
+  //     })
+  //   }, 100)
     
-    return () => clearInterval(countdownInterval)
-  }, [isFrightened])
-
-  /*** 3. Ghost release timing + gate animation */
-  useEffect(() => {
-    if (gameStatus !== 'playing') return
-    
-    // Pinky release (3s)
-    const pinkyGateOut = setTimeout(() => {
-      setIsGateVisible(false)  // Gate fade out
-    }, 2800)  // Slightly before release
-    
-    const pinkyRelease = setTimeout(() => {
-      setGhostsReleased([true, true, false, false])
-    }, 3000)
-    
-    const pinkyGateIn = setTimeout(() => {
-      setIsGateVisible(true)  // Gate fade in
-    }, 3200)  // After Pinky passes
-    
-    // Inky release (7s)
-    const inkyGateOut = setTimeout(() => {
-      setIsGateVisible(false)
-    }, 6800)
-    
-    const inkyRelease = setTimeout(() => {
-      setGhostsReleased([true, true, true, false])
-    }, 7000)
-    
-    const inkyGateIn = setTimeout(() => {
-      setIsGateVisible(true)
-    }, 7200)
-    
-    // Clyde release (12s) - gate disappears forever
-    const clydeGateOut = setTimeout(() => {
-      setIsGateVisible(false)
-    }, 11800)
-    
-    const clydeRelease = setTimeout(() => {
-      setGhostsReleased([true, true, true, true])
-    }, 12000)
-    
-    // Cleanup
-    return () => {
-      clearTimeout(pinkyGateOut)
-      clearTimeout(pinkyRelease)
-      clearTimeout(pinkyGateIn)
-      clearTimeout(inkyGateOut)
-      clearTimeout(inkyRelease)
-      clearTimeout(inkyGateIn)
-      clearTimeout(clydeGateOut)
-      clearTimeout(clydeRelease)
-    }
-  }, [gameStatus])
+  //   return () => clearInterval(countdownInterval)
+  // }, [isFrightened])
 
     // ===== GHOSTS MOVE =====//
     const moveGhosts = useCallback(() => {
@@ -691,7 +630,7 @@ useEffect(() => {
         ghost, 
         possibleMoves, 
         pacmanPosition,
-        ghostMode === 'frightened' ? 'scatter' : ghostMode, 
+        (ghostBehavior === 'frightened' ? 'scatter' : ghostBehavior) as 'chase' | 'scatter', 
         SCATTER_TARGETS[currentIndex]  
       )
       
@@ -820,7 +759,7 @@ useEffect(() => {
         isMuted,
         isInvincible,
         ghostsReleased,
-        ghostMode,
+        ghostBehavior,
       ])
 
   // ===== GHOSTS SPEED =====//
