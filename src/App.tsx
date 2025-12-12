@@ -27,7 +27,7 @@ import {
   GHOST_SPAWNS, 
   SCATTER_TARGETS,
   POWER_PELLET_POSITIONS,
-  GHOST_SPEED_CONFIG,
+  // GHOST_SPEED_CONFIG,
   INVINCIBILITY_DURATION,
   FRIGHTENED_DURATION,
   PACMAN_SPAWN,
@@ -69,20 +69,25 @@ const App = () => {
   // ===== EATEN GHOSTS (returning to spawn) ===== //
   const [eatenGhosts, setEatenGhosts] = useState<number[]>([])  // Array of ghost indices
 
+   // ===== LEVEL ===== //
+  const [level, setLevel] = useState(1)
+  const [isIntroPlaying, setIsIntroPlaying] = useState(false)
+
   // ===== FRIGHTENED MODE ===== //
   const [isFrightened, setIsFrightened] = useState(false)
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
-  // const [frightenedTimeRemaining, setFrightenedTimeRemaining] = useState(0)
   const [ghostsEatenCount, setGhostsEatenCount] = useState(0)
   const { 
     ghostBehavior, 
     ghostsReleased, 
     isGateVisible, 
     frightenedTimeRemaining, 
-    setFrightenedTimeRemaining  
+    setFrightenedTimeRemaining,
+    ghostSpeed  
   } = useGhostBehavior(
     isFrightened,
-    gameStatus
+    gameStatus,
+    level,
   )
 
   // ===== FLOATING SCORE POPUPS ===== //
@@ -100,10 +105,6 @@ const App = () => {
   // ===== POWER PELLETS STATE ===== //
   const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>(POWER_PELLET_POSITIONS)
 
- // ===== LEVEL ===== //
-  const [level, setLevel] = useState(1)
-  const [isIntroPlaying, setIsIntroPlaying] = useState(false)
-
   // Create sound players
   const { play: playEating }  = useSound("/sounds/pac-man-waka-waka.mp3")
   const { play: playDie }  = useSound("/sounds/audio_die.mp3")
@@ -118,7 +119,7 @@ const App = () => {
   const { play: playSiren2, stop: stopSiren2 } = useSound("/sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
   const { play: playGhostRetreat }  = useSound("/sounds/ghost-retreat.mp3")
 
-  // ===== FRUITS ===== //
+// ===== FRUITS ===== //
 const [fruit, setFruit] = useState<Fruit>({
   type: null,
   position: null,
@@ -523,21 +524,6 @@ useEffect(() => {
     }
   }, [frightenedTimer])
 
-  /*** 2. Frightened countdown timer */
-  // useEffect(() => {
-  //   if (!isFrightened) return
-    
-  //   const countdownInterval = setInterval(() => {
-  //     setFrightenedTimeRemaining(prev => {
-  //       const newValue = Math.max(0, prev - 100)
-  //       console.log('⏱️ Countdown:', newValue)
-  //       return newValue
-  //     })
-  //   }, 100)
-    
-  //   return () => clearInterval(countdownInterval)
-  // }, [isFrightened])
-
     // ===== GHOSTS MOVE =====//
     const moveGhosts = useCallback(() => {
       // ===== MOVE EATEN GHOSTS (eyes) BACK TO SPAWN ===== //
@@ -765,13 +751,7 @@ useEffect(() => {
   // ===== GHOSTS SPEED =====//
   useEffect(() => {
   if (gameStatus !== 'playing') return
-  
-  // Calculate speed based on level
-    const ghostSpeed = Math.max(
-    GHOST_SPEED_CONFIG.base - (level - 1) * GHOST_SPEED_CONFIG.increase,
-    GHOST_SPEED_CONFIG.max
-  )
-
+ 
   const ghostInterval = setInterval(() => {
     moveGhosts()
   }, ghostSpeed)  // ← Use calculated speed
@@ -779,7 +759,7 @@ useEffect(() => {
   return () => {
     clearInterval(ghostInterval)
   }
-}, [moveGhosts, gameStatus, level]) 
+}, [moveGhosts, gameStatus, ghostSpeed]) 
 
 // ===== GAME OVER ===== //
 //Restart the game
@@ -833,24 +813,7 @@ const onRestart = () => {
     }
   }, [ movePacman])
 
-  /** 3. Random ghost movement */
-  useEffect(() => {
-    // When status = playing => move ghosts
-    if (gameStatus !== 'playing') return
-    
-    const ghostInterval = setInterval(() => {
-      moveGhosts()
-    }, 500)
-    
-    return () => {
-      clearInterval(ghostInterval)
-    }
-  }, [
-      moveGhosts, 
-      gameStatus
-    ])
-
-  /*** 4. FRUIT TIMEOUT */
+  /*** 3. FRUIT TIMEOUT */
   useEffect(() => {
     if (!fruit.spawnTime) return
     

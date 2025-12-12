@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { WAVE_TIMINGS } from '../data/gameConstants';
+import { WAVE_TIMINGS, GHOST_SPEED_CONFIG } from '../data/gameConstants';
 import type { GameStatus } from '../data/gameConstants'; 
 
 export const useGhostBehavior = (
     isFrightened: boolean,
-    gameStatus: GameStatus  
+    gameStatus: GameStatus,
+    level: number
 ) => {
     const [currentMode, setCurrentMode] = useState<'chase' | 'scatter'>('scatter');
     const [currentWave, setCurrentWave] = useState(0);
@@ -13,7 +14,7 @@ export const useGhostBehavior = (
     ])
     const [isGateVisible, setIsGateVisible] = useState(true) 
     const [frightenedTimeRemaining, setFrightenedTimeRemaining] = useState(0)  
-  
+
         // ===== SCATTER/CHASE MODE SWITCHING ===== //
         useEffect(() => {
             if (isFrightened) return  // ← Pause timer during frightened
@@ -101,13 +102,22 @@ export const useGhostBehavior = (
         return () => clearInterval(countdownInterval)
         }, [isFrightened])
 
+        // GHOST BEHAVIOR OBJECT
         const ghostBehavior = isFrightened ? 'frightened' : currentMode
-                          
+
+        // ===== GHOST SPEED CALCULATION ===== //
+        const baseSpeed = Math.max(
+            GHOST_SPEED_CONFIG.base - (level - 1) * GHOST_SPEED_CONFIG.increase,
+            GHOST_SPEED_CONFIG.max
+        )
+        const ghostSpeed = isFrightened ? 500 : baseSpeed
+                     
         return {
             ghostBehavior,
             ghostsReleased,
             isGateVisible,
             frightenedTimeRemaining,
-            setFrightenedTimeRemaining 
+            setFrightenedTimeRemaining,
+            ghostSpeed
         };
     }
