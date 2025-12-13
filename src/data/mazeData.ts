@@ -6,7 +6,7 @@ export type Cell = {
   left: boolean     // Wall left
   hasDot: boolean  // Has dot?
   powerPellet?: boolean 
-  zone?: 'restricted' | 'ghost-house'  // The cell is outside of the labyrinth
+  zone?: 'restricted' | 'ghost-house' | 'tunnel' // The cell is outside of the labyrinth
   tunnel?: 'left' | 'right'  // ← TUNNEL - teleport to the other side of labyrinth
 }
 
@@ -16,7 +16,7 @@ const createCell = (
   walls: string, 
   dot = false, 
   options?: {    // Cell options - is the cell part of the labyrinth?
-    zone?: 'restricted' | 'ghost-house'
+    zone?: 'restricted' | 'ghost-house' | 'tunnel' 
     tunnel?: 'left' | 'right'
     powerPellet?: boolean  
   }
@@ -183,7 +183,7 @@ export const MAZE: Cell[][] = [
 
   // Row 8 Ghost cave middle, escape corridors
   [
-    createCell('1010', false, { zone: 'ghost-house', tunnel: 'left' }),  // Left tunnel
+    createCell('1010', false, { zone: 'tunnel', tunnel: 'left' }),  // Left tunnel
     createCell('1010'),
     createCell('1010'),
     createCell('0000',true),
@@ -199,7 +199,7 @@ export const MAZE: Cell[][] = [
     createCell('0000',true),
     createCell('1000'),
     createCell('1000'),
-    createCell('1000', false, { zone: 'ghost-house', tunnel: 'right' }),  // Right tunnel
+    createCell('1000', false, { zone: 'tunnel', tunnel: 'right' }),  // Right tunnel
   ],
 
   // Row 9 ghost cave bottom, empty space bottom

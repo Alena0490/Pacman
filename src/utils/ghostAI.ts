@@ -25,7 +25,22 @@ export const findPossibleMoves = (
 ): Move[] => {
   const possibleMoves: Move[] = []
   const directions: Direction[] = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+
+    // ===== CHECK FOR TUNNEL TELEPORTATION ===== //
+    const currentCell = maze[ghost.y][ghost.x]
+    
+    if (currentCell.tunnel === 'left') {
+      // Can teleport to right side
+      possibleMoves.push({ x: gridSize - 1, y: ghost.y, direction: 'LEFT' })
+    }
+    
+    if (currentCell.tunnel === 'right') {
+      // Can teleport to left side
+      possibleMoves.push({ x: 0, y: ghost.y, direction: 'RIGHT' })
+    }
   
+  // ===== NORMAL MOVEMENT ===== //
+  // Check each direction
   for (const dir of directions) {
     if (canMoveInDirection(maze, ghost.x, ghost.y, dir, gridSize)) {
       let newX = ghost.x
@@ -152,6 +167,25 @@ export const calculateGhostMove = (
      mode?: 'chase' | 'scatter',  
     scatterTarget?: Position   
 ): Move => {
+
+  // ===== TUNNEL ENTRANCE BOOST ===== //
+    if (ghost.y === 7) {
+      if (ghost.x >= 1 && ghost.x <= 3) {
+        const leftMove = possibleMoves.find(move => move.direction === 'LEFT')
+        if (leftMove && Math.random() < 0.7) {
+          return leftMove
+        }
+      }
+      
+      if (ghost.x >= 11 && ghost.x <= 13) {
+        const rightMove = possibleMoves.find(move => move.direction === 'RIGHT')
+        if (rightMove && Math.random() < 0.7) {
+          return rightMove
+        }
+      }
+    }
+
+  // ===== GHOST HOUSE ESCAPE ===== //
   // In ghost house - prefer UP to escape
   if (isInGhostHouse(ghost)) {
     const upMove = possibleMoves.find(move => move.direction === 'UP')

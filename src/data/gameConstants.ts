@@ -1,6 +1,5 @@
 import type { FruitType } from './FruitTypes' 
 
-
 // ===== GHOST TYPE DEFINITION ===== //
 export type Ghost = {
   x: number

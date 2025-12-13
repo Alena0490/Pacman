@@ -158,12 +158,12 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     // Stop current souds
     stopAllSounds()
 
-    setIsIntroPlaying(true) // ← Intro začíná
+    setIsIntroPlaying(true) // ← Intro starts
     // Play start for the new level
     playStart(isMuted)
     setGameStatus('playing')
     
-    // Intro skončí za 4s
+    // Intro ends in 4s
     setTimeout(() => {
       setIsIntroPlaying(false)
     }, 4000)
@@ -273,7 +273,6 @@ useEffect(() => {
 
         return
       }
-
       return  // Can't move - wall or border!
     }
    
@@ -579,7 +578,6 @@ useEffect(() => {
                 }
               }
             }
-
             return updated
           })
 
@@ -601,6 +599,16 @@ useEffect(() => {
               newGhosts.push(ghost)  // Stay in place
               continue  // Skip to next ghost
             }
+
+          // Check if ghost is in tunnel
+          const currentCell = MAZE[ghost.y][ghost.x]
+          if (currentCell.tunnel) {
+            // 50% chance to skip movement (simulate slowdown)
+            if (Math.random() < 0.5) {
+              newGhosts.push(ghost)  // Stay in place
+              continue  // Skip to next ghost
+            }
+          }
 
           // ===== FIND ALL POSSIBLE DIRECTIONS =====
           const possibleMoves = findPossibleMoves(ghost, MAZE, GRID_SIZE)
@@ -730,8 +738,7 @@ useEffect(() => {
           })
         }, 1200)  // ← 1.2s pro animaci
       }
-    }
-          
+    }         
       return newGhosts
     })
   }, [
@@ -796,7 +803,7 @@ const onRestart = () => {
   playStart(isMuted) // ← PLAY START SOUND
 }
  
-  /*** 2. Event listener */
+  /*** Event listener */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowUp') movePacman('UP')
@@ -813,7 +820,7 @@ const onRestart = () => {
     }
   }, [ movePacman])
 
-  /*** 3. FRUIT TIMEOUT */
+  /*** FRUIT TIMEOUT */
   useEffect(() => {
     if (!fruit.spawnTime) return
     
@@ -857,7 +864,6 @@ const onRestart = () => {
                 <span className="visually-hidden">High score: </span>
                 High score: {highScore}
               </div>
-
 
             <button 
               className="mute"
