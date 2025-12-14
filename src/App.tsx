@@ -60,6 +60,12 @@ const App = () => {
   const [highScore, setHighScore] = useState(0)
   const [announcement, setAnnouncement] = useState('')
   const [isMuted, setIsMuted] = useState(false)
+
+  // ===== DOTS STATE ===== //
+  const [dots, setDots] = useState(() => generateDotsFromMaze())
+
+  // ===== POWER PELLETS STATE ===== //
+  const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>(POWER_PELLET_POSITIONS)
   
   // ===== POSITION ===== //
   const [pacmanPosition, setPacmanPosition]  = useState(PACMAN_SPAWN)
@@ -69,7 +75,7 @@ const App = () => {
   // ===== EATEN GHOSTS (returning to spawn) ===== //
   const [eatenGhosts, setEatenGhosts] = useState<number[]>([])  // Array of ghost indices
 
-   // ===== LEVEL ===== //
+  // ===== LEVEL ===== //
   const [level, setLevel] = useState(1)
   const [isIntroPlaying, setIsIntroPlaying] = useState(false)
 
@@ -83,11 +89,14 @@ const App = () => {
     isGateVisible, 
     frightenedTimeRemaining, 
     setFrightenedTimeRemaining,
-    ghostSpeed  
+    ghostSpeed,
+    blinkySpeed,
+    moveBlinky
   } = useGhostBehavior(
     isFrightened,
     gameStatus,
     level,
+    dots.length
   )
 
   // ===== FLOATING SCORE POPUPS ===== //
@@ -98,12 +107,6 @@ const App = () => {
     text?: string      // ← Optional
     id: number
   }>>([])
-
-  // ===== DOTS STATE ===== //
-  const [dots, setDots] = useState(() => generateDotsFromMaze())
-
-  // ===== POWER PELLETS STATE ===== //
-  const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>(POWER_PELLET_POSITIONS)
 
   // Create sound players
   const { play: playEating }  = useSound("/sounds/pac-man-waka-waka.mp3")
@@ -525,6 +528,7 @@ useEffect(() => {
 
     // ===== GHOSTS MOVE =====//
     const moveGhosts = useCallback(() => {
+
       // ===== MOVE EATEN GHOSTS (eyes) BACK TO SPAWN ===== //
       setEatenGhosts(prevEaten => {
         const stillReturning: number[] = []
@@ -594,6 +598,19 @@ useEffect(() => {
 
         for (let currentIndex = 0; currentIndex < prevGhosts.length; currentIndex++) {
           const ghost = prevGhosts[currentIndex]
+
+          // ===== SKIP BLINKY IF CRUISE ELROY IS ACTIVE ===== //
+            if (currentIndex === 0 && blinkySpeed !== ghostSpeed) {
+              newGhosts.push(ghost)  // Keep Blinky as-is
+              continue  // Skip to next ghost
+            }
+
+          // ===== SKIP EATEN GHOSTS ===== //
+            if (eatenGhosts.includes(currentIndex)) {
+              newGhosts.push(ghost)  // Keep position (being moved by eaten logic above)
+              continue
+            }
+
           // Check if ghost is released
             if (!ghostsReleased[currentIndex]) {
               newGhosts.push(ghost)  // Stay in place
@@ -753,20 +770,30 @@ useEffect(() => {
         isInvincible,
         ghostsReleased,
         ghostBehavior,
+        blinkySpeed, 
+        ghostSpeed
       ])
 
   // ===== GHOSTS SPEED =====//
   useEffect(() => {
-  if (gameStatus !== 'playing') return
- 
-  const ghostInterval = setInterval(() => {
-    moveGhosts()
-  }, ghostSpeed)  // ← Use calculated speed
+    if (gameStatus !== 'playing') return
   
-  return () => {
-    clearInterval(ghostInterval)
-  }
-}, [moveGhosts, gameStatus, ghostSpeed]) 
+    const ghostInterval = setInterval(() => {
+      moveGhosts()  // ← Move all ghosts
+      
+      // ===== EXTRA BLINKY MOVE (Cruise Elroy) ===== //
+      if (blinkySpeed < ghostSpeed) {  // Blinky is faster
+        // Move Blinky extra halfway through the interval
+        setTimeout(() => {
+          setGhosts(prev => 
+            moveBlinky(prev, pacmanPosition, MAZE, GRID_SIZE, SCATTER_TARGETS, eatenGhosts)
+          )
+        }, ghostSpeed / 2)  // ← Halfway through
+      }
+    }, ghostSpeed) 
+    
+    return () => clearInterval(ghostInterval)
+  }, [moveGhosts, gameStatus, ghostSpeed, blinkySpeed, moveBlinky, pacmanPosition, eatenGhosts])
 
 // ===== GAME OVER ===== //
 //Restart the game
