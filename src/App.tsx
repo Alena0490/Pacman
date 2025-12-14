@@ -800,6 +800,7 @@ useEffect(() => {
 const onRestart = () => {
   setLives(3)
   setScore(0)
+  setLevel(1)  
   setGameStatus('playing')
   setPacmanPosition(PACMAN_SPAWN)
   setGhosts(GHOST_SPAWNS)

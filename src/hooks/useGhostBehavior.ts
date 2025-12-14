@@ -130,6 +130,10 @@ export const useGhostBehavior = (
     blinkySpeed = baseSpeed * 0.7  // 30% fastest
     }
 
+    // ===== FRIGHTENED DURATION BY LEVEL ===== //
+    const frightenedDurations = [8000, 7000, 6000, 5000, 3000]  // Level 1-5
+    const frightenedDuration = frightenedDurations[level - 1] || 3000  // Default 3s if level =5
+
     const ghostSpeed = isFrightened ? 500 : baseSpeed
 
     // ===== BLINKY MOVE FUNCTION ===== //
@@ -196,6 +200,7 @@ export const useGhostBehavior = (
         setFrightenedTimeRemaining,
         ghostSpeed,
         blinkySpeed,
-        moveBlinky 
+        moveBlinky,
+        frightenedDuration
     };
 }
