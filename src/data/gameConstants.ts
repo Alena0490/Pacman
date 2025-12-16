@@ -65,7 +65,8 @@ export const INVINCIBILITY_DURATION = 2000  // 2 seconds after respawn
 
 
 // ===== FRIGHTENED MODE SETTINGS ===== //
-export const FRIGHTENED_DURATION = 8000  // 8 seconds
+// export const FRIGHTENED_DURATION = 8000  // 8 seconds - DEPRECATED, use FRIGHTENED_DURATIONS
+export const FRIGHTENED_DURATIONS = [8000, 7000, 6000, 5000, 3000]  // Level 1-5 (ms)
 
 // ===== PACMAN SPAWN POSITION ===== //
 export const PACMAN_SPAWN = { x: 7, y: 11 }

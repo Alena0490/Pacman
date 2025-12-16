@@ -29,7 +29,7 @@ import {
   POWER_PELLET_POSITIONS,
   // GHOST_SPEED_CONFIG,
   INVINCIBILITY_DURATION,
-  FRIGHTENED_DURATION,
+  // FRIGHTENED_DURATION,
   PACMAN_SPAWN,
   LEVEL_FRUITS,
   type Ghost,
@@ -91,7 +91,8 @@ const App = () => {
     setFrightenedTimeRemaining,
     ghostSpeed,
     blinkySpeed,
-    moveBlinky
+    moveBlinky,
+    frightenedDuration
   } = useGhostBehavior(
     isFrightened,
     gameStatus,
@@ -371,19 +372,19 @@ useEffect(() => {
       setGhostsEatenCount(0) // Reset count when new Power Pellet is eaten
       playEatPellet(isMuted)
 
-      setFrightenedTimeRemaining(FRIGHTENED_DURATION)
+      setFrightenedTimeRemaining(frightenedDuration)
       
         // Clear existing timer if any
         if (frightenedTimer) {
           clearTimeout(frightenedTimer)
         }
       
-        // Set 8 second timer
+        // Set 8, 7, 6, 5, 3 second timer
         const timer = setTimeout(() => {
           setIsFrightened(false)
           setGhostsEatenCount(0) // ← RESET when frightened mode ends
           setFrightenedTimeRemaining(0) 
-        }, FRIGHTENED_DURATION)  // ← 8 seconds
+        }, frightenedDuration)  // ← Defined by level
 
         setFrightenedTimer(timer)
         
@@ -512,7 +513,8 @@ useEffect(() => {
         level,
         levelUp,
         currentLevelFruits,
-        setFrightenedTimeRemaining
+        setFrightenedTimeRemaining,
+        frightenedDuration
       ])
 
   // ===== GHOSTS =====//

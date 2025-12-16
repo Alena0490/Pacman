@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { WAVE_TIMINGS, GHOST_SPEED_CONFIG } from '../data/gameConstants';
+import { WAVE_TIMINGS, GHOST_SPEED_CONFIG, FRIGHTENED_DURATIONS } from '../data/gameConstants';
 import type { GameStatus, Ghost } from '../data/gameConstants'; 
 import type { Cell } from '../data/mazeData'  
 import { findPossibleMoves, calculateGhostMove } from '../utils/ghostAI';
@@ -91,6 +91,9 @@ export const useGhostBehavior = (
     }
     }, [gameStatus])
 
+    // ===== FRIGHTENED DURATION BY LEVEL ===== //
+    const frightenedDuration = FRIGHTENED_DURATIONS[level - 1] || 3000
+
     // ===== FRIGHTENED MODE ===== //
     useEffect(() => {
     if (!isFrightened) return
@@ -129,10 +132,6 @@ export const useGhostBehavior = (
     } else if (cruiseElroyLevel === 2) {
     blinkySpeed = baseSpeed * 0.7  // 30% fastest
     }
-
-    // ===== FRIGHTENED DURATION BY LEVEL ===== //
-    const frightenedDurations = [8000, 7000, 6000, 5000, 3000]  // Level 1-5
-    const frightenedDuration = frightenedDurations[level - 1] || 3000  // Default 3s if level =5
 
     const ghostSpeed = isFrightened ? 500 : baseSpeed
 
@@ -201,6 +200,6 @@ export const useGhostBehavior = (
         ghostSpeed,
         blinkySpeed,
         moveBlinky,
-        frightenedDuration
+        frightenedDuration,
     };
 }
