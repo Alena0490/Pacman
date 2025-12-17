@@ -1,3 +1,7 @@
+// ===== GHOST BEHAVIOR HOOK ===== //
+// Manages ghost AI behavior including scatter/chase modes, release timing, 
+// frightened mode, and Cruise Elroy speed adjustments
+
 import { useState, useEffect, useCallback } from 'react';
 import { WAVE_TIMINGS, GHOST_SPEED_CONFIG, FRIGHTENED_DURATIONS } from '../data/gameConstants';
 import type { GameStatus, Ghost } from '../data/gameConstants'; 
@@ -19,6 +23,8 @@ export const useGhostBehavior = (
     const [frightenedTimeRemaining, setFrightenedTimeRemaining] = useState(0)  
 
     // ===== SCATTER/CHASE MODE SWITCHING ===== //
+    // Switches between scatter and chase modes based on wave timings
+    // Pauses during frightened mode
     useEffect(() => {
         if (isFrightened) return  // ← Pause timer during frightened
 
@@ -39,7 +45,10 @@ export const useGhostBehavior = (
         return () => clearTimeout(timer)
     }, [currentMode, currentWave, isFrightened])
 
-    // ===== GHOST RELEASE ===== //
+    // ===== GHOST RELEASE TIMING ===== //
+    // Blinky: starts outside (always released)
+    // Pinky: released at 3s, Inky: at 7s, Clyde: at 12s
+    // Gate animates before each ghost exits
     useEffect(() => {
     if (gameStatus !== 'playing') return
     
@@ -92,9 +101,12 @@ export const useGhostBehavior = (
     }, [gameStatus])
 
     // ===== FRIGHTENED DURATION BY LEVEL ===== //
+    // Gets appropriate duration from FRIGHTENED_DURATIONS array based on current level
+    // Defaults to 3000ms (3s) if level exceeds array length
     const frightenedDuration = FRIGHTENED_DURATIONS[level - 1] || 3000
 
-    // ===== FRIGHTENED MODE ===== //
+    // ===== FRIGHTENED MODE COUNTDOWN ===== //
+    // Updates remaining time every 100ms for UI display
     useEffect(() => {
     if (!isFrightened) return
     
@@ -108,7 +120,8 @@ export const useGhostBehavior = (
     return () => clearInterval(countdownInterval)
     }, [isFrightened])
 
-    // GHOST BEHAVIOR OBJECT
+    // ===== GHOST BEHAVIOR DETERMINATION ===== //
+    // Frightened mode overrides scatter/chase modes
     const ghostBehavior = isFrightened ? 'frightened' : currentMode
 
     // ===== GHOST SPEED CALCULATION ===== //
@@ -117,7 +130,9 @@ export const useGhostBehavior = (
         GHOST_SPEED_CONFIG.max
     )
 
-    // ===== CRUISE ELROY ===== //
+    // ===== CRUISE ELROY MODE ===== //
+    // Blinky speeds up when few dots remain
+    // Level 1: ≤20 dots remaining | Level 2: ≤10 dots remaining
     let cruiseElroyLevel = 0
     if (dotsRemaining <= 10) {
     cruiseElroyLevel = 2
@@ -125,17 +140,21 @@ export const useGhostBehavior = (
     cruiseElroyLevel = 1
     }
 
-    // ===== BLINKY SPEED (with Cruise Elroy) ===== //
+    // ===== BLINKY SPEED WITH CRUISE ELROY ===== //
+    // Cruise Elroy Level 1: 15% faster | Level 2: 30% faster
     let blinkySpeed = baseSpeed
     if (cruiseElroyLevel === 1) {
-    blinkySpeed = baseSpeed * 0.85  // 15% fastest
+    blinkySpeed = baseSpeed * 0.85  // 15% faster
     } else if (cruiseElroyLevel === 2) {
-    blinkySpeed = baseSpeed * 0.7  // 30% fastest
+    blinkySpeed = baseSpeed * 0.7  // 30% faster
     }
 
+    // Fixed slow speed during frightened mode, otherwise use calculated base speed
     const ghostSpeed = isFrightened ? 500 : baseSpeed
 
-    // ===== BLINKY MOVE FUNCTION ===== //
+    // ===== BLINKY EXTRA MOVE FUNCTION ===== //
+    // Handles additional Blinky movement when Cruise Elroy is active
+    // Called separately from main ghost movement to achieve faster speed
     const moveBlinky = useCallback((
         currentGhosts: Ghost[],
         pacmanPos: { x: number, y: number },
@@ -150,11 +169,12 @@ export const useGhostBehavior = (
             return currentGhosts
         }
         
-        // ===== COPY ARRAY (don't mutate) ===== //
-        const updated = [...currentGhosts]  // ← SHALLOW COPY
+        // ===== COPY ARRAY (don't mutate original) ===== //
+        const updated = [...currentGhosts]  // Shallow copy
         const blinky = updated[0]
         
         const currentCell = maze[blinky.y][blinky.x]
+        // Slow down in tunnel (50% chance to skip movement)
         if (currentCell.tunnel && Math.random() < 0.5) {
             return currentGhosts  // ← Return ORIGINAL (no change)
         }

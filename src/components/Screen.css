@@ -1,3 +1,9 @@
+/* ===== SCREEN LAYOUTS ===== */
+/* Styles for start, game over, and win screens */
+/* Includes wrapper, base screen styling, and screen-specific variants */
+
+/* ===== SCREEN WRAPPER ===== */
+/* Full-height container with centered content */
 .screen-wrapper {
     height: 100svh;
     display: flex;
@@ -6,18 +12,22 @@
     padding-top: clamp(2rem, 10vh, 4rem);  
 }
 
+/* ===== BASE SCREEN STYLING ===== */
+/* Shared styles for all screen types (start, game over, win) */
 .screen {
   width: min(32rem, 90vw);
   padding: 2rem 1.5rem;
   border-radius: 0.5rem;
   margin: 0 auto;
   text-align: center;
+  /* Radial gradient background - dark to darker */
   background:
     radial-gradient(circle at top,
         var(--background-light) 0,
         var(--background-medium) 55%,
         var(--background-dark) 100%);
   border: 2px solid var(--pacman-color);
+  /* Layered glow and shadow effects */
   box-shadow:
       0 0 0.5rem var(--secondary-color),
       0 0 2rem var(--secondary-color-tr),
@@ -30,6 +40,8 @@
   justify-content: center;
 }
 
+/* ===== SCREEN TYPOGRAPHY ===== */
+/* Heading styles */
 .screen h2 {
   font-family: "Crackman", sans-serif;
   text-transform: uppercase;
@@ -39,6 +51,7 @@
   color: var(--pacman-color);
 }
 
+/* Paragraph styles */
 .screen p {
   max-width: 26rem;
   font-size: 1.125rem;
@@ -47,26 +60,34 @@
   color: var(--text-muted);
 }
 
+/* ===== SCORE DISPLAY ===== */
 .score-status {
   width: 100%;
 }
 
+/* ===== BUTTONS ===== */
+/* Base button styling */
 .new-game {
   font-size: 1rem;
   border: none;
 }
 
+/* Button hover effect */
 .new-game:hover {
   box-shadow: 0 0 7px var(--secondary-color);
 }
 
-/* SCREEN TYPE */
+/* ===== SCREEN VARIANTS ===== */
+
+/* ----- START SCREEN ----- */
 .screen--start h2 {
   text-shadow:
     0 0 0.1rem var(--background-dark),
     0 0 0.3rem var(--background-light);
 }
 
+/* ----- GAME OVER SCREEN ----- */
+/* Red theme with danger glow */
 .screen--game-over {
     border-color: var(--ghost-red-tr);
     box-shadow:
@@ -80,6 +101,7 @@
     color: var(--ghost-red);
 }
 
+/* Red gradient for new game button */
 .screen--game-over .new-game {
   color: var(--text-color);
   text-shadow: 1px 1px 2px var(--danger-light);
@@ -95,6 +117,8 @@
    box-shadow: 0 0 12px var(--ghost-red);
 }
 
+/* ----- WIN SCREEN ----- */
+/* Green theme with victory glow */
 .screen--win {
     border-color: var(--ghost-green-tr);
     box-shadow:
@@ -108,6 +132,7 @@
   color: var(--ghost-green);
 }
 
+/* Green gradient for new game button */
 .screen--win .new-game {
   text-shadow: 1px 1px 2px var(--ghost-green);
   color: var(--text-dark);

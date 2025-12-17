@@ -1,3 +1,7 @@
+// ===== ANIMATED PAC-MAN COMPONENT ===== //
+// SVG Pac-Man with chomping animation, eating state, and death animation
+// Supports directional rotation and enhanced bite when collecting dots
+
 type AnimatedPacmanProps = {
   direction: string;
   isDying?: boolean;
@@ -11,7 +15,9 @@ const AnimatedPacman = ({
   isEating = false,
   className = "",
 }: AnimatedPacmanProps) => {
-  // mouth shapes for normal vs eating (upper + lower jaw)
+  
+  // ===== MOUTH ANIMATION VALUES ===== //
+  // Normal chomping - gentle open/close
   const upperValuesNormal = `
     M 50 50 L 95 35 L 95 50 Z;
     M 50 50 L 95 49 L 95 50 Z;
@@ -24,7 +30,7 @@ const AnimatedPacman = ({
     M 50 50 L 95 50 L 95 65 Z
   `;
 
-  // stronger bite when eating (more open + tighter close)
+  // Stronger bite when eating dots - wider open, tighter close
   const upperValuesEating = `
     M 50 50 L 95 5 L 95 50 Z;
     M 50 50 L 95 50 L 95 50 Z;
@@ -37,7 +43,8 @@ const AnimatedPacman = ({
     M 50 50 L 95 50 L 95 95 Z
   `;
 
-    // dying mouth – symetricky rostoucí koláč (výseč kruhu), R o kousek větší než tělo
+    // Death animation - mouth opens symmetrically into full circle
+    // Mimics arcade death sequence
     const dyingMouthValues = `
     M 50 50 L 97.271 41.665 A 55 55 0 1 1 97.271 58.335 Z;
     M 50 50 L 89.319 22.468 A 55 55 0 1 1 89.319 77.532 Z;
@@ -47,12 +54,12 @@ const AnimatedPacman = ({
     M 50 50 L  2.000 50.000 A 55 55 0 1 1  2.000 50.000 Z
   `;
 
+  // Choose animation values based on eating state
   const upperValues = isEating ? upperValuesEating : upperValuesNormal;
   const lowerValues = isEating ? lowerValuesEating : lowerValuesNormal;
 
-// DYING SVG – mouth opens wider (no scale), similar to arcade
-// DYING SVG – koláčový graf, který zakryje celé tělo
-
+// ===== DEATH ANIMATION ===== //
+// Mouth symmetrically expands to full circle, body fades out
   if (isDying) {
     return (
       <svg
@@ -61,7 +68,7 @@ const AnimatedPacman = ({
         data-direction={direction.toLowerCase()}
         style={{ width: "100%", height: "100%" }}
       >
-        {/* žluté tělo */}
+        {/* Yellow body - fades out during animation */}
         <circle cx="50" cy="50" r="45" fill="currentColor">
           <animate
             attributeName="fill-opacity"
@@ -71,7 +78,7 @@ const AnimatedPacman = ({
           />
         </circle>
 
-        {/* tmavý koláč – výřez, který se symetricky otevírá */}
+        {/* Dark mouth wedge - expands symmetrically to cover entire body */}
         <path
           d="M 50 50 L 97.271 41.665 A 55 55 0 0 1 97.271 58.335 Z"
           fill="#050318"
@@ -84,7 +91,7 @@ const AnimatedPacman = ({
           />
         </path>
 
-        {/* oko – rychle zmizí */}
+        {/* Eye - quickly shrinks and disappears */}
         <circle cx="50" cy="30" r="6" fill="#a16910">
           <animate
             attributeName="r"
@@ -98,7 +105,9 @@ const AnimatedPacman = ({
     );
   }
 
-  // NORMAL CHOMP (with optional stronger bite on isEating)
+  // ===== NORMAL CHOMPING ANIMATION ===== //
+  // Animated jaws with optional stronger bite when eating
+  // Rotation handled by CSS classes (pacman-up, pacman-down, etc.)
   return (
     <svg
       viewBox="0 0 100 100"
@@ -106,10 +115,10 @@ const AnimatedPacman = ({
       style={{ width: "100%", height: "100%" }}
       data-direction={direction.toLowerCase()}
     >
-      {/* Body – static circle, rotation handled by your .pacman-* CSS */}
+      {/* Body - static circle, CSS handles directional rotation */}
       <circle cx="50" cy="50" r="45" fill="currentColor" />
 
-      {/* Upper jaw */}
+      {/* Upper jaw - animates open/close */}
       <path d="M 50 50 L 95 20 L 95 50 Z" fill="#050318">
         <animate
           attributeName="d"
@@ -122,7 +131,7 @@ const AnimatedPacman = ({
         />
       </path>
 
-      {/* Lower jaw */}
+      {/* Lower jaw - animates open/close */}
       <path d="M 50 50 L 95 50 L 95 80 Z" fill="#050318">
         <animate
           attributeName="d"
@@ -135,7 +144,7 @@ const AnimatedPacman = ({
         />
       </path>
 
-      {/* Eye */}
+      {/* Eye - static position */}
       <circle cx="50" cy="30" r="6" fill="#a16910" />
     </svg>
   );

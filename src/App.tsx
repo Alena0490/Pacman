@@ -1,11 +1,17 @@
+// ===== MAIN APP COMPONENT ===== //
+// Core game logic - handles Pac-Man movement, ghost AI, collisions, scoring, and game states
+// Manages sound effects, level progression, and screen transitions
+
 import { useState, useEffect, useCallback } from "react"
-// COMPONENTS
+
+// ===== COMPONENTS ===== //
 import GameField from "./components/GameField"
 import StartScreen from "./components/StartScreen"
 import GameOver from "./components/GameOver"
 import WinScreen from "./components/WinScreen"
 import Lives from "./components/Lives"
-// DATA & TYPES
+
+// ===== DATA & TYPES ===== //
 import { 
   MAZE, 
   generateDotsFromMaze, 
@@ -35,10 +41,12 @@ import {
   type Ghost,
   type GameStatus
 } from './data/gameConstants'
-// HOOKS
+
+// ===== HOOKS ===== //
 import { useSound, stopAllSounds } from "./hooks/useSound"
 import { useGhostBehavior } from './hooks/useGhostBehavior'
-// ICONS
+
+// ===== ICONS & IMAGES ===== //
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import CherryImg from './img/cherries.png'
 import StrawberryImg from './img/strawberry.svg'
@@ -46,43 +54,44 @@ import OrangeImg from './img/orange.svg'
 import AppleImg from './img/apple.svg'
 import MelonImg from './img/melon.svg'
 import GalaxianImg from './img/galaxian.webp'
-// STYLES
+
+// ===== STYLES ===== //
 import "./App.css"
 
 const App = () => {
-// ===== GAME STATE ===== //
+  // ===== CORE GAME STATE ===== //
   const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
   const [nextExtraLifeAt, setNextExtraLifeAt] = useState(10000)
-  const [isInvincible, setIsInvincible] = useState(false) // Pacman can't be killed
-  const [isPacmanDying, setIsPacmanDying] = useState(false)
+  const [isInvincible, setIsInvincible] = useState(false) // Post-death invincibility
+  const [isPacmanDying, setIsPacmanDying] = useState(false) // Death animation active
   const [highScore, setHighScore] = useState(0)
-  const [announcement, setAnnouncement] = useState('')
+  const [announcement, setAnnouncement] = useState('') // Screen reader announcements
   const [isMuted, setIsMuted] = useState(false)
 
-  // ===== DOTS STATE ===== //
+  // ===== COLLECTIBLES STATE ===== //
   const [dots, setDots] = useState(() => generateDotsFromMaze())
-
-  // ===== POWER PELLETS STATE ===== //
   const [powerPellets, setPowerPellets] = useState<{x: number, y: number}[]>(POWER_PELLET_POSITIONS)
   
-  // ===== POSITION ===== //
+  // ===== POSITIONS ===== //
   const [pacmanPosition, setPacmanPosition]  = useState(PACMAN_SPAWN)
   const [ghosts, setGhosts] = useState<Ghost[]>(GHOST_SPAWNS)
 
-  // ===== GHOSTS ===== //
-  // ===== EATEN GHOSTS (returning to spawn) ===== //
-  const [eatenGhosts, setEatenGhosts] = useState<number[]>([])  // Array of ghost indices
+  // ===== GHOST BEHAVIOR ===== //
+  const [eatenGhosts, setEatenGhosts] = useState<number[]>([]) // Ghosts returning to spawn
 
-  // ===== LEVEL ===== //
+  // ===== LEVEL PROGRESSION ===== //
   const [level, setLevel] = useState(1)
   const [isIntroPlaying, setIsIntroPlaying] = useState(false)
 
   // ===== FRIGHTENED MODE ===== //
   const [isFrightened, setIsFrightened] = useState(false)
   const [frightenedTimer, setFrightenedTimer] = useState<number | null>(null)
-  const [ghostsEatenCount, setGhostsEatenCount] = useState(0)
+  const [ghostsEatenCount, setGhostsEatenCount] = useState(0) // Multiplier for ghost points
+  
+  // ===== GHOST BEHAVIOR HOOK ===== //
+  // Manages ghost AI, release timing, scatter/chase modes, and Cruise Elroy
   const { 
     ghostBehavior, 
     ghostsReleased, 
@@ -101,15 +110,17 @@ const App = () => {
   )
 
   // ===== FLOATING SCORE POPUPS ===== //
+  // Display score points and messages (READY!, LEVEL UP!) above grid
   const [floatingScores, setFloatingScores] = useState<Array<{
     x: number
     y: number
-    points?: number    // ← Optional (?)
-    text?: string      // ← Optional
+    points?: number    // Score value (200, 400, 800, 1600)
+    text?: string      // Text message (READY!, LEVEL UP!)
     id: number
   }>>([])
 
-  // Create sound players
+  // ===== SOUND EFFECTS ===== //
+  // Initialize all game sound players
   const { play: playEating }  = useSound("/sounds/pac-man-waka-waka.mp3")
   const { play: playDie }  = useSound("/sounds/audio_die.mp3")
   const { play: playWon }  = useSound("/sounds/audio_victory.mp3")
@@ -123,15 +134,17 @@ const App = () => {
   const { play: playSiren2, stop: stopSiren2 } = useSound("/sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
   const { play: playGhostRetreat }  = useSound("/sounds/ghost-retreat.mp3")
 
-// ===== FRUITS ===== //
+// ===== FRUIT SYSTEM ===== //
 const [fruit, setFruit] = useState<Fruit>({
   type: null,
   position: null,
   spawnTime: null
 })
 
+// Get fruit types for current level
 const currentLevelFruits = LEVEL_FRUITS[level - 1]
 
+// Spawn fruit at designated position
 const spawnFruit = useCallback((fruitType: FruitType) => {
   setFruit({
     type: fruitType,
@@ -140,14 +153,14 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
   })
 }, []) 
 
-  // ===== HIGH SCORE ===== //
-  // Load on mount
+  // ===== HIGH SCORE MANAGEMENT ===== //
+  // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('highScore')
     if (saved) setHighScore(parseInt(saved))
   }, [])
 
-  // Update when score changes
+  // Save to localStorage when score increases
   useEffect(() => {
     if (score > highScore) {
       setHighScore(score)
@@ -155,94 +168,92 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     }
   }, [score, highScore])
 
-  // ===== LEVEL UP ===== //
+  // ===== LEVEL UP TRANSITION ===== //
   const levelUp = useCallback(() => {
     // Increase level
     setLevel(prev => prev + 1)
-    // Stop current souds
+    // Stop all current souds
     stopAllSounds()
 
-    setIsIntroPlaying(true) // ← Intro starts
-    // Play start for the new level
+    // Play intro sequence
+    setIsIntroPlaying(true) 
     playStart(isMuted)
     setGameStatus('playing')
     
-    // Intro ends in 4s
+    // End intro after 4 seconds
     setTimeout(() => {
       setIsIntroPlaying(false)
     }, 4000)
  
-    // Respawn dots
+    // Respawn all collectibles
     setDots(generateDotsFromMaze())
-    
-    // Respawn power pellets
     setPowerPellets(POWER_PELLET_POSITIONS)
     
-  // Reset positions
-  setPacmanPosition(PACMAN_SPAWN)
-  setGhosts(GHOST_SPAWNS)
-  setEatenGhosts([])
-  
-  // Reset fruit
-  setFruit({ type: null, position: null, spawnTime: null })
-  
-  // Reset frightened
-  setIsFrightened(false)
-  if (frightenedTimer) clearTimeout(frightenedTimer)
-  setFrightenedTimer(null)
-  setGhostsEatenCount(0)
-  
-  // Show message
-  setFloatingScores([{
-    x: 7,
-    y: 7,
-    text: 'LEVEL UP!',
-    id: Date.now()
-  }])
-  
+    // Reset positions
+    setPacmanPosition(PACMAN_SPAWN)
+    setGhosts(GHOST_SPAWNS)
+    setEatenGhosts([])
+    
+    // Clear fruit
+    setFruit({ type: null, position: null, spawnTime: null })
+    
+    // Reset frightened mode
+    setIsFrightened(false)
+    if (frightenedTimer) clearTimeout(frightenedTimer)
+    setFrightenedTimer(null)
+    setGhostsEatenCount(0)
+    
+    // Show level up message
+    setFloatingScores([{
+      x: 7,
+      y: 7,
+      text: 'LEVEL UP!',
+      id: Date.now()
+    }])
+    
   setTimeout(() => setFloatingScores([]), 2000)
 }, [frightenedTimer, playStart, isMuted]) 
 
-  // ===== EXTRA LIFE ===== //
-  // Add extra life at every 10 000 points
-
+// ===== EXTRA LIFE SYSTEM ===== //
+// Award extra life every 10,000 points
 useEffect(() => {
   if (score >= nextExtraLifeAt) {
     setLives(prev => prev + 1)
-    setNextExtraLifeAt(prev => prev + 10000)  // ← Next threshold
+    setNextExtraLifeAt(prev => prev + 10000) // Set next threshold
     setAnnouncement('Extra life! 10,000 points reached!')
     playExtraLife(isMuted)
   }
 }, [score, nextExtraLifeAt, isMuted, playExtraLife])
 
-// ===== SIREN MANAGEMENT ===== //
+// ===== SIREN SOUND MANAGEMENT ===== //
+// Switch between scatter and chase sirens based on game state
 useEffect(() => {
-  // Don't play sirens if game is not playing or Pacman is dying
+  // Stop sirens if game not active or Pac-Man is dying
   if (gameStatus !== 'playing' || isPacmanDying) {
     stopSiren1()
     stopSiren2()
     return
   }
 
-  // If frightened mode is active, stop sirens
+  // Stop sirens during frightened mode
   if (isFrightened) {
     stopSiren1()
     stopSiren2()
     return
   }
 
-  // Delay siren start after game begins (wait for start sound to finish ~4s)
+  // Delay siren start during intro (wait for start sound ~4s)
   const delay = isIntroPlaying ? 4000 : 0
 
   const sirenStartDelay = setTimeout(() => {
     if (ghostBehavior === 'scatter') {
-      stopSiren2()  // ← Stop chase siren if playing
+      stopSiren2()  // Stop chase siren
       playSiren1(isMuted)
     } else if (ghostBehavior === 'chase') {
-      stopSiren1()  // ← Stop scatter siren if playing
+      stopSiren1()  // Stop scatter siren
       playSiren2(isMuted)
     }
-  }, delay)   // ← 4 second delay for start sound
+  }, delay)
 
   return () => {
     clearTimeout(sirenStartDelay)
@@ -251,9 +262,12 @@ useEffect(() => {
   }
 }, [gameStatus, isFrightened, isPacmanDying, ghostBehavior, isMuted, playSiren1, playSiren2, stopSiren1, stopSiren2,isIntroPlaying])
 
-  // ===== MOVE PACMAN ===== //
+  // ===== PAC-MAN MOVEMENT LOGIC ===== //
+  // Handles movement, collision detection, dot/fruit/pellet collection, and ghost interactions
   const movePacman = useCallback((direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
-    // ===== CHECK IF MOVE IS VALID ===== //
+    
+    // ===== VALIDATE MOVEMENT ===== //
+    // Check if Pac-Man can move in requested direction
     if (!canMoveInDirection(
       MAZE, 
       pacmanPosition.x, 
@@ -262,25 +276,22 @@ useEffect(() => {
       GRID_SIZE
     )) {
 
-    // ===== CHECK FOR TUNNEL TELEPORTATION ===== //
+    // ===== TUNNEL TELEPORTATION ===== //
     const currentCell = MAZE[pacmanPosition.y][pacmanPosition.x]
       
-      // Only teleport if trying to exit through tunnel
+      // Teleport to opposite side if exiting through tunnel
       if (currentCell.tunnel === 'left' && direction === 'LEFT') {
-        // Teleport to right side
         setPacmanPosition(prev => ({ x: GRID_SIZE - 1, y: prev.y }))
-
         return
       } else if (currentCell.tunnel === 'right' && direction === 'RIGHT') {
-        // Teleport to left side
         setPacmanPosition(prev => ({ x: 0, y: prev.y }))
-
         return
       }
-      return  // Can't move - wall or border!
+
+      return  // Blocked by wall or border
     }
    
-    // ===== CALCULATE NEW POSITION =====
+    // ===== CALCULATE NEW POSITION ===== //
     let newX = pacmanPosition.x
     let newY = pacmanPosition.y
     
@@ -291,18 +302,14 @@ useEffect(() => {
         
     setPacmanPosition({ x: newX, y: newY })
 
-    // ===== COLLECTING DOTS AND FRUITS ===== //
-    const hasDot = dots.some(dot => dot.x === newX && dot.y === newY)
-    // In movePacman, before "if (hasDot)" check:
-
-  // 🍒 FRUIT COLLISION
+  // ===== FRUIT COLLECTION ===== //
   if (fruit.position && newX === fruit.position.x && newY === fruit.position.y) {
     const points = FRUIT_POINTS[fruit.type!] 
     
     setScore(prev => prev + points)
     playEatFruit(isMuted)
 
-    // Floating score popup
+    // Show floating score popup
     setFloatingScores(prev => [...prev, {
       x: newX,
       y: newY,
@@ -314,163 +321,168 @@ useEffect(() => {
       setFloatingScores(prev => prev.slice(1))
     }, 1200)
     
-    // Remove fruit
+    // Remove collected fruit
     setFruit({ type: null, position: null, spawnTime: null })
     
     setAnnouncement(`Fruit collected! +${points} points!`)
   }
 
+  // ===== DOT COLLECTION ===== //
+  const hasDot = dots.some(dot => dot.x === newX && dot.y === newY)
+
     if (hasDot) {
+      // Remove collected dot
       const newDots = dots.filter(dot => {
         return !(dot.x === newX && dot.y === newY)
       })
       setDots(newDots)
       setScore(score + 10)
  
-      playEating(isMuted)  // ← PLAY EATING SOUND
-      setAnnouncement(`Dot collected. Score: ${score + 10}`)  // ← Announce
+      playEating(isMuted)
+      setAnnouncement(`Dot collected. Score: ${score + 10}`)
+      
 
-      // 🍒 FRUIT SPAWN:
+      // ===== FRUIT SPAWN TRIGGERS ===== //
       const totalDots = 181
       const dotsEaten = totalDots - newDots.length
       
-      // First spawn after 70 dots collected
+      // First fruit spawns after 70 dots eaten
       if (dotsEaten === FRUIT_SPAWN_DOTS.first && !fruit.type) {
-        spawnFruit(currentLevelFruits[0])  // ← First level fruit
+        spawnFruit(currentLevelFruits[0])
       }
 
-      // Second spawn after 170 dots collected
+      // Second fruit spawns after 170 dots eaten
       if (dotsEaten === FRUIT_SPAWN_DOTS.second && !fruit.type) {
-        spawnFruit(currentLevelFruits[1])  // ← Second level fruit
+        spawnFruit(currentLevelFruits[1])
       }
 
-      //Check the win/ level up
+      // ===== LEVEL COMPLETION CHECK ===== //
       if (newDots.length === 0) {
-        if (level < 5) {  // ← LEVEL UP
-          // Level up!
+        if (level < 5) { 
+          // Advance to next level
           levelUp()
-        } else { // ← WIN - SHOW WIN SCREEN
-          // Final win
+        } else {
+          // Final victory - show win screen after level 5
           playWon(isMuted)
           setGameStatus('won')
         }
       }
     }
 
-    // ===== COLLECTING POWER PELLETS ===== //
+    // ===== POWER PELLET COLLECTION ===== //
     const hasPowerPellet = powerPellets.some(
       pellet => pellet.x === newX && pellet.y === newY
     )
 
     if (hasPowerPellet && !isFrightened) {
-      // Remove this power pellet
+      // Remove collected power pellet
       setPowerPellets(prev => 
         prev.filter(pellet => !(pellet.x === newX && pellet.y === newY))
       )
       setScore(score + 50)
       setIsFrightened(true)
-      setGhostsEatenCount(0) // Reset count when new Power Pellet is eaten
+      setGhostsEatenCount(0) // Reset ghost eating multiplier
       playEatPellet(isMuted)
 
       setFrightenedTimeRemaining(frightenedDuration)
       
-        // Clear existing timer if any
-        if (frightenedTimer) {
-          clearTimeout(frightenedTimer)
-        }
-      
-        // Set 8, 7, 6, 5, 3 second timer
-        const timer = setTimeout(() => {
-          setIsFrightened(false)
-          setGhostsEatenCount(0) // ← RESET when frightened mode ends
-          setFrightenedTimeRemaining(0) 
-        }, frightenedDuration)  // ← Defined by level
-
-        setFrightenedTimer(timer)
-        
-          // ✅ Wait 400 ms then frightened sound:
-          setTimeout(() => {
-            playFrightened(isMuted)
-          }, 400)  // Delay = eatPellet sound length
-      
-        setAnnouncement('Power pellet! Ghosts are scared!')
+      // Clear existing frightened timer if any
+      if (frightenedTimer) {
+        clearTimeout(frightenedTimer)
       }
+    
+      // Set duration timer (varies by level: 8s, 7s, 6s, 5s, 3s)
+      const timer = setTimeout(() => {
+        setIsFrightened(false)
+        setGhostsEatenCount(0) 
+        setFrightenedTimeRemaining(0) 
+      }, frightenedDuration)
 
-    // ===== GHOST COLLISION ===== //
+      setFrightenedTimer(timer)
+      
+    // Play frightened sound after pellet sound finishes
+    setTimeout(() => {
+      playFrightened(isMuted)
+    }, 400)
+    
+      setAnnouncement('Power pellet! Ghosts are scared!')
+    }
+
+    // ===== GHOST COLLISION DETECTION ===== //
     const collidedIndex = ghosts.findIndex(
       ghost => ghost.x === newX && ghost.y === newY
     )
 
-    /*** EATING GHOSTS */ 
     if (collidedIndex !== -1 && !isInvincible) { 
-      const isAlreadyEaten = eatenGhosts.includes(collidedIndex) // Check if the ghost is already eaten
+      const isAlreadyEaten = eatenGhosts.includes(collidedIndex) 
 
-      // If ghosts are frightened - eat the ghost
+      // ----- FRIGHTENED MODE: EAT GHOST ----- //
       if (isFrightened && !isAlreadyEaten) {
         playEatGhost(isMuted)
 
-        // Calculate points: 200, 400, 800, 1600
-        const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
+        // Calculate points with multiplier: 200, 400, 800, 1600
+        const points = 200 * Math.pow(2, ghostsEatenCount)
         
-        /*** POP UP SCREEN */ 
-        // Add floating score popup
-          setFloatingScores(prev => [
-            ...prev,
-            {
-              x: newX,
-              y: newY,
-              points: points,
-              id: Date.now()  // Unique ID
-            }
-          ])
-          
-          // Remove popup after animation (1 second)
-          setTimeout(() => {
-            setFloatingScores(prev => prev.slice(1))  // Remove first (oldest)
-          }, 1200)
+        // Show floating score popup
+        setFloatingScores(prev => [
+          ...prev,
+          {
+            x: newX,
+            y: newY,
+            points: points,
+            id: Date.now()
+          }
+        ])
+        
+        // Remove popup after animation
+        setTimeout(() => {
+          setFloatingScores(prev => prev.slice(1))
+        }, 1200)
 
-      // After eating the ghost -> increase the score
+      // Update score
       setScore(prev => {
           const newScore = prev + points
           setAnnouncement(`Ghost eaten! +${points} points! Score: ${newScore}`) // Double the received points after each ghost eaten
           return newScore
         })
-        // Send the eaten ghost back to the spawn position
-        setGhostsEatenCount(prev => prev + 1)  // ← Increment counter
+        
+        // Send ghost back to spawn
+        setGhostsEatenCount(prev => prev + 1)
         setEatenGhosts(prev => [...prev, collidedIndex])
 
-          setTimeout(() => {
+        // Play retreat sound after gulp sound
+        setTimeout(() => {
           playGhostRetreat(isMuted)  
-        }, 500)  // ← Short pause after gulp sound "gulp"
+        }, 500)
 
-      /***  NORMAL GHOST - LOSE LIFE */
+       // ----- NORMAL MODE: LOSE LIFE ----- //
        } else if (!isAlreadyEaten) {  
-        setIsPacmanDying(true) // ← START death animation
-        // Active invincibility - Pac-Man can't be killed during respawn
-        setIsInvincible(true)      // ← SET IMMEDIATELY! Pac-Man can't be killed twice
+        setIsPacmanDying(true)
+        setIsInvincible(true) // Prevent double death
         playDie(isMuted)
 
-        // ⏱️ WAIT 1s (death animation), THEN teleport
+        // Wait for death animation, then respawn
         setTimeout(() => {
-          setIsPacmanDying(false)  // ← END death animation
+          setIsPacmanDying(false)
           setPacmanPosition(PACMAN_SPAWN)
 
-          // Turn off after 2 seconds
+          // Deactivate invincibility after respawn delay
           setTimeout(() => {
             setIsInvincible(false)
-          }, INVINCIBILITY_DURATION)  // ← 2s after respwn
+          }, INVINCIBILITY_DURATION)
 
           const remainingLives = lives - 1
           setAnnouncement(`Hit by ghost! ${remainingLives} lives remaining`)
           setLives(remainingLives)
         
           if (remainingLives <= 0) {
+            // Game over
             setFloatingScores([])
             setGameStatus('gameOver')  
             setLevel(1)
             setLives(3)
           } else {
-          // Show "READY!" after death (only if lives remain)
+          // Show "READY!" message after respawn
             setTimeout(() => {
               setFloatingScores([{
                 x: 7,
@@ -484,42 +496,53 @@ useEffect(() => {
               }, 2000)
             }, 300) // respawn
           }
-        }, 1500)  // ← 1.5 s for death animation
+        }, 1500)  // Death animation duration
       }
-  }},[
-        pacmanPosition,
-        dots,
-        powerPellets,  
-        score,
-        ghosts,
-        eatenGhosts,
-        lives,
-        playEating,
-        playWon,
-        playDie,
-        playEatGhost,
-        ghostsEatenCount,
-        playFrightened,
-        playEatPellet,
-        playEatFruit,
-        playGhostRetreat,
-        isFrightened,
-        frightenedTimer,
-        isMuted,
-        isInvincible,
-        fruit.type,
-        fruit.position,
-        spawnFruit,
-        level,
-        levelUp,
-        currentLevelFruits,
-        setFrightenedTimeRemaining,
-        frightenedDuration
-      ])
+    }
+  }, [
+    // Position and collision data
+    pacmanPosition,
+    dots,
+    powerPellets,  
+    score,
+    ghosts,
+    eatenGhosts,
+    lives,
+    
+    // Sound effects
+    playEating,
+    playWon,
+    playDie,
+    playEatGhost,
+    playFrightened,
+    playEatPellet,
+    playEatFruit,
+    playGhostRetreat,
+    
+    // Game state
+    ghostsEatenCount,
+    isFrightened,
+    frightenedTimer,
+    isMuted,
+    isInvincible,
+    
+    // Fruit data
+    fruit.type,
+    fruit.position,
+    spawnFruit,
+    
+    // Level progression
+    level,
+    levelUp,
+    currentLevelFruits,
+    
+    // Frightened mode
+    setFrightenedTimeRemaining,
+    frightenedDuration
+  ])
 
-  // ===== GHOSTS =====//
-
-  /*** 1. Cleanup frightened timer on unmount */
+  // ===== FRIGHTENED TIMER CLEANUP ===== //
+  // Clear timer when component unmounts
   useEffect(() => {
     return () => {
       if (frightenedTimer) {
@@ -528,219 +551,226 @@ useEffect(() => {
     }
   }, [frightenedTimer])
 
-    // ===== GHOSTS MOVE =====//
-    const moveGhosts = useCallback(() => {
+  // ===== GHOST MOVEMENT LOGIC ===== //
+  // Handles all ghost movement including eaten ghost returns and normal AI behavior
+  const moveGhosts = useCallback(() => {
 
-      // ===== MOVE EATEN GHOSTS (eyes) BACK TO SPAWN ===== //
-      setEatenGhosts(prevEaten => {
-        const stillReturning: number[] = []
+  // ===== RETURN EATEN GHOSTS TO SPAWN ===== //
+  // Move ghosts in "eyes only" state back to ghost house
+  setEatenGhosts(prevEaten => {
+    const stillReturning: number[] = []
 
-        prevEaten.forEach(ghostIndex => {
-          const ghost = ghosts[ghostIndex]
-          const spawn = GHOST_SPAWNS[ghostIndex]
+    prevEaten.forEach(ghostIndex => {
+      const ghost = ghosts[ghostIndex]
+      const spawn = GHOST_SPAWNS[ghostIndex]
 
-          // Check if ghost reached spawn
-          if (ghost.x === spawn.x && ghost.y === spawn.y) {
-            // Ghost is home - respawn normally
-            // Don't add to stillReturning (remove from eatenGhosts)
-            return  // ✅ Exit THIS forEach iteration, continue to next ghost
-          }
-          
-          // ✅  runs ONLY if ghost is NOT home yet
-          // Move toward spawn (simple pathfinding)
-          setGhosts(prevGhosts => {
-            const updated = [...prevGhosts]
-            const current = updated[ghostIndex]
-
-            // PRIORITY 1: Fix X coordinate first
-            if (current.x !== spawn.x) {
-              if (current.x < spawn.x) {
-                updated[ghostIndex] = {
-                  ...current,
-                  x: current.x + 1,
-                  lastDirection: 'RIGHT'
-                }
-              } else {
-                updated[ghostIndex] = {
-                  ...current,
-                  x: current.x - 1,
-                  lastDirection: 'LEFT'
-                }
-              }
-            }
-            // PRIORITY 2: Then fix Y coordinate (only if X is correct)
-            else if (current.y !== spawn.y) {
-              if (current.y < spawn.y) {
-                updated[ghostIndex] = {
-                  ...current,
-                  y: current.y + 1,
-                  lastDirection: 'DOWN'
-                }
-              } else {
-                updated[ghostIndex] = {
-                  ...current,
-                  y: current.y - 1,
-                  lastDirection: 'UP'
-                }
-              }
-            }
-            return updated
-          })
-
-          // Ghost is still returning - keep in array
-          stillReturning.push(ghostIndex)
-        })  // ✅ Close forEach
-
-        return stillReturning
-      })  // ✅ Close setEatenGhosts
-
-    // ===== NORMAL GHOST MOVEMENT ===== //
-    setGhosts(prevGhosts => {
-      const newGhosts: Ghost[] = []  // Empty array for ghost positions
-
-        for (let currentIndex = 0; currentIndex < prevGhosts.length; currentIndex++) {
-          const ghost = prevGhosts[currentIndex]
-
-          // ===== SKIP BLINKY IF CRUISE ELROY IS ACTIVE ===== //
-            if (currentIndex === 0 && blinkySpeed !== ghostSpeed) {
-              newGhosts.push(ghost)  // Keep Blinky as-is
-              continue  // Skip to next ghost
-            }
-
-          // ===== SKIP EATEN GHOSTS ===== //
-            if (eatenGhosts.includes(currentIndex)) {
-              newGhosts.push(ghost)  // Keep position (being moved by eaten logic above)
-              continue
-            }
-
-          // Check if ghost is released
-            if (!ghostsReleased[currentIndex]) {
-              newGhosts.push(ghost)  // Stay in place
-              continue  // Skip to next ghost
-            }
-
-          // Check if ghost is in tunnel
-          const currentCell = MAZE[ghost.y][ghost.x]
-          if (currentCell.tunnel) {
-            // 50% chance to skip movement (simulate slowdown)
-            if (Math.random() < 0.5) {
-              newGhosts.push(ghost)  // Stay in place
-              continue  // Skip to next ghost
-            }
-          }
-
-          // ===== FIND ALL POSSIBLE DIRECTIONS =====
-          const possibleMoves = findPossibleMoves(ghost, MAZE, GRID_SIZE)
-      
-      // No possible moves → stay in place
-      if (possibleMoves.length === 0) {
-        newGhosts.push(ghost)
-        continue  // ✅ Continue to the next ghosr
+      // Check if ghost has reached spawn point
+      if (ghost.x === spawn.x && ghost.y === spawn.y) {
+        // Ghost is home - respawn normally (remove from eatenGhosts)
+        return
       }
       
-      // ===== CALCULATE MOVE BASED ON PERSONALITY =====
-      const finalMove = calculateGhostMove(
-        ghost, 
-        possibleMoves, 
-        pacmanPosition,
-        (ghostBehavior === 'frightened' ? 'scatter' : ghostBehavior) as 'chase' | 'scatter', 
-        SCATTER_TARGETS[currentIndex]  
-      )
-      
-    // ===== CHECK IF ANOTHER GHOST IS THERE ===== //
-      const isOccupied = newGhosts.some((otherGhost, otherIndex) => {
-        //  Check ONLY already moved spirits (lower index)
-        if (otherIndex >= currentIndex) return false
-        
-        return otherGhost.x === finalMove.x && otherGhost.y === finalMove.y
+      // Move toward spawn using simple pathfinding
+      setGhosts(prevGhosts => {
+        const updated = [...prevGhosts]
+        const current = updated[ghostIndex]
+
+        // Priority 1: Fix X coordinate first
+        if (current.x !== spawn.x) {
+          if (current.x < spawn.x) {
+            updated[ghostIndex] = {
+              ...current,
+              x: current.x + 1,
+              lastDirection: 'RIGHT'
+            }
+          } else {
+            updated[ghostIndex] = {
+              ...current,
+              x: current.x - 1,
+              lastDirection: 'LEFT'
+            }
+          }
+        }
+
+        // Priority 2: Fix Y coordinate (only after X is correct)
+        else if (current.y !== spawn.y) {
+          if (current.y < spawn.y) {
+            updated[ghostIndex] = {
+              ...current,
+              y: current.y + 1,
+              lastDirection: 'DOWN'
+            }
+          } else {
+            updated[ghostIndex] = {
+              ...current,
+              y: current.y - 1,
+              lastDirection: 'UP'
+            }
+          }
+        }
+        return updated
+      })
+
+      // Ghost still returning - keep in array
+      stillReturning.push(ghostIndex)
+    })
+
+    return stillReturning
+  })
+
+  // ===== NORMAL GHOST MOVEMENT ===== //
+  // Process AI-controlled movement for all active ghosts
+  setGhosts(prevGhosts => {
+    const newGhosts: Ghost[] = []  // Empty array for ghost positions
+
+    for (let currentIndex = 0; currentIndex < prevGhosts.length; currentIndex++) {
+      const ghost = prevGhosts[currentIndex]
+
+      // ===== SKIP BLINKY IF CRUISE ELROY IS ACTIVE ===== //
+      // Blinky moves separately when faster (handled in separate effect)
+        if (currentIndex === 0 && blinkySpeed !== ghostSpeed) {
+          newGhosts.push(ghost)
+          continue 
+        }
+
+        // ===== SKIP EATEN GHOSTS ===== //
+        // Eaten ghosts are handled by return logic above
+        if (eatenGhosts.includes(currentIndex)) {
+          newGhosts.push(ghost)
+          continue
+        }
+
+      // ===== SKIP UNRELEASED GHOSTS ===== //
+      // Ghosts stay in ghost house until released
+      if (!ghostsReleased[currentIndex]) {
+        newGhosts.push(ghost)
+        continue
+      }
+
+      // ===== TUNNEL SLOWDOWN ===== //
+      // 50% chance to skip movement in tunnel
+      const currentCell = MAZE[ghost.y][ghost.x]
+      if (currentCell.tunnel) {
+        if (Math.random() < 0.5) {
+          newGhosts.push(ghost)
+          continue
+        }
+      }
+
+    // ===== CALCULATE VALID MOVES ===== //
+    const possibleMoves = findPossibleMoves(ghost, MAZE, GRID_SIZE)
+  
+    // No valid moves - stay in place
+    if (possibleMoves.length === 0) {
+      newGhosts.push(ghost)
+      continue
+    }
+    
+    // ===== APPLY AI PERSONALITY ===== //
+    // Use scatter/chase behavior or personality-based movement
+    const finalMove = calculateGhostMove(
+      ghost, 
+      possibleMoves, 
+      pacmanPosition,
+      (ghostBehavior === 'frightened' ? 'scatter' : ghostBehavior) as 'chase' | 'scatter', 
+      SCATTER_TARGETS[currentIndex]  
+    )
+    
+  // ===== GHOST COLLISION AVOIDANCE ===== //
+  // Check if another ghost already occupies target position
+  const isOccupied = newGhosts.some((otherGhost, otherIndex) => {
+    // Only check already-moved ghosts (lower indices)
+    if (otherIndex >= currentIndex) return false
+    
+    return otherGhost.x === finalMove.x && otherGhost.y === finalMove.y
+  })
+  
+  if (isOccupied) {
+    // Try to find alternative move from possible moves
+    for (const move of possibleMoves) {
+      const moveIsOccupied = newGhosts.some((otherGhost) => {
+        return otherGhost.x === move.x && otherGhost.y === move.y
       })
       
-      if (isOccupied) {
-        // Go through ALL possible moves
-        for (const move of possibleMoves) {
-          // Is THIS move available?
-          const moveIsOccupied = newGhosts.some((otherGhost) => {
-            return otherGhost.x === move.x && otherGhost.y === move.y
-          })
-          
-          if (!moveIsOccupied) {
-            // The available move found
-            newGhosts.push({
-            x: move.x,
-            y: move.y,
-            lastDirection: move.direction,
-            personality: ghost.personality  // ← Preserve personality
-          })
-            break  // ← Break if found
-          }
-        }
-        
-        // No available move → stay in place
-         if (newGhosts.length === currentIndex) {
-          newGhosts.push(ghost)  // Stay in place
-        }
-      } else {
-        newGhosts.push({  // Push 
-          x: finalMove.x,
-          y: finalMove.y,
-          lastDirection: finalMove.direction,
-          personality: ghost.personality  // ← Preserve personality
-        })
+      if (!moveIsOccupied) {
+        // Found available alternative
+        newGhosts.push({
+        x: move.x,
+        y: move.y,
+        lastDirection: move.direction,
+        personality: ghost.personality
+      })
+        break
       }
-    } 
+    }
+      
+    // No available moves - stay in place
+    if (newGhosts.length === currentIndex) {
+      newGhosts.push(ghost)
+    }
+  } else {
+    // Target position is free - move there
+    newGhosts.push({
+      x: finalMove.x,
+      y: finalMove.y,
+      lastDirection: finalMove.direction,
+      personality: ghost.personality
+    })
+  }
+} 
 
-    // ===== CHECK COLLISION ===== //
-    const collidedIndex = newGhosts.findIndex(
-      ghost => ghost.x === pacmanPosition.x && ghost.y === pacmanPosition.y
-    )
+  // ===== CHECK COLLISION WITH PAC-MAN ===== //
+  const collidedIndex = newGhosts.findIndex(
+    ghost => ghost.x === pacmanPosition.x && ghost.y === pacmanPosition.y
+  )
 
-    if (collidedIndex !== -1 && !isInvincible)  {
-      const isAlreadyEaten = eatenGhosts.includes(collidedIndex)  
+  if (collidedIndex !== -1 && !isInvincible)  {
+    const isAlreadyEaten = eatenGhosts.includes(collidedIndex)  
 
-      if (isFrightened&& !isAlreadyEaten) {
-        // Pacman eats the ghost
-        playEatGhost(isMuted)
-        const points = 200 * Math.pow(2, ghostsEatenCount)  // ← 200 * 2^n
+    // ----- PAC-MAN EATS GHOST (FRIGHTENED MODE) ----- //
+    if (isFrightened&& !isAlreadyEaten) {
+      playEatGhost(isMuted)
+      const points = 200 * Math.pow(2, ghostsEatenCount)
 
-        const ghost = newGhosts[collidedIndex]
-        
-         /*** POP UP SCREEN */ 
-        // Add floating score popup
-        setFloatingScores(prev => [
-          ...prev,
-          {
-            x: ghost.x,
-            y: ghost.y,
-            points: points,
-            id: Date.now()
-          }
-        ])
-        
-        setTimeout(() => {
-          setFloatingScores(prev => prev.slice(1))
-        }, 1000)
+      const ghost = newGhosts[collidedIndex]
+      
+      // Show floating score popup
+      setFloatingScores(prev => [
+        ...prev,
+        {
+          x: ghost.x,
+          y: ghost.y,
+          points: points,
+          id: Date.now()
+        }
+      ])
+      
+      setTimeout(() => {
+        setFloatingScores(prev => prev.slice(1))
+      }, 1000)
 
-        setScore(prev => {
-          const newScore = prev + points
-          setAnnouncement(`Ghost eaten! +${points} points! Score: ${newScore}`)
-          return newScore
-        })
+      setScore(prev => {
+        const newScore = prev + points
+        setAnnouncement(`Ghost eaten! +${points} points! Score: ${newScore}`)
+        return newScore
+      })
 
-        // Set ghost to the spawn position
-        setGhostsEatenCount(prev => prev + 1)  // ← Increment
-        setEatenGhosts(prev => [...prev, collidedIndex])
+      // Send ghost to spawn
+      setGhostsEatenCount(prev => prev + 1)
+      setEatenGhosts(prev => [...prev, collidedIndex])
 
-       } else if (!isAlreadyEaten) { 
-        // Normal state → Pacman dies
+      // ----- GHOST CATCHES PAC-MAN (NORMAL MODE) ----- //
+      } else if (!isAlreadyEaten) { 
         setIsPacmanDying(true)  
         setIsInvincible(true)
         playDie(isMuted)
         
-        setTimeout(() => {  // ← adding timeout
+        // Wait for death animation before respawning
+        setTimeout(() => { 
           setIsPacmanDying(false)
           setPacmanPosition(PACMAN_SPAWN)
 
-          // Turn off invincibility after respawn
+          // Deactivate invincibility after respawn
           setTimeout(() => {
             setIsInvincible(false)
           }, INVINCIBILITY_DURATION) 
@@ -755,126 +785,149 @@ useEffect(() => {
             }
             return newLives
           })
-        }, 1200)  // ← 1.2s pro animaci
+        }, 1200)
       }
     }         
       return newGhosts
     })
   }, [
-        pacmanPosition,
-        isFrightened,
-        eatenGhosts,
-        playDie,
-        playEatGhost,
-        ghosts,
-        ghostsEatenCount,
-        isMuted,
-        isInvincible,
-        ghostsReleased,
-        ghostBehavior,
-        blinkySpeed, 
-        ghostSpeed
-      ])
-
-  // ===== GHOSTS SPEED =====//
-  useEffect(() => {
-    if (gameStatus !== 'playing') return
-  
-    const ghostInterval = setInterval(() => {
-      moveGhosts()  // ← Move all ghosts
-      
-      // ===== EXTRA BLINKY MOVE (Cruise Elroy) ===== //
-      if (blinkySpeed < ghostSpeed) {  // Blinky is faster
-        // Move Blinky extra halfway through the interval
-        setTimeout(() => {
-          setGhosts(prev => 
-            moveBlinky(prev, pacmanPosition, MAZE, GRID_SIZE, SCATTER_TARGETS, eatenGhosts)
-          )
-        }, ghostSpeed / 2)  // ← Halfway through
-      }
-    }, ghostSpeed) 
+    // Position data
+    pacmanPosition,
+    ghosts,
+    eatenGhosts,
     
-    return () => clearInterval(ghostInterval)
-  }, [moveGhosts, gameStatus, ghostSpeed, blinkySpeed, moveBlinky, pacmanPosition, eatenGhosts])
+    // Sound effects
+    playDie,
+    playEatGhost,
+    
+    // Game state
+    isFrightened,
+    ghostsEatenCount,
+    isMuted,
+    isInvincible,
+    
+    // Ghost behavior
+    ghostsReleased,
+    ghostBehavior,
+    blinkySpeed, 
+    ghostSpeed
+  ])
 
-// ===== GAME OVER ===== //
-//Restart the game
+// ===== GHOST MOVEMENT INTERVAL ===== //
+// Controls ghost movement speed and handles Cruise Elroy extra moves
+useEffect(() => {
+  if (gameStatus !== 'playing') return
+
+  const ghostInterval = setInterval(() => {
+    moveGhosts()  // Move all ghosts
+    
+    // ===== CRUISE ELROY BONUS MOVE ===== //
+    // Blinky moves twice per interval when Cruise Elroy is active
+    if (blinkySpeed < ghostSpeed) {
+      // Extra move halfway through interval
+      setTimeout(() => {
+        setGhosts(prev => 
+          moveBlinky(prev, pacmanPosition, MAZE, GRID_SIZE, SCATTER_TARGETS, eatenGhosts)
+        )
+      }, ghostSpeed / 2)
+    }
+  }, ghostSpeed) 
+  
+  return () => clearInterval(ghostInterval)
+}, [moveGhosts, gameStatus, ghostSpeed, blinkySpeed, moveBlinky, pacmanPosition, eatenGhosts])
+
+// ===== GAME RESTART ===== //
+// Reset all game state to initial values
 const onRestart = () => {
+  // Reset core state
   setLives(3)
   setScore(0)
   setLevel(1)  
   setGameStatus('playing')
+
+  // Reset positions
   setPacmanPosition(PACMAN_SPAWN)
   setGhosts(GHOST_SPAWNS)
   setEatenGhosts([]) 
+
+  // Reset collectibles
   setFruit({ type: null, position: null, spawnTime: null })
-  setDots(generateDotsFromMaze())  // ← Generate new dots
-  // Reset power pellets
+  setDots(generateDotsFromMaze())
   setPowerPellets(POWER_PELLET_POSITIONS)
+
   // Reset frightened mode
-  setIsFrightened(false)            // ← Remove frightened mode
-    if (frightenedTimer) {             // ← Reset timer
-      clearTimeout(frightenedTimer)
-    }
-  setFrightenedTimer(null)   
-  setGhostsEatenCount(0) 
-  setNextExtraLifeAt(10000)  // ← Reset threshold
-  // Show "READY!" message
-  setFloatingScores([{
-    x: 7,
-    y: 7,
-    text: 'READY!',
-    id: Date.now()
-  }])
-  
-  setTimeout(() => {
-    setFloatingScores([])
-  }, 2000)
-  playStart(isMuted) // ← PLAY START SOUND
+  setIsFrightened(false)
+  if (frightenedTimer) {
+    clearTimeout(frightenedTimer)
+  }
+setFrightenedTimer(null)   
+setGhostsEatenCount(0) 
+
+// Reset extra life threshold
+setNextExtraLifeAt(10000)
+
+// Show "READY!" message
+setFloatingScores([{
+  x: 7,
+  y: 7,
+  text: 'READY!',
+  id: Date.now()
+}])
+
+setTimeout(() => {
+  setFloatingScores([])
+}, 2000)
+
+
+playStart(isMuted)
 }
  
-  /*** Event listener */
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowUp') movePacman('UP')
-      if (event.key === 'ArrowDown') movePacman('DOWN')
-      if (event.key === 'ArrowLeft') movePacman('LEFT')
-      if (event.key === 'ArrowRight') movePacman('RIGHT')
-    }
-    
-    window.addEventListener('keydown', handleKeyDown)
-    
-    // Cleanup - remove listener when unmounted
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [ movePacman])
+// ===== KEYBOARD CONTROLS ===== //
+// Listen for arrow key presses to move Pac-Man
+useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'ArrowUp') movePacman('UP')
+    if (event.key === 'ArrowDown') movePacman('DOWN')
+    if (event.key === 'ArrowLeft') movePacman('LEFT')
+    if (event.key === 'ArrowRight') movePacman('RIGHT')
+  }
+  
+  window.addEventListener('keydown', handleKeyDown)
+  
+  // Cleanup listener on unmount
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown)
+  }
+}, [ movePacman])
 
-  /*** FRUIT TIMEOUT */
-  useEffect(() => {
-    if (!fruit.spawnTime) return
-    
-    const timeout = setTimeout(() => {
-      setFruit({ type: null, position: null, spawnTime: null })
-    }, FRUIT_TIMEOUT)
-    
-    return () => clearTimeout(timeout)
-  }, [fruit.spawnTime])
+// ===== FRUIT TIMEOUT ===== //
+// Remove fruit after 10 seconds if not collected
+useEffect(() => {
+  if (!fruit.spawnTime) return
+  
+  const timeout = setTimeout(() => {
+    setFruit({ type: null, position: null, spawnTime: null })
+  }, FRUIT_TIMEOUT)
+  
+  return () => clearTimeout(timeout)
+}, [fruit.spawnTime])
 
+  // ===== PLAYING STATE RENDER ===== //
   if (gameStatus === 'playing') {
     return (
       <main 
         className="game"
         aria-label="Pac Maze – game screen"
       >
+        {/* Screen reader announcement area */}
         <div 
-          aria-live="assertive"  // Interrupts reading
+          aria-live="assertive"
           aria-atomic="true"
           className="visually-hidden"
         >
           {announcement}
         </div>
-        {/* <h1 className="game-title">Pac Maze</h1> */}
+        {/* Game HUD - score, high score, mute button */}
          <header 
             className="game-hud"
             aria-label="Game heads-up display"
@@ -895,6 +948,7 @@ const onRestart = () => {
                 High score: {highScore}
               </div>
 
+            {/* Mute/unmute button */}
             <button 
               className="mute"
               onClick={() => {
@@ -906,6 +960,8 @@ const onRestart = () => {
             </button>
           </div>
         </header>
+
+        {/* Main game grid */}
         <GameField
           pacmanPosition={pacmanPosition}
           dots={dots}
@@ -923,12 +979,16 @@ const onRestart = () => {
           ghostsReleased={ghostsReleased} 
           isGateVisible={isGateVisible} 
         />
+
+          {/* Bottom HUD - lives, level, fruit icons */}
           <div className="bottom-menu">
             <Lives lives={lives} />
             <div className="level">
               <span className="visually-hidden">Current level: </span>
               <p> Level: {level} </p>
             </div>
+
+            {/* Level progression fruit icons */}
             <div className="level-fruits">
                 {level >= 1 && <img src={CherryImg} alt="level 1"/>}
                 {level >= 2 && <img src={StrawberryImg} alt="level 2"/>}
@@ -944,6 +1004,8 @@ const onRestart = () => {
           </div>
       </main>
     ) }
+
+  // ===== GAME OVER STATE RENDER ===== //
   if (gameStatus === 'gameOver') {
       return (
         <GameOver 
@@ -953,6 +1015,8 @@ const onRestart = () => {
         ></GameOver>
       )
   } 
+
+  // ===== WIN STATE RENDER ===== //
   if (gameStatus === 'won') {
       return <WinScreen 
         score={score} 
@@ -961,30 +1025,32 @@ const onRestart = () => {
     />
   }
 
+  // ===== START SCREEN HANDLER ===== //
   const handleStart = () => {
     setIsIntroPlaying(true)
-    playStart(isMuted)       // ← PLAY START SOUND
-    setGameStatus('playing') // ← START GAME
+    playStart(isMuted) 
+    setGameStatus('playing')
   
     // Show "READY!" message
     setFloatingScores([{
-      x: 7,           // Middle of the labyrinth
-      y: 7,           // Middle of the labyrinth
+      x: 7, // Center of maze
+      y: 7, // Center of maze
       text: 'READY!',
       id: Date.now()
     }])
     
-    // Remove after 2 seconds
+    // Remove message after 2 seconds
     setTimeout(() => {
       setFloatingScores([])
     }, 2000)
 
-    // End intro after 4s
+    // End intro after 4 seconds
     setTimeout(() => {
       setIsIntroPlaying(false)
     }, 4000)
   }
 
+  // ===== START SCREEN RENDER ===== //
   return (
     <StartScreen 
       onStart={handleStart} 

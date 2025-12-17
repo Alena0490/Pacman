@@ -1,7 +1,10 @@
+// ===== START SCREEN ===== //
+// Welcome screen with game instructions and start button
+
 import "./Screen.css"
 
 type StartScreenProps = {
-  onStart: () => void
+  onStart: () => void // Callback to start the game
 }
 
 const StartScreen = ({onStart}:StartScreenProps) => {
@@ -9,6 +12,7 @@ const StartScreen = ({onStart}:StartScreenProps) => {
         <div className="screen-wrapper">
             <article className="screen screen--start">
                 <h2>Pac-Man</h2>
+                {/* Game instructions for new players */}
                 <div 
                     className="instructions"
                     aria-label="Game controls"

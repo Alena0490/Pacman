@@ -1,3 +1,7 @@
+// ===== GAME FIELD COMPONENT ===== //
+// Main game grid - renders maze, Pac-Man, ghosts, dots, fruits, and floating scores
+// Handles dynamic content placement and directional animations
+
 import { useState } from "react"
 import { type Cell } from '../data/mazeData'
 
@@ -18,10 +22,10 @@ type GameFieldProps = {
     fruit: Fruit 
     dots: { x: number, y: number }[]
     powerPellets: { x: number, y: number }[] 
-    ghosts: Array<{                          // ← GHOST ARRAY
+    ghosts: Array<{
         x: number
         y: number
-        lastDirection: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'  // ← Ghost direction
+        lastDirection: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
     }>
     gridSize: number
     maze: Cell[][]  
@@ -37,7 +41,7 @@ type GameFieldProps = {
     isPacmanDying: boolean
     isInvincible: boolean
     frightenedTimeRemaining: number
-    ghostsReleased: boolean[] 
+    ghostsReleased: boolean[]
     isGateVisible: boolean 
 }
 
@@ -59,28 +63,32 @@ const GameField = ({
     isGateVisible, 
 }: GameFieldProps) => {
 
-// ===== WATCH POSITION CHANGES =====//
-// Remember the last position
+// ===== POSITION TRACKING FOR DIRECTION ===== //
+// Track Pac-Man's last position to determine movement direction
+// Handles normal movement and tunnel teleportation
 const [prevPosition, setPrevPosition] = useState(pacmanPosition)
 const [lastDirection, setLastDirection] = useState('right')
   
-    // If position changed set the new direction
+    // Detect direction change based on position delta
     if (pacmanPosition.x !== prevPosition.x || pacmanPosition.y !== prevPosition.y) {
         const dx = pacmanPosition.x - prevPosition.x
         const dy = pacmanPosition.y - prevPosition.y
 
+        // Horizontal movement
         if (dx !== 0) {
             if (dx === 1) {
             setLastDirection('right')
             } else if (dx === -1) {
             setLastDirection('left')
             } else if (dx > 1) {
-            // teleport from left to right → he walked left into tunnel
+            // Teleport from left to right → went left into tunnel
             setLastDirection('left')
             } else if (dx < -1) {
-            // teleport from right to left → he walked right into tunnel
+            // Teleport from right to left → went right into tunnel
             setLastDirection('right')
             }
+
+        // Vertical movement
         } else if (dy !== 0) {
             if (dy > 0) setLastDirection('down')
             if (dy < 0) setLastDirection('up')
@@ -89,15 +97,18 @@ const [lastDirection, setLastDirection] = useState('right')
         setPrevPosition(pacmanPosition)
     }
    
+    // ===== CELL CONTENT RENDERER ===== //
+    // Determines what to render in each cell (Pac-Man, ghosts, dots, fruits)
+    // Priority: Pac-Man > Ghosts > Fruits > Power Pellets > Dots > Empty
     const getCellContent = (x: number, y: number) => {
 
-    // 1. Pacman
+        // 1. PAC-MAN
         if (x === pacmanPosition.x && y === pacmanPosition.y) {
 
-            // Detect if eating dot
-                const isEatingDot = dots.some(
-                    dot => dot.x === pacmanPosition.x && dot.y === pacmanPosition.y
-                )
+            // Detect if eating dot for enhanced animation
+            const isEatingDot = dots.some(
+                dot => dot.x === pacmanPosition.x && dot.y === pacmanPosition.y
+            )
 
             return (
                 <div className={`pacman pacman-${lastDirection}`}>
@@ -111,14 +122,14 @@ const [lastDirection, setLastDirection] = useState('right')
             )
         }
 
-    // 2. Ghosts
+    // 2. GHOSTS
     const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y)
         if (ghostIndex !== -1) {
             const isEaten = eatenGhosts.includes(ghostIndex)
             const currentGhost = ghosts[ghostIndex]
             const isWaiting = !ghostsReleased[ghostIndex] 
 
-            // Bounce pattern: Pinky & Clyde up, Inky down
+            // Bounce animation: Pinky & Clyde bounce down, Inky bounces up
             const bounceClass = isWaiting 
                 ? (ghostIndex === 1 ? 'bounce-down' : 'bounce-up')  // Inky bounces opposite
                 : ''
@@ -143,9 +154,8 @@ const [lastDirection, setLastDirection] = useState('right')
             )
         }
 
-    // 3. Dots & Power Pellets
-
-    // Power pellet (check STATE, not maze)
+    // 3. POWER PELLETS
+    // Check state array, not maze
     const hasPowerPellet = powerPellets.some(
         pellet => pellet.x === x && pellet.y === y
     )
@@ -158,49 +168,50 @@ const [lastDirection, setLastDirection] = useState('right')
     />
     }
 
-    // Pac-Man dot
+    // 4. DOTS
     const isDot = dots.some(dot => dot.x === x && dot.y === y)
     if (isDot) {
         return <img 
-            src={Dot} // ←  Changed to dot
+            src={Dot}
             alt="Dot" 
             className="coin" 
         />
     }
 
-      // 4. 🍒 FRUIT 
-        if (fruit.position && x === fruit.position.x && y === fruit.position.y) {
-            const fruitImages = {
-            cherry: CherryImg,
-            strawberry: StrawberryImg,
-            orange: OrangeImg,
-            apple: AppleImg,
-            melon: MelonImg,
-            galaxian: GalaxianImg
-        }
-            
-            return <img 
-                src={fruitImages[fruit.type!]} 
-                alt="Fruit" 
-                className="fruit" 
-                data-fruit={fruit.type} 
-            />
-        }
+    // 5. FRUITS
+    if (fruit.position && x === fruit.position.x && y === fruit.position.y) {
+        const fruitImages = {
+        cherry: CherryImg,
+        strawberry: StrawberryImg,
+        orange: OrangeImg,
+        apple: AppleImg,
+        melon: MelonImg,
+        galaxian: GalaxianImg
+    }
+        
+        return <img 
+            src={fruitImages[fruit.type!]} 
+            alt="Fruit" 
+            className="fruit" 
+            data-fruit={fruit.type} 
+        />
+    }
 
-    // 5. Empty field
+    // 6. EMPTY CELL
     return null
     }
 
-    // Create rows
+    // ===== RENDER MAZE GRID ===== //
+    // Build rows and cells with appropriate wall classes
     const rows = []
     for (let y = 0; y < gridSize; y++) {
         const cells = []
 
-        // For every row create cells
+        // Create cells for current row
         for (let x = 0; x < gridSize; x++) {
             const cell = maze[y][x]  // ← Get the cell from map
             
-            // CSS classes for walls
+            // Build wall CSS classes
             const wallClasses = [
                 cell.top && 'wall-top',
                 cell.right && 'wall-right',
@@ -208,10 +219,10 @@ const [lastDirection, setLastDirection] = useState('right')
                 cell.left && 'wall-left'
             ].filter(Boolean).join(' ')
                                              
-            // Zone class (restricted / ghost-house)
+            // Zone class (restricted / ghost-house / tunnel)
             const zoneClass = cell.zone || '' 
             
-            // Gate visibility - add class to cell above ghost house (x:7, y:6)
+            // Gate visibility for ghost house entrance (x:7, y:6)
             const gateClass = (x === 7 && y === 6 && isGateVisible) ? 'gate-visible' : ''
 
             cells.push(
@@ -228,6 +239,7 @@ const [lastDirection, setLastDirection] = useState('right')
         )
     }
 
+    // ===== FINAL RENDER ===== //
     return (
     <div 
         className="game-field"
@@ -236,7 +248,7 @@ const [lastDirection, setLastDirection] = useState('right')
     >
         {rows}
 
-        {/* Floating messages (scores + READY) */}
+        {/* Floating score popups and READY messages */}
         {floatingScores.map(item => (
             <div
                 key={item.id}

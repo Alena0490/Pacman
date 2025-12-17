@@ -10,20 +10,20 @@ export type Ghost = {
 
 export type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won'
 
+export type GhostMode = 'chase' | 'scatter' | 'frightened' | 'eaten'
+
 // ===== GRID SIZE ===== //
 export const GRID_SIZE = 15
 
 // ===== GHOST SPAWN POSITIONS ===== //
 export const GHOST_SPAWNS: Ghost[] = [
-  { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },   // [0] Blinky
-  { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },  // [1] Pinky
-  { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // [2] Inky
-  { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' },      // [3] Clyde
+  { x: 7, y: 5, lastDirection: 'DOWN', personality: 'patrol' },   // [0] Blinky (Red)
+  { x: 7, y: 7, lastDirection: 'DOWN', personality: 'nervous' },  // [1] Pinky (Pink)
+  { x: 6, y: 7, lastDirection: 'DOWN', personality: 'random' },   // [2] Inky (Cyan)
+  { x: 8, y: 7, lastDirection: 'DOWN', personality: 'shy' },      // [3] Clyde (Orange)
 ]
 
 // ===== SCATTER MODE SETTINGS ===== //
-export type GhostMode = 'chase' | 'scatter' | 'frightened' | 'eaten'
-
 // Scatter targets - each ghost goes to a specific corner
 export const SCATTER_TARGETS = [
   { x: 14, y: 0 },   // [0] Blinky - top right
@@ -33,6 +33,7 @@ export const SCATTER_TARGETS = [
 ]
 
 // Scatter/Chase wave timing (in seconds)
+// -1 in chase means "chase forever" (no more waves after Wave 4)
 export const WAVE_TIMINGS = [
   { scatter: 7, chase: 20 },   // Wave 1
   { scatter: 7, chase: 20 },   // Wave 2
@@ -49,23 +50,19 @@ export const POWER_PELLET_POSITIONS = [
 ]
 
 // ===== GHOST SPEED CONFIGURATION ===== //
+// Speed decreases (ghosts get faster) as level increases
+// Level 1: 500ms | Level 2: 450ms | Level 3: 400ms | Level 4: 350ms | Level 5+: 300ms
 export const GHOST_SPEED_CONFIG = {
-// Level 1: 500ms
-// Level 2: 450ms
-// Level 3: 400ms
-// Level 4: 350ms
-// Level 5: 300ms
-  base: 500,        // Level 1 speed (ms)
-  increase: 50,     // Speed increase per level
-  max: 200          // Maximum speed (fastest)
+  base: 500,        // Starting speed at level 1 (ms)
+  increase: 50,     // Speed decrease per level (faster)
+  max: 200          // Minimum interval (maximum speed)
 }
 
-// ===== INVICTIBILITY SETTINGS ===== //
+// ===== INVINCIBILITY SETTINGS ===== //
 export const INVINCIBILITY_DURATION = 2000  // 2 seconds after respawn
 
 
 // ===== FRIGHTENED MODE SETTINGS ===== //
-// export const FRIGHTENED_DURATION = 8000  // 8 seconds - DEPRECATED, use FRIGHTENED_DURATIONS
 export const FRIGHTENED_DURATIONS = [8000, 7000, 6000, 5000, 3000]  // Level 1-5 (ms)
 
 // ===== PACMAN SPAWN POSITION ===== //

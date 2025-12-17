@@ -1,4 +1,5 @@
-// ===== TYPE CELL =====
+// ===== CELL TYPE DEFINITION ===== //
+
 export type Cell = {
   top: boolean      // Wall up
   right: boolean    // Wall right
@@ -6,16 +7,16 @@ export type Cell = {
   left: boolean     // Wall left
   hasDot: boolean  // Has dot?
   powerPellet?: boolean 
-  zone?: 'restricted' | 'ghost-house' | 'tunnel' // The cell is outside of the labyrinth
+  zone?: 'restricted' | 'ghost-house' | 'tunnel' // Special zones: restricted = out of bounds, ghost-house = spawn area, tunnel = teleport
   tunnel?: 'left' | 'right'  // ← TUNNEL - teleport to the other side of labyrinth
 }
 
-// ===== HELPER  =====
-// Format: "TRBL" (Top, Right, Bottom, Left)
+// ===== CELL FACTORY HELPER ===== //
+// Format: "TRBL" (Top, Right, Bottom, Left) - "1" = wall present, "0" = no wall
 const createCell = (
   walls: string, 
   dot = false, 
-  options?: {    // Cell options - is the cell part of the labyrinth?
+  options?: {    //Cell options - is the cell part of the labyrinth?
     zone?: 'restricted' | 'ghost-house' | 'tunnel' 
     tunnel?: 'left' | 'right'
     powerPellet?: boolean  
@@ -31,7 +32,8 @@ const createCell = (
   tunnel: options?.tunnel  
 })
 
-// ===== MAP 15x15 =====
+// ===== MAZE LAYOUT (15x15 GRID) ===== //
+// Each row represents a horizontal line of cells from left to right
 export const MAZE: Cell[][] = [ 
 
   // Row 1
@@ -350,10 +352,11 @@ export const MAZE: Cell[][] = [
   ],
 ]
 
-// ===== GENERATE DOTS FROM MAZE =====
+// ===== DOT GENERATION ===== //
+// Randomly places 180 dots in cells marked with hasDot: true
 export const generateDotsFromMaze = (): { x: number, y: number }[] => {
   const dots: { x: number, y: number }[] = []
-  const DOT_COUNT = 180  // ← genrate till there's 180 dots
+  const DOT_COUNT = 180 // Total dots to spawn (excluding 4 power pellets)
   
   // Find fields with hasDot: true
   const allowedPositions: { x: number, y: number }[] = []
@@ -366,21 +369,22 @@ export const generateDotsFromMaze = (): { x: number, y: number }[] => {
     }
   }
   
-  // Chose 30 random positions from hasDot: true
+  // Choose 30 random positions from hasDot: true
   while (dots.length < DOT_COUNT && allowedPositions.length > 0) {
     const randomIndex = Math.floor(Math.random() * allowedPositions.length)
     const position = allowedPositions[randomIndex]
     
     dots.push(position)
     
-    // Do not add dots to the position, where the dots are already added
+    // Remove position to prevent duplicates
     allowedPositions.splice(randomIndex, 1)
   }
   
   return dots
 }
 
-// ===== CHECK IF MOVE IS VALID (no walls) =====
+// ===== MOVEMENT VALIDATION ===== //
+// Checks if Pac-Man can move in a given direction (no walls blocking)
 export const canMoveInDirection = (
   maze: Cell[][],
   fromX: number,

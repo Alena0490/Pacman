@@ -1,7 +1,10 @@
+// ===== WIN SCREEN ===== //
+// Victory screen displayed when player completes all 5 levels
+
 type WinScreenProps = {
-  score: number
-  onRestart: () => void
-  announcement: string
+  score: number // Final score achieved
+  onRestart: () => void // Callback to restart game from level 1
+  announcement: string // Screen reader announcement
 }
 
 const WinScreen = ({score, onRestart, announcement}:WinScreenProps) => {
@@ -10,6 +13,7 @@ const WinScreen = ({score, onRestart, announcement}:WinScreenProps) => {
             <main
                 className="screen screen--win"
             >
+                {/* Screen reader announcement for accessibility */}
                 <div 
                     aria-live="assertive"
                     aria-atomic="true"

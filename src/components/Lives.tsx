@@ -1,7 +1,10 @@
+// ===== LIVES DISPLAY COMPONENT ===== //
+// Shows remaining lives as Pac-Man icons in the game HUD
+
 import PacmanIcon from '../img/pacman-icon.svg'  // Mini Pacman SVG
 
 type LivesProp = {
-  lives: number
+  lives: number // Current number of remaining lives
 }
 
 const Lives = ({ lives }: LivesProp) => {
@@ -9,6 +12,7 @@ const Lives = ({ lives }: LivesProp) => {
     <div className="lives">
       <p> 
         <span className="lives-img">
+        {/* Render Pac-Man icon for each remaining life */}
         {Array.from({ length: lives }).map((_, i) => (
             <img 
             key={i} 
