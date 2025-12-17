@@ -121,18 +121,18 @@ const App = () => {
 
   // ===== SOUND EFFECTS ===== //
   // Initialize all game sound players
-  const { play: playEating }  = useSound("${soundBase}sounds/pac-man-waka-waka.mp3")
-  const { play: playDie }  = useSound("${soundBase}sounds/audio_die.mp3")
-  const { play: playWon }  = useSound("${soundBase}sounds/audio_victory.mp3")
-  const { play: playStart }  = useSound("${soundBase}sounds/audio_opening_song.mp3")
-  const { play: playEatGhost}  = useSound("${soundBase}sounds/audio_eatghost.mp3")
-  const { play: playFrightened }  = useSound("${soundBase}sounds/audio_intermission.mp3")
-  const { play: playEatPellet }  = useSound("${soundBase}sounds/audio_eatpill.mp3")
-  const { play: playEatFruit }  = useSound("${soundBase}sounds/pacman_eatfruit.wav")
-  const { play: playExtraLife }  = useSound("${soundBase}sounds/audio_extra lives.mp3")
-  const { play: playSiren1, stop: stopSiren1 }  = useSound("${soundBase}sounds/Voicy_Ghost Siren sound.mp3", { loop: true })
-  const { play: playSiren2, stop: stopSiren2 } = useSound("${soundBase}sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
-  const { play: playGhostRetreat }  = useSound("${soundBase}sounds/ghost-retreat.mp3")
+  const { play: playEating }  = useSound("sounds/pac-man-waka-waka.mp3")
+  const { play: playDie }  = useSound("sounds/audio_die.mp3")
+  const { play: playWon }  = useSound("sounds/audio_victory.mp3")
+  const { play: playStart }  = useSound("sounds/audio_opening_song.mp3")
+  const { play: playEatGhost}  = useSound("sounds/audio_eatghost.mp3")
+  const { play: playFrightened }  = useSound("sounds/audio_intermission.mp3")
+  const { play: playEatPellet }  = useSound("sounds/audio_eatpill.mp3")
+  const { play: playEatFruit }  = useSound("sounds/pacman_eatfruit.wav")
+  const { play: playExtraLife }  = useSound("sounds/audio_extra lives.mp3")
+  const { play: playSiren1, stop: stopSiren1 }  = useSound("sounds/Voicy_Ghost Siren sound.mp3", { loop: true })
+  const { play: playSiren2, stop: stopSiren2 } = useSound("sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
+  const { play: playGhostRetreat }  = useSound("sounds/ghost-retreat.mp3")
 
 // ===== FRUIT SYSTEM ===== //
 const [fruit, setFruit] = useState<Fruit>({
