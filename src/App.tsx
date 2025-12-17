@@ -129,7 +129,7 @@ const App = () => {
   const { play: playFrightened }  = useSound("/sounds/audio_intermission.mp3")
   const { play: playEatPellet }  = useSound("/sounds/audio_eatpill.mp3")
   const { play: playEatFruit }  = useSound("/sounds/pacman_eatfruit.wav")
-  const { play: playExtraLife }  = useSound("/public/sounds/audio_extra lives.mp3")
+  const { play: playExtraLife }  = useSound("/sounds/audio_extra lives.mp3")
   const { play: playSiren1, stop: stopSiren1 }  = useSound("/sounds/Voicy_Ghost Siren sound.mp3", { loop: true })
   const { play: playSiren2, stop: stopSiren2 } = useSound("/sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
   const { play: playGhostRetreat }  = useSound("/sounds/ghost-retreat.mp3")
