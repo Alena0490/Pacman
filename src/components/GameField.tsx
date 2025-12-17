@@ -241,7 +241,7 @@ const [lastDirection, setLastDirection] = useState('right')
 
     // ===== FINAL RENDER ===== //
     return (
-    <div 
+    <div
         className="game-field"
         role="application"
         aria-label={`Pacman game grid, ${gridSize} by ${gridSize} cells`}

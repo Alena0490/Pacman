@@ -10,7 +10,7 @@ type StartScreenProps = {
 const StartScreen = ({onStart}:StartScreenProps) => {
     return (
         <div className="screen-wrapper">
-            <article className="screen screen--start">
+            <main className="screen screen--start">
                 <h2>Pac-Man</h2>
                 {/* Game instructions for new players */}
                 <div 
@@ -28,7 +28,7 @@ const StartScreen = ({onStart}:StartScreenProps) => {
                 >
                     Start game
                     </button>
-            </article>
+            </main>
         </div>
     )
 }
