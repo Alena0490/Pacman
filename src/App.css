@@ -1,3 +1,7 @@
+/* ===== GAME FIELD STYLES ===== */
+/* Maze grid, cells, walls, and all game elements (Pac-Man, ghosts, dots, fruits) */
+
+/* ===== GAME FIELD CONTAINER ===== */
 .game-field {
   display: flex;
   flex-direction: column;
@@ -9,12 +13,18 @@
   background-blend-mode: hard-light;
   border-radius: 0.75rem;
   padding: 0.625rem; /* 10px */
-  /* background-blend-mode: overlay; */
-  background:  var(--board-background),
-  url("./img//grass.webp");
-  background-size: cover;
+ 
+ background: radial-gradient(
+    circle at center,
+    var(--wall-inner) 0%,
+    var(--background-dark) 70%
+  );
+  box-shadow: 
+    inset 0 0 3rem rgba(0, 0, 0, 0.8),
+    inset 0 0 1rem var(--wall-inner);
 }
 
+/* ===== MAZE GRID ===== */
 .row {
   display: flex;
   gap: 0;
@@ -41,11 +51,10 @@ background: radial-gradient(
   font-size: 1.25rem;
   border-left: 1px solid transparent;
   border-top: 1px solid transparent;
-
-  /* slight depth effect, corridors look more like tunnels */
   box-shadow: inset 0 0 0.35rem rgba(0, 0, 0, 0.85);
 }
 
+/* Center dot decoration */
 .cell::before {
   content: '';
   position: absolute;
@@ -58,6 +67,7 @@ background: radial-gradient(
   transform: translate(-50%, -50%);
 }
 
+/* ===== WALLS ===== */
 .wall {
   width: 3.125rem;  /* 50px */
   height: 3.125rem; /* 50px */
@@ -65,7 +75,6 @@ background: radial-gradient(
   display: inline-block;
 }
 
-/* Walls*/
 .cell.wall-top {
   border-top: 0.25rem solid var(--wall-color);
 }
@@ -82,6 +91,7 @@ background: radial-gradient(
   border-left: 0.25rem solid var(--wall-color);
 }
 
+/* ===== RESTRICTED CELLS ===== */
 .cell.restricted {
   background-color: transparent;
   background: none;
@@ -99,15 +109,14 @@ background: radial-gradient(
   display: inline-block;
 }
 
-/* Ghost house gate - special border on cell above house */
+/* Ghost house gate */
 .cell.gate-visible {
   border-top: 0.2rem solid var(--cell-dot-color);
   transition: 
     border-top 0.3s ease-in-out,
 }
 
-/* PAC-MAN */
-/* Pacman base */
+/* ===== PAC-MAN ===== */
 .pacman {
   width: var(--pacman-size);  /* 95 % of cell */
   height: var(--pacman-size);
@@ -122,13 +131,13 @@ background: radial-gradient(
   height: 100%;
 }
 
-/* Rotation */
+/* Directional rotation */
 .pacman-right {
   transform: rotate(0deg);    /* → right (default) */
 }
 
 .pacman-down {
-  transform: rotate(90deg);   /* ↓ top */
+  transform: rotate(90deg);   /* ↓ down */
 }
 
 .pacman-left {
@@ -139,6 +148,7 @@ background: radial-gradient(
   transform: rotate(270deg);  /* ↑ up */
 }
 
+/* Post-death invincibility */
 .invincible {
   animation: blink 0.2s infinite;
 }
@@ -148,7 +158,8 @@ background: radial-gradient(
   51%, 100% { opacity: 0.3; }
 }
 
-/* COINS (DOTS) */
+/* ===== COLLECTIBLES ===== */
+/* Dots */
 .coin {
   width: var(--dot-size);
   height: var(--dot-size);
@@ -161,6 +172,7 @@ background: radial-gradient(
   image-rendering: pixelated;
 }
 
+/* Power pellets */
 .coin.large {
   width: var(--coin-size-large);
   height: var(--coin-size-large);
@@ -169,6 +181,7 @@ background: radial-gradient(
     contrast(1.2);
 }
 
+/* Fruits */
 .fruit {
   width: var(--coin-size-large);
   height: var(--coin-size-large);
@@ -214,8 +227,7 @@ background: radial-gradient(
   animation: galaxianFloat 2s ease-in-out infinite, galaxianGlow 1.5s ease-in-out infinite;
 }
 
-/* GHOSTS  */
-/* Ghost sizing  */
+/* ===== GHOSTS ===== */
 .ghost {
   width: var(--ghost-size);
   height: var(--ghost-size);
@@ -231,7 +243,7 @@ background: radial-gradient(
   z-index: 100;
 }
 
-/* Ghost colors  */
+/* Individual ghost colors */
 .ghost[data-ghost="2"] {
   color: var(--ghost-cyan);  /* #00FFFF */
   filter: 
@@ -260,7 +272,7 @@ background: radial-gradient(
     drop-shadow(0 0 0.75rem var(--ghost-orange-tr));
 }
 
-/* Bouncing before releasing from the ghost cave  */
+/* Ghost house bouncing animation */
 .ghost.bounce-up {
   animation: ghost-bounce-up 0.7s ease-in-out infinite;
 }
@@ -269,7 +281,7 @@ background: radial-gradient(
   animation: ghost-bounce-down 0.7s ease-in-out infinite;
 }
 
-/* Frightened - override všech barev */
+/* Frightened mode */
 .ghost.frightened {
   color: var(--ghost-blue) ;
   filter: 
@@ -278,7 +290,7 @@ background: radial-gradient(
   animation: ghost-scared 0.5s ease-in-out infinite !important;
 }
 
-/* Blinking before frightened ends */
+/* Frightened ending flash */
 .ghost[data-ghost].frightened.ending {
   filter: 
     drop-shadow(0 0 0.25rem var(--text-color)) 
@@ -286,25 +298,23 @@ background: radial-gradient(
   animation: ghost-ending-blink 0.5s steps(1) 5 !important;  /* 5× repeat */
 }
 
-/* Red mouth */
 .animated-ghost.frightened.ending .ghost-mouth {
   animation: mouth-blink 0.5s steps(1) 5;
   fill: var(--danger);
 }
 
-/* Red Eyes */
 .animated-ghost.frightened.ending .ghost-eye {
   animation: eyes-blink 0.5s steps(1) 5;
   fill: var(--danger);
 }
 
+/* Eaten state - eyes only */
 .ghost.eaten {
   transform: scale(1.25);
   filter: brightness(1.5);  /* No glow for eyes */
   animation: ghost-eyes-float 0.3s ease-in-out infinite;
 }
 
-/* Animated ghost */
 .animated-ghost {
   width: 100%;
   height: 100%;
@@ -314,7 +324,7 @@ background: radial-gradient(
   transition: cx 0.15s ease-out, cy 0.15s ease-out;
 }
 
-/*** GHOSTS -  SCORE INCREASE */
+/* ===== FLOATING SCORES ===== */
 .floating-score {
   position: absolute;
   color: var(--text-color);
@@ -336,7 +346,7 @@ background: radial-gradient(
   transform: translate(-50%, -50%);
 }
 
-/* READY! message - bigger, different animation */
+/* READY! message variant */
 .floating-score.ready-message {
   width: 100%;
   margin-top: 0 auto;

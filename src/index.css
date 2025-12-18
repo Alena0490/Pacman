@@ -1,8 +1,13 @@
+/* ===== MAIN STYLES ===== */
+/* Global variables, typography, layout, and component styles */
+/* Includes custom fonts (Crackman, Emulogic) and game-specific design tokens */
+
 @font-face {
   font-family: 'Crackman';
   src: url('./Crackman.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -10,58 +15,63 @@
   src: url('./Emulogic-zrEw.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 :root {
   /* ===== COLORS ===== */
-  /* ===== PRIMARY COLORS ===== */
+  
+  /* ----- Primary Colors ----- */
   --main-color: #EF13F2; 
   --secondary-color: #F2E30C;     
   --secondary-color-tr: #F2E30CB0;  
-  --accent-color: #00FFFF;         /* ghost*/
+  --accent-color: #00FFFF;
   --accent-color-dark: #00c1ff;  
   
-  /* ===== BACKGROUND ===== */
-  --background: #1a0a2e;          /* Deep blue-purple */
-  --background-dark: #0D0D0D;     /* Nech */
-  --background-light: #3d2a5e;   /* Light blue-purple */
-  --background-medium: #0a0212;   /* Medium blue-purple */
+  /* ----- Background ----- */
+  --background: #1a0a2e;           /* Deep blue-purple */
+  --background-dark: #0D0D0D;      /* Near black */
+  --background-light: #3d2a5e;     /* Light blue-purple */
+  --background-medium: #0a0212;    /* Medium blue-purple */
   
-  /* ===== TEXT ===== */
+  /* ----- Text ----- */
   --text-color: #fdfdfd; 
   --text-muted: #c8c8c8;
   --text-dark: #0D0D0D;
   
-  /* ===== UI STATES ===== */
-  --success: #64BB46;              /* win, power-upn*/
+  /* ----- UI States ----- */
+  --success: #64BB46;              /* Win screen theme */
   --success-dark: #447e31; 
   --success-darker: #37582c; 
-  --danger: #FF1744;               /* lose live, game over */
+  --danger: #FF1744;               /* Game over screen theme */
   --danger-light: #ff3b55; 
   --warning: #FFA726;
   --info: #29B6F6;
   
-  /* ===== GHOST COLORS ===== */
-  --ghost-pink: #EF13F2;           /* use main-color */
-  --ghost-pink-tr: #EF13F2B0; 
-  --ghost-cyan: #00FFFF;           /* use accent-color */
-  --ghost-cyan-tr: #00FFFF90;  
-  --ghost-red: #ff435c;
+  /* ----- Ghost Colors ----- */
+  /* Individual ghost colors for normal mode */
+  --ghost-red: #ff435c;            /* Blinky (ghost 0), also Game Over screen theme */
   --ghost-red-tr:#ff3b55B0;
-  --ghost-green: #00FF41;
-  --ghost-green-dark: #02ce35;  
-  --ghost-green-tr: #00FF4190; 
-  --ghost-orange: #FFA726;         /* use the warning color*/
+  --ghost-pink: #EF13F2;           /* Pinky (ghost 1) */
+  --ghost-pink-tr: #EF13F2B0; 
+  --ghost-cyan: #00FFFF;           /* Inky (ghost 2) */
+  --ghost-cyan-tr: #00FFFF90;  
+  --ghost-orange: #FFA726;         /* Clyde (ghost 3) */
   --ghost-orange-tr: #FFA72690; 
-  --ghost-blue: #2121FF;          /* clasic Pacman color */
+
+  /* Special states */
+  --ghost-blue: #2121FF;           /* Frightened mode, also Galaxian fruit glow */
   --ghost-blue-tr: #2121FF70;
+  --ghost-green: #00FF41;          /* Win screen theme, also Melon fruit glow */
+  --ghost-green-dark: #02ce35;  
+  --ghost-green-tr: #00FF4190;
   
-  /* ===== GAME ELEMENTS ===== */
+  /* ----- Game Elements ----- */
   --coin-color: #F2E30C; 
   --wall-color: #560379;  
   --pacman-color: #FFFF00;
   
-  /* ===== BORDERS ===== */
+   /* ----- Borders ----- */
   --border-color: #EF13F2;  
   --border-light: #3F0259;
   --border-dark: #1A0726;
@@ -70,17 +80,17 @@
   --screen-border-danger-soft: #FF1744B3; 
   --screen-border-success-soft: #64BB46B3;
   
-  /* ===== OPACITY VARIANTS ===== */
+  /* ----- Opacity Variants ----- */
   --overlay-light: rgba(63, 2, 89, 0.8);
   --overlay-dark: rgba(13, 13, 13, 0.9);
 
-  /* BOARD / GRID */
+  /* ----- Board / Grid ----- */
   --board-background: radial-gradient(circle at top, var(--success-dark) 0, var(--success-darker) 45%, var(--background-dark) 100%);
   --grid-line-color: rgba(239, 19, 242, 0.16);   /* grid */
   --cell-bg: #050308;                             
   --cell-dot-color: rgba(255, 255, 255, 0.14);    /* cell::before */
 
-  /* SHADOWS & GLOWS */
+  /* ----- Shadows & Glows ----- */
   --shadow-deep: rgba(0, 0, 0, 0.95);
   --shadow-glow: rgba(239, 19, 242, 0.5);
   --shadow-glow-yellow: rgba(242, 227, 12, 0.3);
@@ -89,7 +99,7 @@
   --screen-glow-danger: rgba(255, 23, 68, 0.85);
   --screen-glow-success: rgba(100, 187, 70, 0.85);
 
-  /* Pacman corridors / walls */
+  /* ----- Maze Walls ----- */
   --corridor-bg: #050308;
   --corridor-bg-inner: #12091a;
   --corridor-shadow: rgba(0, 0, 0, 0.85);
@@ -111,12 +121,14 @@
 --transition-speed: 0.15s;
 }
 
+/* ===== GLOBAL RESET ===== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ===== BASE TYPOGRAPHY ===== */
 html {
    font-size: 16px;
 }
@@ -132,8 +144,8 @@ body {
   color: var(--text-color);
 }
 
+/* ===== GAME CONTAINER ===== */
 .game {
-  width: min(70vw, var(--game-max-width));
   width: calc(var(--cell-size) * 15 + (var(--game-padding) * 2) + 2rem);
   margin: 1rem auto;
   position: relative;
@@ -156,6 +168,7 @@ body {
         0 0 0.7rem rgba(0, 0, 0, 0.85) inset;  
 }
 
+/* ===== GAME HUD ===== */
 .game-hud,
 .game-field {
   margin-inline: auto;
@@ -170,29 +183,15 @@ body {
   background-color: transparent;
 }
 
-.game-title {
-  margin: 0rem 0 0;
-  font-family: "BD Cartoon Shout", system-ui, sans-serif;
-  text-transform: uppercase;
-  font-size: 1.4rem;
-  letter-spacing: 0.08em;
-  color: var(--main-color);
-  text-shadow:
-    0 0 0.25rem var(--main-color),
-    0 0 0.55rem var(--ghost-pink-tr);
-}
-
 .game-stats {
   display: flex;
   align-items: flex-end;
-  justify-content: flex-start;
-  margin: 0 auto;
-  line-height: 1.75rem;
-  max-width: calc( var(--cell-size) * 15);
-  padding-inline: 1.25rem;
-  display: flex;
   justify-content: space-between;
   gap: 0.5rem;
+  margin: 0 auto;
+  padding-inline: 1.25rem; 
+  line-height: 1.75rem;
+  max-width: calc( var(--cell-size) * 15);
 }
 
 .game-score {
@@ -209,6 +208,7 @@ h2 {
   font-size: 2rem;
 }
 
+/* ===== BOTTOM MENU ===== */
 .bottom-menu {
   width: 100%;
   max-width: calc(var(--cell-size) * 15);
@@ -257,6 +257,7 @@ h2 {
   gap: 0.5rem;
 }
 
+/* ===== BUTTON STYLES ===== */
 button {
   margin: 2rem auto 0;
   color: var(--text-dark);
@@ -285,6 +286,7 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+/* Mute button variant */
 button.mute {
   position: relative;
   right: 0rem;
@@ -303,6 +305,7 @@ button.mute:hover {
   color: var(--text-color);
 }
 
+/* ===== ACCESSIBILITY ===== */
 /* Screen reader only text */
 .visually-hidden {
   position: absolute;
@@ -316,6 +319,7 @@ button.mute:hover {
   border-width: 0;
 }
 
+/* ===== MEDIA QUERIES ===== */
 @media (max-width: 420px) {
 
   .game-stats {
