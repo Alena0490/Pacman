@@ -38,11 +38,11 @@ export const useSound = (soundPath: string, options?: UseSoundOptions) => {
             }
 
             // Skip silent intro (start at 100ms to avoid audio artifacts)
-            audioRef.current.addEventListener('loadeddata', () => {
-              if (audioRef.current) {
-                audioRef.current.currentTime = 0.1  // Start from 100ms 
-              }
-            })
+            // audioRef.current.addEventListener('loadeddata', () => {
+            //   if (audioRef.current) {
+            //     audioRef.current.currentTime = 0.1  
+            //   }
+            // })
             
             // Set volume if specified
             if (options?.volume !== undefined) {
