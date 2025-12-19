@@ -3,17 +3,23 @@ import "./CoffeeBreak.css"
 import PacMan from "../svg/AnimatedPacman"
 import Ghost from "../svg/AnimatedGhosts"
 
-const CoffeeBreak = () => {
+type CoffeeBreakProps = {
+  isMuted: boolean
+  playIntermission: (muted: boolean) => void
+}
+
+const CoffeeBreak = ({ isMuted, playIntermission }: CoffeeBreakProps) => {
     const [phase, setPhase] = useState<'chase' | 'reverse'>('chase')
 
     useEffect(() => {
+        playIntermission(isMuted)
         // Switch to reverse phase after 4 seconds
         const timer = setTimeout(() => {
             setPhase('reverse')
         }, 4000)
 
         return () => clearTimeout(timer)
-    }, [])
+    }, [playIntermission, isMuted])
 
     return (
         <div className="coffee-break-wrapper">

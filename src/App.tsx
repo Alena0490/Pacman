@@ -134,6 +134,8 @@ const App = () => {
   const { play: playSiren1, stop: stopSiren1 }  = useSound("sounds/Voicy_Ghost Siren sound.mp3", { loop: true })
   const { play: playSiren2, stop: stopSiren2 } = useSound("sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
   const { play: playGhostRetreat }  = useSound("sounds/ghost-retreat.mp3")
+  const { play: playIntermission } = useSound("/sounds/audio_intermission.mp3")
+
 
 // ===== FRUIT SYSTEM ===== //
 const [fruit, setFruit] = useState<Fruit>({
@@ -282,6 +284,7 @@ useEffect(() => {
   if (gameStatus !== 'playing' || isPacmanDying) {
     stopSiren1()
     stopSiren2()
+    stopFrightened() 
     return
   }
 
@@ -310,7 +313,19 @@ useEffect(() => {
     stopSiren1()
     stopSiren2()
   }
-}, [gameStatus, isFrightened, isPacmanDying, ghostBehavior, isMuted, playSiren1, playSiren2, stopSiren1, stopSiren2,isIntroPlaying])
+}, [
+  gameStatus, 
+  isFrightened, 
+  isPacmanDying, 
+  ghostBehavior, 
+  isMuted, 
+  playSiren1, 
+  playSiren2, 
+  stopSiren1, 
+  stopSiren2,
+  stopFrightened,
+  isIntroPlaying
+])
 
   // ===== PAC-MAN MOVEMENT LOGIC ===== //
   // Handles movement, collision detection, dot/fruit/pellet collection, and ghost interactions
@@ -446,6 +461,7 @@ useEffect(() => {
         setIsFrightened(false)
         setGhostsEatenCount(0) 
         setFrightenedTimeRemaining(0) 
+        stopFrightened()
       }, frightenedDuration)
 
       setFrightenedTimer(timer)
@@ -588,7 +604,8 @@ useEffect(() => {
     
     // Frightened mode
     setFrightenedTimeRemaining,
-    frightenedDuration
+    frightenedDuration,
+    stopFrightened
   ])
 
   // ===== FRIGHTENED TIMER CLEANUP ===== //
@@ -1058,7 +1075,10 @@ useEffect(() => {
   // ===== CUTSCENE STATE RENDER ===== //
   // Show cutscene after level 2
   if (gameStatus === 'cutscene') {
-    return <CoffeeBreak />
+    return <CoffeeBreak
+      isMuted={isMuted} 
+      playIntermission={playIntermission} 
+    />
   }
 
   // ===== GAME OVER STATE RENDER ===== //
