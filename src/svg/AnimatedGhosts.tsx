@@ -185,7 +185,7 @@ const AnimatedGhost = ({
         >
       {/* Ghost body - color determined by ghostIndex */}
       {ghostBodies[ghostIndex]}
-      
+
       {/* Left eye white background */}
       <ellipse cx="30.5" cy="42" rx="11.5" ry="16" fill="white"/>
       {/* Left pupil - follows direction */}

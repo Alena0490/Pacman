@@ -8,7 +8,7 @@ export type Ghost = {
   personality: 'random' | 'patrol' | 'nervous' | 'shy'
 }
 
-export type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won'
+export type GameStatus = 'ready' | 'playing' | 'gameOver' | 'won' | 'cutscene'
 
 export type GhostMode = 'chase' | 'scatter' | 'frightened' | 'eaten'
 

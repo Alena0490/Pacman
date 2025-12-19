@@ -1,0 +1,130 @@
+.coffee-break-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-dark);
+    z-index: 1000;
+}
+
+.coffee-break {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+/* Containers */
+.pacman-container,
+.ghost-container {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+}
+
+.pacman-container {
+    color: var(--pacman-color);
+    filter: drop-shadow(0 0 0.25rem var(--pacman-color-tr)) 
+            drop-shadow(0 0 0.75rem var(--pacman-color-tr));
+}
+
+/* Phase 1: Chase - Pac-Man runs right, Blinky follows */
+.pacman-container.chase {
+    animation: run-right-pacman 4s steps(240, end) forwards;
+}
+
+.ghost-container.chase {
+    width: 70px;
+    height: 70px;
+    animation: run-right-ghost 4s steps(240, end) forwards;
+    color: var(--ghost-red); 
+    filter: drop-shadow(0 0 0.25rem var(--ghost-red-tr)) 
+            drop-shadow(0 0 0.75rem var(--ghost-red-tr));
+}
+
+/* Phase 2: Reverse - Blinky runs left (frightened), Super Pac-Man chases */
+.ghost-container.reverse {
+  animation: run-left-ghost 3.7s steps(222, end) forwards; /* 3.7*60≈222 */
+}
+
+.pacman-container.reverse {
+  animation: run-left-pacman 4.3s steps(258, end) forwards; /* 4.3*60≈258 */
+}
+
+/* Super Pac-Man size */
+.pacman-container.large {
+    width: 200px;
+    height: 200px;
+}
+
+/* Frightened ghost color */
+.ghost-container.frightened {
+    color: var(--ghost-blue);
+    filter: drop-shadow(0 0 0.25rem var(--ghost-blue-tr)) 
+            drop-shadow(0 0 0.75rem var(--ghost-blue-tr));
+}
+
+/* ===== ANIMATIONS ===== */
+/* Phase 1 */
+@keyframes run-left-ghost {
+    0% { 
+        right: -100px; 
+        top: 50%;
+        transform: translateY(-50%) scaleX(-1);
+    }
+    100% { 
+        right: calc(100% + 50px);
+        top: 50%;
+        transform: translateY(-50%) scaleX(-1);
+    }
+}
+
+@keyframes run-left-pacman {
+    0% { 
+        right: -500px;
+        top: 50%;
+        transform: translateY(-50%) scaleX(-1);
+    }
+    100% { 
+        right: calc(100% + 200px);  /* +200px for pacman size */
+        top: 50%;
+        transform: translateY(-50%) scaleX(-1);
+    }
+}
+
+/* Phase 2 */
+@keyframes run-right-pacman {
+    0% { 
+        left: -100px; 
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    100% { 
+        left: calc(100% + 50px);
+        top: 50%;
+        transform: translateY(-50%);
+    }
+}
+
+@keyframes run-right-ghost {
+    0% { 
+        left: -500px; 
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    100% { 
+        left: calc(100% + 0px);
+        top: 50%;
+        transform: translateY(-50%);
+    }
+}
+
+
+
+
+
+

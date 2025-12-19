@@ -10,6 +10,7 @@ import StartScreen from "./components/StartScreen"
 import GameOver from "./components/GameOver"
 import WinScreen from "./components/WinScreen"
 import Lives from "./components/Lives"
+import CoffeeBreak from './components/CoffeeBreak'
 
 // ===== DATA & TYPES ===== //
 import { 
@@ -60,7 +61,7 @@ import "./App.css"
 
 const App = () => {
   // ===== CORE GAME STATE ===== //
-  const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
+  const [gameStatus, setGameStatus] = useState<GameStatus>('cutscene')
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
   const [nextExtraLifeAt, setNextExtraLifeAt] = useState(10000)
@@ -126,7 +127,7 @@ const App = () => {
   const { play: playWon }  = useSound("sounds/audio_victory.mp3")
   const { play: playStart }  = useSound("sounds/audio_opening_song.mp3")
   const { play: playEatGhost}  = useSound("sounds/audio_eatghost.mp3")
-  const { play: playFrightened }  = useSound("sounds/audio_intermission.mp3")
+  const { play: playFrightened , stop: stopFrightened}  = useSound("sounds/pac-man-ghost-scared-2.mp3")
   const { play: playEatPellet }  = useSound("sounds/audio_eatpill.mp3")
   const { play: playEatFruit }  = useSound("sounds/pacman_eatfruit.wav")
   const { play: playExtraLife }  = useSound("sounds/audio_extra lives.mp3")
@@ -170,6 +171,54 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
 
   // ===== LEVEL UP TRANSITION ===== //
   const levelUp = useCallback(() => {
+    if (level === 2) {
+    // Special cutscene for level 2
+    stopAllSounds()
+    setGameStatus('cutscene')
+    
+    // After cutscene (5s), continue to level 3
+    setTimeout(() => {
+      setLevel(3)
+      
+      // Play intro sequence
+      setIsIntroPlaying(true) 
+      playStart(isMuted)
+      setGameStatus('playing')
+      
+      // End intro after 4 seconds
+      setTimeout(() => {
+        setIsIntroPlaying(false)
+      }, 4000)
+   
+      // Respawn all collectibles
+      setDots(generateDotsFromMaze())
+      setPowerPellets(POWER_PELLET_POSITIONS)
+      
+      // Reset positions
+      setPacmanPosition(PACMAN_SPAWN)
+      setGhosts(GHOST_SPAWNS)
+      setEatenGhosts([])
+      
+      // Clear fruit
+      setFruit({ type: null, position: null, spawnTime: null })
+      
+      // Reset frightened mode
+      setIsFrightened(false)
+      if (frightenedTimer) clearTimeout(frightenedTimer)
+      setFrightenedTimer(null)
+      setGhostsEatenCount(0)
+      
+      // Show level up message
+      setFloatingScores([{
+        x: 7,
+        y: 7,
+        text: 'LEVEL 3!',
+        id: Date.now()
+      }])
+      
+      setTimeout(() => setFloatingScores([]), 2000)
+    }, 8000)  // 4s chase + 4s reverse
+  } else {
     // Increase level
     setLevel(prev => prev + 1)
     // Stop all current souds
@@ -212,7 +261,8 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     }])
     
   setTimeout(() => setFloatingScores([]), 2000)
-}, [frightenedTimer, playStart, isMuted]) 
+  }
+}, [frightenedTimer, playStart, isMuted, level]) 
 
 // ===== EXTRA LIFE SYSTEM ===== //
 // Award extra life every 10,000 points
@@ -1004,6 +1054,12 @@ useEffect(() => {
           </div>
       </main>
     ) }
+
+  // ===== CUTSCENE STATE RENDER ===== //
+  // Show cutscene after level 2
+  if (gameStatus === 'cutscene') {
+    return <CoffeeBreak />
+  }
 
   // ===== GAME OVER STATE RENDER ===== //
   if (gameStatus === 'gameOver') {
