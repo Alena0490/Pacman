@@ -61,7 +61,7 @@ import "./App.css"
 
 const App = () => {
   // ===== CORE GAME STATE ===== //
-  const [gameStatus, setGameStatus] = useState<GameStatus>('cutscene')
+  const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
   const [nextExtraLifeAt, setNextExtraLifeAt] = useState(10000)
@@ -173,7 +173,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
 
   // ===== LEVEL UP TRANSITION ===== //
   const levelUp = useCallback(() => {
-    if (level === 2) {
+    if (level === 1) {
     // Special cutscene for level 2
     stopAllSounds()
     setGameStatus('cutscene')
