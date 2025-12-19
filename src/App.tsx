@@ -127,14 +127,14 @@ const App = () => {
   const { play: playWon }  = useSound("sounds/audio_victory.mp3")
   const { play: playStart }  = useSound("sounds/audio_opening_song.mp3")
   const { play: playEatGhost}  = useSound("sounds/audio_eatghost.mp3")
-  const { play: playFrightened , stop: stopFrightened}  = useSound("sounds/pac-man-ghost-scared-2.mp3")
+  const  { play: playFrightened , stop: stopFrightened} = useSound("sounds/pac-man-ghost-scared-2.mp3")
   const { play: playEatPellet }  = useSound("sounds/audio_eatpill.mp3")
   const { play: playEatFruit }  = useSound("sounds/pacman_eatfruit.wav")
   const { play: playExtraLife }  = useSound("sounds/audio_extra lives.mp3")
   const { play: playSiren1, stop: stopSiren1 }  = useSound("sounds/Voicy_Ghost Siren sound.mp3", { loop: true })
   const { play: playSiren2, stop: stopSiren2 } = useSound("sounds/Voicy_Ghost Siren sound2.mp3", { loop: true })
   const { play: playGhostRetreat }  = useSound("sounds/ghost-retreat.mp3")
-  const { play: playIntermission } = useSound("/sounds/audio_intermission.mp3")
+  const { play: playIntermission } = useSound("sounds/audio_intermission.mp3")
 
 
 // ===== FRUIT SYSTEM ===== //
