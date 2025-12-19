@@ -127,7 +127,7 @@ const App = () => {
   const { play: playWon }  = useSound("sounds/audio_victory.mp3")
   const { play: playStart }  = useSound("sounds/audio_opening_song.mp3")
   const { play: playEatGhost}  = useSound("sounds/audio_eatghost.mp3")
-  const  { play: playFrightened , stop: stopFrightened} = useSound("sounds/pac-man-ghost-scared-2.mp3")
+  const  { play: playFrightened , stop: stopFrightened} = useSound("sounds/pac-man-ghost-scared-2.mp3", { loop: true })
   const { play: playEatPellet }  = useSound("sounds/audio_eatpill.mp3")
   const { play: playEatFruit }  = useSound("sounds/pacman_eatfruit.wav")
   const { play: playExtraLife }  = useSound("sounds/audio_extra lives.mp3")
@@ -180,7 +180,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
     
     // After cutscene (5s), continue to level 3
     setTimeout(() => {
-      setLevel(3)
+    setLevel(prev => prev + 1)
       
       // Play intro sequence
       setIsIntroPlaying(true) 
