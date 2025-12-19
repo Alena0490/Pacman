@@ -173,7 +173,7 @@ const spawnFruit = useCallback((fruitType: FruitType) => {
 
   // ===== LEVEL UP TRANSITION ===== //
   const levelUp = useCallback(() => {
-    if (level === 1) {
+    if (level === 2) {
     // Special cutscene for level 2
     stopAllSounds()
     setGameStatus('cutscene')
@@ -292,6 +292,7 @@ useEffect(() => {
   if (isFrightened) {
     stopSiren1()
     stopSiren2()
+    playFrightened(isMuted)
     return
   }
 
@@ -321,6 +322,7 @@ useEffect(() => {
   isMuted, 
   playSiren1, 
   playSiren2, 
+  playFrightened,
   stopSiren1, 
   stopSiren2,
   stopFrightened,
