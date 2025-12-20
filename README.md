@@ -197,13 +197,6 @@ Alena Pumprová
 
 ---
 
-## 🐛 Known Issues
-
-- Coffee break music may need audio trimming for seamless loop
-- Ghost house waiting period not implemented (ghosts respawn immediately)
-
----
-
 ## 🚀 Future Enhancements
 
 - [ ] Add touch controls for mobile devices
