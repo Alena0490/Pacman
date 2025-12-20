@@ -4,7 +4,7 @@ A classic Pac-Man arcade game recreation built with **React** and **TypeScript**
 
 [**🎮 Play Live Demo**](https://alena0490.github.io/Pacman/)
 
-![Pac-Man Game Mockup](./path-to-your-mockup-image.png)
+![Pac-Man Game Mockup](./standing-ipad-mockup.png)
 
 ---
 
