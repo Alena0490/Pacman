@@ -178,7 +178,6 @@ npm run deploy
 ### Inspiration
 
 - Original Pac-Man (1980) by Namco
-- Ghost AI behavior based on [Pac-Man Dossier](https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php)
 
 ---
 
@@ -194,13 +193,6 @@ Alena Pumprová
 
 - GitHub: [@alena0490](https://github.com/Alena0490)
 - LinkedIn: [Alena Pumprová](https://www.linkedin.com/in/alena-pumprova/)
-
----
-
-## 🐛 Known Issues
-
-- Coffee break music may need audio trimming for seamless loop
-- Ghost house waiting period not implemented (ghosts respawn immediately)
 
 ---
 

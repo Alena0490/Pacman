@@ -134,7 +134,7 @@ html {
 }
 
 body {
-  min-height: 100svh;
+  height: 100svh;
   font-family: "Emulogic", monospace;
   font-size: 1rem;
   line-height: 1.4;
